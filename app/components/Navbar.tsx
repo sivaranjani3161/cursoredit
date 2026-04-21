@@ -13,7 +13,7 @@ const pathname = usePathname();
   return (
     <header className="w-full bg-white mb-[8px] md:mb-[10px] mt-[8px] md:mt-[10px] sticky top-0 z-50">
 
-      <div className="max-w-[1200px] mx-auto flex items-center justify-between px-4 py-[12px] md:py-[14px]">
+      <div className="max-w-[1100px] lg:max-w-[1200px] mx-auto flex items-center justify-between px-4 py-[12px] md:py-[14px]">
 
 <Image
   src="/logo.png"
@@ -31,33 +31,58 @@ const pathname = usePathname();
 />
 
         {/* DESKTOP NAV */}
-        <nav className="hidden md:flex items-center gap-[20px] lg:gap-[28px]">
+     {/* DESKTOP + TABLET NAV */}
+{/* NAV */}
+<nav className="
+  hidden md:flex items-center
+  gap-[10px] lg:gap-[24px]
+  flex-1 justify-center
+">
 
-          {data.links.map((link, index) => (
-            <Link
-              key={index}
-              href={link.href}
-              className={`
-                text-[15px] lg:text-[16px] font-medium transition
-                ${
-pathname === link.href                    ? "text-[#00B8C6] border border-[#00B8C6] px-[12px] lg:px-[14px] py-[4px] lg:py-[5px] rounded-full"
-                    : "text-[#2E2E2E] hover:text-[#00B8C6]"
-                }
-              `}
-            >
-              {link.label}
-            </Link>
-          ))}
+  {data.links.map((link, index) => (
+    <Link
+      key={index}
+      href={link.href}
+      className={`
+        text-[13px] lg:text-[16px]
+        font-medium transition whitespace-nowrap
 
-        </nav>
+        ${
+          pathname === link.href
+            ? "text-[#00B8C6] border border-[#00B8C6] px-[8px] lg:px-[14px] py-[3px] lg:py-[5px] rounded-full"
+            : "text-[#2E2E2E] hover:text-[#00B8C6]"
+        }
+      `}
+    >
+      {link.label}
+    </Link>
+  ))}
 
-        {/* CTA */}
-        <Link
-          href={data.cta.href}
-          className="hidden md:inline-flex items-center justify-center bg-[#00B8C6] text-white px-[16px] lg:px-[20px] py-[7px] lg:py-[8px] rounded-full text-[14px] lg:text-[15px] font-medium"
-        >
-          {data.cta.label}
-        </Link>
+</nav>
+
+{/* CTA (ONLY LARGE SCREENS) */}
+<Link
+  href={data.cta.href}
+  className="
+    hidden md:inline-flex
+    items-center justify-center
+
+    bg-[#00B8C6] text-white
+
+    px-[18px]
+    py-[8px]
+
+    rounded-full
+    text-[15px]
+    font-medium
+  "
+>
+  {data.cta.label}
+</Link>
+
+
+
+    
 
         {/* MOBILE MENU BUTTON */}
        <button

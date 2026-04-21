@@ -1,0 +1,28 @@
+{
+  "features": [
+    {
+      "id": 1,
+      "icon": "/end.png",
+      "iconAlt": "End-to-End Development Icon",
+      "titleLine1": "End-to-End",
+      "titleLine2": "Development Expertise",
+      "description": "Complete coverage of both frontend and backend technologies for building robust web applications."
+    },
+    {
+      "id": 2,
+      "icon": "/problem.png",
+      "iconAlt": "Problem Solving Icon",
+      "titleLine1": "Problem-Solving",
+      "titleLine2": "Focus",
+      "description": "Integration of Data Structures and Algorithms (DSA) to strengthen logic-building and improve coding efficiency."
+    },
+    {
+      "id": 3,
+      "icon": "/real.png",
+      "iconAlt": "Real World Project Icon",
+      "titleLine1": "Real-World Project",
+      "titleLine2": "Training",
+      "description": "Hands-on experience with industry-level demo projects to simulate professional development environments."
+    }
+  ]
+}

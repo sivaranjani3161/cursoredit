@@ -1,0 +1,9 @@
+{
+  "hero": {
+    "image": "/Coursehero.png",
+    "imageAlt": "Full Stack Development Course Hero",
+    "titleNormal": "Full Stack Development ",
+    "titleBold": "Mastery",
+    "description": "Transform your coding skills with a job-ready curriculum designed to cover all aspects of Full Stack development. From foundational concepts to advanced deployment and placement support, this course is your gateway to becoming an industry-ready MERN Stack Developer."
+  }
+}
