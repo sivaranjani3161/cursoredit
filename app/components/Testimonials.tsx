@@ -106,15 +106,27 @@ function Card({ item }: any) {
       flex flex-col sm:flex-row justify-between gap-[12px]
     ">
       <div className="flex flex-col justify-center max-w-full sm:max-w-[440px] h-[120px] sm:h-[130px] overflow-hidden">
-        <Image src="/quote.png" alt="quote" width={18} height={18} />
-        <p className="text-[13px] sm:text-[14px] lg:text-[16px] line-clamp-5">
+<Image
+  src="/quote.png"
+  alt="quote"
+  width={18}
+  height={18}
+  className="w-[18px] h-[18px] shrink-0 mb-[4px]"
+/>        <p className="text-[13px] sm:text-[14px] lg:text-[16px] line-clamp-5">
           {item.text}
         </p>
       </div>
 
       <div className="flex flex-row sm:flex-col items-center gap-[10px]">
-        <Image src={item.avatar} alt="" width={40} height={40} className="rounded-full" />
-        <div className="text-center">
+<Image
+  src={item.avatar}
+  alt=""
+  width={40}
+  height={40}
+  style={{ width: "auto", height: "auto" }}
+  className="rounded-full"
+/>
+      <div className="text-center">
           <p className="text-[12px] font-semibold">{item.name}</p>
           <p className="text-[11px] text-[#666]">{item.role}</p>
         </div>

@@ -22,26 +22,27 @@ export default function Footer() {
 
           {/* LEFT */}
           <div>
-            <Image
-              src="/logo.png"
-              alt="logo"
-              width={260}
-              height={60}
-              className="mb-[16px] md:mb-[20px]"
-            />
-
+<Image
+  src="/logo.png"
+  alt="logo"
+  width={180}   // 🔥 match navbar
+  height={60}
+  style={{ width: "auto", height: "auto" }}
+  className="mb-[12px] md:mb-[20px] cursor-pointer"
+/>
             {/* TEXT FIX */}
             <p className="text-[14px] sm:text-[15px] md:text-[15px] lg:text-[17px] leading-[1.7] text-[#2E2E2E] font-medium max-w-[420px]">
               Finest Coder provides practical, hands-on training led by industry professionals actively engaged in real client projects. This approach ensures you learn skills that are not only current but also highly applicable in the real world
             </p>
 
             <div className="mt-[20px] md:mt-[24px]">
-              <Image
-                src="/social.png"
-                alt="social"
-                width={180}
-                height={40}
-              />
+             <Image
+  src="/social.png"
+  alt="social"
+  width={180}
+  height={40}
+  style={{ height: "auto" }}
+/>
             </div>
           </div>
 

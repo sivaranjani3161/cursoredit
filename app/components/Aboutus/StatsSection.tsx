@@ -44,18 +44,19 @@ export default function StatsSection() {
     active:shadow-lg
   "
 >
-  <Image
-    src={item.icon}
-    alt={item.title}
-    width={28}
-    height={28}
-    className="
-      object-contain
-      transition-transform duration-300 ease-out
-      group-hover:scale-110
-      active:scale-110
-    "
-  />
+ <Image
+  src={item.icon}
+  alt={item.title}
+  width={28}
+  height={28}
+  style={{ width: "auto", height: "auto" }}
+  className="
+    object-contain
+    transition-transform duration-300 ease-out
+    group-hover:scale-110
+    active:scale-110
+  "
+/>
 </div>
 
               {/* TEXT */}

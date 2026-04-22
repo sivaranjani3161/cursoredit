@@ -1,4 +1,3 @@
-import Navbar from "@/app/components/Navbar";
 import Hero from "@/app/components/Hero";
 import CoursesSection from "@/app/components/CoursesSection";
 import ApproachSection from "@/app/components/ApproachSection";
@@ -6,7 +5,6 @@ import WhyChooseUs from "./components/WhyChooseUs";
 import Testimonials from "./components/Testimonials";
 import VideoTestimonials from "./components/VideoTestimonials";
 import BlogSection from "./components/Blogs";
-import Footer from "./components/Footer";
 
 export default function Home() {
   return (

@@ -98,12 +98,13 @@ export default function BlogSection() {
                       transition: "box-shadow 0.4s ease",
                     }}
                   >
-                    <Image
-                      src={blog.image}
-                      alt=""
-                      fill
-                      className="object-cover transition-all duration-500 group-hover:scale-105"
-                    />
+                  <Image
+  src={blog.image}
+  alt=""
+  fill
+  sizes="(max-width: 768px) 100vw, 33vw"
+  className="object-cover transition-all duration-500 group-hover:scale-105"
+/>
                   </div>
 
                   {/* TEXT */}

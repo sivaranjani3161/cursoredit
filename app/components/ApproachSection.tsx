@@ -65,14 +65,14 @@ export default function ApproachSection() {
 
         {active === i && (
   <div className="w-[40px] flex items-center justify-center md:hidden">
-    <Image
-      src="/arrow-step.png"
-      alt="arrow"
-      width={18}
-      height={18}
-      style={{ width: "18px", height: "18px" }}
-    />
-  </div>
+<Image
+  src="/arrow-step.png"
+  alt="arrow"
+  width={16}
+  height={32}
+  className="w-[16px] sm:w-[18px] md:w-[20px] h-auto"
+/>
+</div>
 )}
 
               </div>
@@ -162,8 +162,13 @@ export default function ApproachSection() {
                 {/* ARROW */}
                 {i !== 0 && (
                   <div className="hidden md:block absolute left-[-20px] top-1/2 -translate-y-1/2">
-                    <Image src="/arrow-step.png" alt="" width={16} height={32} />
-                  </div>
+<Image
+  src="/arrow-step.png"
+  alt=""
+  width={16}
+  height={32}
+  className="w-[16px] lg:w-[18px] h-auto"
+/>               </div>
                 )}
 
                 <h3 className="text-[16px] md:text-[20px] lg:text-[24px] font-semibold text-[#2E2E2E]">

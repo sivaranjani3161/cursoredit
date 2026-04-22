@@ -17,9 +17,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${urbanist.variable} font-sans bg-[#FDFDFD] text-[#2E2E2E]`}>
         
-        <Navbar />     {/* ✅ GLOBAL */}
-        {children}     {/* your existing pages (UNCHANGED) */}
-        <Footer />     {/* optional */}
+        <Navbar />     
+        {children}    
+        <Footer />    
 
       </body>
     </html>

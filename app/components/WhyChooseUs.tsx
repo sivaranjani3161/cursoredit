@@ -50,8 +50,14 @@ export default function WhyChooseUs() {
 
               {/* ICON */}
               <div className="w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] md:w-[84px] md:h-[84px] bg-[#00B8C6] rounded-[10px] flex items-center justify-center shrink-0">
-                <Image src={item.icon} alt="" width={28} height={28} />
-              </div>
+  <Image
+    src={item.icon}
+    alt=""
+    width={28}
+    height={28}
+    style={{ width: "auto", height: "auto" }}
+  />
+</div>
 
               {/* TEXT */}
               <div className="flex flex-col">

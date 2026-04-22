@@ -18,14 +18,14 @@ const pathname = usePathname();
 <Image
   src="/logo.png"
   alt="logo"
-  width={0}
-  height={0}
+  width={180}          
+  height={60}          
   sizes="(max-width: 768px) 140px, 180px"
   priority
   onClick={() => window.location.reload()}
   className="
-    w-[140px] h-auto
-    md:w-[180px] md:h-auto
+    w-[140px] md:w-[180px]
+    h-auto
     cursor-pointer
   "
 />

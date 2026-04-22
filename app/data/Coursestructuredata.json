@@ -1,0 +1,47 @@
+{
+  "sectionTitle": {
+    "normal": "Course ",
+    "bold": "Structure"
+  },
+  "phases": [
+    {
+      "id": 1,
+      "icon": "/icon1.png",
+      "iconAlt": "Evaluation Icon",
+      "label": "Evaluation",
+      "phaseNormal": "Phase ",
+      "phaseBold": "1",
+      "points": [
+        "Assess your existing knowledge with coding challenges and quizzes.",
+        "Build a solid understanding of core programming concepts and problem-solving techniques.",
+        "Personalized feedback and mentoring to identify areas of improvement."
+      ]
+    },
+    {
+      "id": 2,
+      "icon": "/icon2.png",
+      "iconAlt": "Complete Training Icon",
+      "label": "Complete Training",
+      "phaseNormal": "Phase ",
+      "phaseBold": "2",
+      "points": [
+        "Strengthen your coding foundations with comprehensive DSA sessions.",
+        "Dive deep into React.js, Node.js, Express.js, and MongoDB to build full-stack applications.",
+        "Practice real-world scenarios through live coding and guided assignments."
+      ]
+    },
+    {
+      "id": 3,
+      "icon": "/icon3.png",
+      "iconAlt": "Hands-On Projects Icon",
+      "label": "Hands-On Projects & Placement Assistance",
+      "phaseNormal": "Phase ",
+      "phaseBold": "3",
+      "points": [
+        "Work on capstone projects such as an e-commerce app, social media platform, and blogging site.",
+        "Get interview-ready with practice sessions covering both technical and HR rounds.",
+        "Resume building, GitHub portfolio optimization, and access to our job board with hiring partners."
+      ]
+    }
+  ]
+}

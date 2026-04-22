@@ -11,13 +11,14 @@ export default function Hero() {
         {/* HERO TEXT */}
         <div className="relative bg-white/60 rounded-[16px] md:rounded-[20px] overflow-hidden pt-[60px] md:pt-[120px] pb-[80px] md:pb-[180px] flex items-center justify-center">
           
-        <Image
+  <Image
   src="/hero-bg.png"
   alt="bg"
   fill
   priority
+  loading="eager"
   sizes="100vw"
-  className="object-cover opacity-90"
+  className="object-cover"
 />
 
           <div className="relative z-10 flex flex-col items-center text-center px-2 justify-center">
