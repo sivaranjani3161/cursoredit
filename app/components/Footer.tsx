@@ -117,7 +117,7 @@ export default function Footer() {
 
  <p className="text-center md:text-left">
   Copyright © 2025 FinestCoder by Codingmart.
-  <br />
+ 
   All rights reserved.
 </p>
 
