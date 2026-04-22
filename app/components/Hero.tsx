@@ -6,10 +6,13 @@ import heroData from "@/app/data/hero.json";
 export default function Hero() {
   return (
     <section className="w-full bg-[#FDFDFD] pb-16 md:pb-20 overflow-hidden pt-[10px]">
-<div className="max-w-[1320px] mx-auto px-6 lg:px-8">
+<div className="max-w-[1180px] mx-auto px-6 lg:px-8">
         {/* HERO TEXT */}
-        <div className="relative bg-white/60 rounded-[16px] md:rounded-[20px] overflow-hidden pt-[60px] md:pt-[120px] pb-[80px] md:pb-[180px] flex items-center justify-center">
-          
+<div className="relative bg-white/60 rounded-[16px] md:rounded-[20px]
+overflow-hidden pt-[60px] md:pt-[120px]
+pb-[80px] md:pb-[180px]
+min-h-[400px] md:min-h-[520px]
+flex items-center justify-center">          
   <Image
   src="/hero-bg.png"
   alt="bg"

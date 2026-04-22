@@ -5,17 +5,17 @@ import { useState } from "react";
 import navData from "@/app/data/navbar.json";
 import type { NavbarData } from "@/app/types/navbar";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const data = navData as NavbarData;
-
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-
+const router = useRouter();
   return (
     <>
       <header className="w-full bg-white sticky top-0 z-50">
-<div className="max-w-[1320px] mx-auto px-6 lg:px-8 flex items-center justify-between h-[65px]">
+<div className="max-w-[1180px] mx-auto px-6 lg:px-8 flex items-center justify-between h-[65px]">
         
           <Image
             src="/logo.png"
@@ -24,8 +24,9 @@ export default function Navbar() {
             height={60}
             sizes="(max-width: 768px) 140px, (max-width: 1024px) 120px, 180px"
             priority
-            onClick={() => window.location.reload()}
-            className="w-[140px] md:w-[120px] lg:w-[180px] h-auto cursor-pointer shrink-0"
+onClick={() => router.push("/")}         
+style={{ height: "auto" }}
+className="w-[120px] md:w-[150px] lg:w-[180px] cursor-pointer shrink-0"   
           />
 
           {/* DESKTOP + TABLET NAV */}

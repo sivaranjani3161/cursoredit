@@ -20,30 +20,43 @@ export default function Footer() {
         {/* GRID FIX */}
         <div className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr_1fr] lg:grid-cols-[1.2fr_1fr_1fr] gap-[30px] md:gap-[40px] lg:gap-[60px]">
 
-          {/* LEFT */}
           <div>
-<Image
+<div className="mb-[12px] md:mb-[20px] cursor-pointer w-fit">
+ <img
   src="/logo.png"
   alt="logo"
-  width={180}   // 🔥 match navbar
+  width={180}
   height={60}
-  style={{ width: "auto", height: "auto" }}
   className="mb-[12px] md:mb-[20px] cursor-pointer"
 />
-            {/* TEXT FIX */}
+</div>       {/* TEXT FIX */}
             <p className="text-[14px] sm:text-[15px] md:text-[15px] lg:text-[17px] leading-[1.7] text-[#2E2E2E] font-medium max-w-[420px]">
               Finest Coder provides practical, hands-on training led by industry professionals actively engaged in real client projects. This approach ensures you learn skills that are not only current but also highly applicable in the real world
             </p>
 
-            <div className="mt-[20px] md:mt-[24px]">
-             <Image
-  src="/social.png"
-  alt="social"
-  width={180}
-  height={40}
-  style={{ height: "auto" }}
-/>
-            </div>
+          <div className="mt-[20px] md:mt-[24px] flex items-center gap-[14px]">
+
+  <a href="https://www.facebook.com/finestcoder/" target="_blank" rel="noopener noreferrer">
+    <Image src="/facebook.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
+  </a>
+
+  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+    <Image src="/tweet.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
+  </a>
+
+  <a href="https://www.instagram.com/finestcoder/" target="_blank" rel="noopener noreferrer">
+    <Image src="/insta.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
+  </a>
+
+  <a href="https://www.linkedin.com/company/finestcoder/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
+    <Image src="/linkedin.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
+  </a>
+
+  <a href="https://www.youtube.com/@wefinestcoder" target="_blank" rel="noopener noreferrer">
+    <Image src="/youtube.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
+  </a>
+
+</div>
           </div>
 
           {/* COURSES */}
