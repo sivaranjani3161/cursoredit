@@ -15,13 +15,8 @@ export default function Navbar() {
   return (
     <>
       <header className="w-full bg-white sticky top-0 z-50">
-        <div className="max-w-[1320px] mx-auto flex items-center justify-between px-4 sm:px-6 h-[65px]">
-
-          {/* LOGO
-              mobile:  140px
-              tablet:  120px  ← reduced so nav+CTA fit without overflow
-              desktop: 180px  ← original, unchanged
-          */}
+<div className="max-w-[1320px] mx-auto px-6 lg:px-8 flex items-center justify-between h-[65px]">
+        
           <Image
             src="/logo.png"
             alt="logo"

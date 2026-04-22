@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Map Tailwind's font-sans to Urbanist so the preloaded font is actually used */
+@theme {
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
+}
 
 :root {
   --background: #FDFDFD;
@@ -9,7 +13,7 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
-    font-family: var(--font-urbanist), sans-serif; 
+  font-family: var(--font-urbanist), sans-serif;
 }
 
 html, body {
@@ -30,6 +34,7 @@ main {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 @keyframes slideUp {
   from {
     transform: translateY(100px);

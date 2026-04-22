@@ -16,7 +16,8 @@ export default function CourseCard({ title, desc, image, tags }: Props) {
   return (
     <div
       className={`
-  group
+  groupgit log
+  
   overflow-hidden
   w-[260px] sm:w-[300px] md:w-[384px] shrink-0
   transition-all duration-300 ease-out

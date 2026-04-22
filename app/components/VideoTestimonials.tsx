@@ -10,11 +10,9 @@ const videos = [
   "/vid2.png",
 ];
 
-// Card slot sizes per breakpoint (must match Tailwind classes below)
-const CARD_HALF = { base: 130, sm: 170, md: 230 }; // half of 260 / 340 / 460
+const CARD_HALF = { base: 130, sm: 170, md: 230 };
 
 function getCardHalf(): number {
-  // Only called inside useEffect — safe, no SSR involvement
   if (window.innerWidth >= 768) return CARD_HALF.md;
   if (window.innerWidth >= 640) return CARD_HALF.sm;
   return CARD_HALF.base;
@@ -22,22 +20,22 @@ function getCardHalf(): number {
 
 export default function VideoTestimonials() {
   const containerRef = useRef<HTMLDivElement>(null);
-  // Start at index 1 so the second card is centred on load
   const activeRef    = useRef(1);
   const scrollingRef = useRef(false);
 
   const [active, _setActive] = useState(1);
+  const [padPx,  setPadPx]   = useState(0);
 
-  // Padding is set via state, only after mount (avoids SSR/client mismatch)
-  // SSR renders with 0 padding; after hydration useEffect sets correct value.
-  const [padPx, setPadPx] = useState(0);
+  // Controls whether scale/opacity transition is ON.
+  // Starts false so the initial paint has no animated flash.
+  // Turns true after first scroll-snap settles.
+  const [transitionReady, setTransitionReady] = useState(false);
 
   const setActive = (i: number) => {
     activeRef.current = i;
     _setActive(i);
   };
 
-  // ── Scroll card `index` to the visual centre ─────────────────────────────
   const scrollToCard = useCallback((index: number) => {
     const el = containerRef.current;
     if (!el || scrollingRef.current) return;
@@ -52,14 +50,11 @@ export default function VideoTestimonials() {
     setTimeout(() => { scrollingRef.current = false; }, 420);
   }, []);
 
-  // ── After mount: set padding, snap to card 1, add resize handler ─────────
+  // After mount: set padding, snap to card 1, enable transitions after settle
   useEffect(() => {
     const update = () => {
       const half = getCardHalf();
       setPadPx(half);
-
-      // Re-snap to current active after padding change
-      // Use rAF so the DOM has applied the new padding before we measure
       requestAnimationFrame(() => {
         const el = containerRef.current;
         if (!el) return;
@@ -71,46 +66,42 @@ export default function VideoTestimonials() {
       });
     };
 
-    update(); // initial
+    update();
     window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
+
+    // Enable transitions only after initial position is settled
+    // so there's no animated flash on first paint
+    const t = setTimeout(() => setTransitionReady(true), 50);
+
+    return () => {
+      window.removeEventListener("resize", update);
+      clearTimeout(t);
+    };
   }, []);
 
-  // ── Keep active + dots in sync with scroll position ──────────────────────
+  // Sync active card with scroll
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-
     const onScroll = () => {
       const cards = Array.from(el.children) as HTMLElement[];
       const viewCenter = el.scrollLeft + el.offsetWidth / 2;
       let closest = 0, minDist = Infinity;
       cards.forEach((card, i) => {
-        const dist = Math.abs(
-          card.offsetLeft + card.offsetWidth / 2 - viewCenter
-        );
+        const dist = Math.abs(card.offsetLeft + card.offsetWidth / 2 - viewCenter);
         if (dist < minDist) { minDist = dist; closest = i; }
       });
       setActive(closest);
     };
-
     el.addEventListener("scroll", onScroll, { passive: true });
     return () => el.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handlePrev = () => {
-    if (activeRef.current > 0) scrollToCard(activeRef.current - 1);
-  };
-  const handleNext = () => {
-    if (activeRef.current < videos.length - 1)
-      scrollToCard(activeRef.current + 1);
-  };
+  const handlePrev = () => { if (activeRef.current > 0) scrollToCard(activeRef.current - 1); };
+  const handleNext = () => { if (activeRef.current < videos.length - 1) scrollToCard(activeRef.current + 1); };
 
   const canPrev = active > 0;
   const canNext = active < videos.length - 1;
-
-  // padding value: 0 on server (SSR), correct px after client hydration
-  // Using `calc(50% - Xpx)` centres card[0] and card[N-1] perfectly
   const sidePad = padPx > 0 ? `calc(50% - ${padPx}px)` : "0px";
 
   return (
@@ -127,7 +118,6 @@ export default function VideoTestimonials() {
         </p>
       </div>
 
-      {/* Carousel wrapper — relative so buttons can be absolutely positioned */}
       <div className="relative mt-[30px] md:mt-[40px]">
 
         {/* LEFT BUTTON */}
@@ -136,8 +126,7 @@ export default function VideoTestimonials() {
           disabled={!canPrev}
           aria-label="Previous"
           className={[
-            "absolute left-3 sm:left-4 md:left-6",
-            "top-1/2 -translate-y-1/2 z-20",
+            "absolute left-3 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-20",
             "shrink-0 rounded-full flex items-center justify-center",
             "w-[36px] h-[36px] sm:w-[44px] sm:h-[44px] md:w-[52px] md:h-[52px]",
             "shadow-lg select-none transition-all duration-200",
@@ -158,8 +147,7 @@ export default function VideoTestimonials() {
           disabled={!canNext}
           aria-label="Next"
           className={[
-            "absolute right-3 sm:right-4 md:right-6",
-            "top-1/2 -translate-y-1/2 z-20",
+            "absolute right-3 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-20",
             "shrink-0 rounded-full flex items-center justify-center",
             "w-[36px] h-[36px] sm:w-[44px] sm:h-[44px] md:w-[52px] md:h-[52px]",
             "shadow-lg select-none transition-all duration-200",
@@ -177,23 +165,12 @@ export default function VideoTestimonials() {
         {/* Scrollable strip */}
         <div
           ref={containerRef}
-          className="
-            flex items-center
-            gap-[12px] sm:gap-[16px] md:gap-[20px]
-            overflow-x-auto snap-x snap-mandatory scroll-smooth
-          "
-          style={{
-            scrollbarWidth: "none",
-            // sidePad is "0px" on SSR → no mismatch; correct after hydration
-            paddingLeft:  sidePad,
-            paddingRight: sidePad,
-          }}
+          className="flex items-center gap-[12px] sm:gap-[16px] md:gap-[20px] overflow-x-auto snap-x snap-mandatory"
+          style={{ scrollbarWidth: "none", paddingLeft: sidePad, paddingRight: sidePad }}
         >
           {videos.map((video, i) => {
             const isActive = i === active;
             return (
-              // Outer: FIXED slot size — never changes → zero layout shift
-              // Inner: CSS scale transform for zoom — doesn't affect layout
               <div
                 key={i}
                 onClick={() => scrollToCard(i)}
@@ -208,19 +185,28 @@ export default function VideoTestimonials() {
                 <div
                   className={[
                     "w-full h-full rounded-[12px] overflow-hidden origin-center",
-                    "transition-all duration-300 ease-out",
+                    // Only add transition AFTER initial position is settled
+                    transitionReady ? "transition-all duration-300 ease-out" : "",
                     isActive
                       ? "scale-100 opacity-100 shadow-xl"
                       : "scale-[0.88] opacity-55",
                   ].join(" ")}
                 >
                   <div className="relative w-full h-full group">
+                    {/*
+                      Images are ALWAYS in the DOM (no mounted gate = no flicker).
+                      fetchPriority="low" tells the browser not to eagerly preload
+                      non-active images, eliminating the preload warnings.
+                      Only the active image gets fetchPriority="high".
+                    */}
                     <img
                       src={video}
                       alt={`Testimonial ${i + 1}`}
                       className="w-full h-full object-cover"
                       draggable={false}
                       loading={isActive ? "eager" : "lazy"}
+                      // @ts-ignore — fetchPriority is valid HTML but TS types lag behind
+                      fetchPriority={isActive ? "high" : "low"}
                       decoding="async"
                     />
                     {/* Play icon */}
@@ -250,7 +236,7 @@ export default function VideoTestimonials() {
 
       </div>
 
-      {/* Dots — always in sync with active */}
+      {/* Dots */}
       <div className="mt-[16px] md:mt-[20px] flex justify-center gap-[8px]">
         {videos.map((_, i) => (
           <button
