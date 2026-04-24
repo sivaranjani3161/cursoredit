@@ -5,7 +5,7 @@
     { "label": "About Us", "href": "/about" },
     { "label": "Courses", "href": "/courses" },
     { "label": "Gallery", "href": "/gallery" },
-    { "label": "Blogs", "href": "/blogs" },
+    { "label": "Blogs", "href": "/blog" },
     { "label": "Contact Us", "href": "/contact" }
   ],
   "cta": {
