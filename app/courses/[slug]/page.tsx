@@ -4,7 +4,6 @@ import CourseStructure from "@/app/components/Courses/Coursestructure";
 import KeyFeatures from "@/app/components/Courses/Keyfeatures";
 import EnrollCourse from "@/app/components/Courses/CourseEnroll";
 
-// Register all valid slugs for static generation
 export function generateStaticParams() {
   return [
     { slug: "full-stack-development" },
@@ -14,8 +13,6 @@ export function generateStaticParams() {
   ];
 }
 
-// Every slug renders the same components for now.
-// When you need unique content, switch on `params.slug` here.
 export default function CourseDetailPage({
   params,
 }: {

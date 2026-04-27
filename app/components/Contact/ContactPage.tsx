@@ -185,13 +185,10 @@ export default function ContactPage() {
         }
       `}</style>
 
-      {/* ── CONTACT SECTION ───────────────────────────────────────── */}
       <section className="w-full bg-[#FDFDFD] pt-[40px] md:pt-[60px] pb-0">
 
-        {/* Navbar-matching container */}
         <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
 
-          {/* HERO IMAGE — zoom on hover (desktop), fade-up (mobile) */}
           <div className="
             hero-zoom hero-section-animate
             relative w-full h-[180px] sm:h-[250px] md:h-[320px] lg:h-[358px]
@@ -200,14 +197,12 @@ export default function ContactPage() {
             <Image src={hero.image} alt="hero" fill sizes="100vw" className="object-cover" />
           </div>
 
-          {/* CARD + FORM — desktop: grid 2-col (UNTOUCHED) | mobile/tab: column via CSS classes */}
           <div className="
             mt-[40px]
             grid grid-cols-1 lg:grid-cols-2 gap-[40px] xl:gap-[60px] items-start
             contact-grid-tab contact-grid-mobile
           ">
 
-            {/* LEFT: gray contact card */}
             <div className="
               contact-card-animate contact-card-tab contact-card-mobile
               relative w-full
@@ -218,13 +213,11 @@ export default function ContactPage() {
               overflow-hidden
               shadow-[0_20px_50px_rgba(0,0,0,0.30)]
             ">
-              {/* Decorative circles */}
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute w-[260px] h-[260px] bg-white/10 rounded-full bottom-[-70px] right-[-50px]" />
                 <div className="absolute w-[160px] h-[160px] bg-white/5 rounded-full bottom-[30px] right-[90px]" />
               </div>
 
-              {/* Title + info wrapped so tablet can go horizontal */}
               <div className="card-info-tab relative z-10 flex flex-col gap-[32px]">
                 <h2 className="text-[28px] md:text-[32px] leading-[130%] font-medium">
                   Feel Free To <span className="font-bold">Contact</span>
@@ -299,7 +292,6 @@ export default function ContactPage() {
                   </div>
                 ))}
 
-                {/* SELECT with clean custom arrow */}
                 <div>
                   <div className="relative">
                     <select
@@ -381,7 +373,6 @@ export default function ContactPage() {
           </div>{/* /grid */}
         </div>{/* /container */}
 
-        {/* ── MAP — full page width, overlaps footer ── */}
 <div className="w-full mt-[50px] relative z-10 mb-[40px] md:mb-[-50px]">        
     <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
             <div className="w-full h-[220px] sm:h-[260px] md:h-[330px] lg:h-[300px] rounded-[14px] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.14)]">
@@ -398,7 +389,6 @@ export default function ContactPage() {
 
       </section>
 
-      {/* POPUP */}
       {popup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div

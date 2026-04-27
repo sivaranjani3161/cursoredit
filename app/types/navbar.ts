@@ -1,11 +1,16 @@
+export interface DropdownItem {
+  label: string;
+  href: string;
+  hasArrow?: boolean;
+}
+
 export interface NavLink {
   label: string;
   href: string;
-  active?: boolean;
+  dropdown?: DropdownItem[];
 }
 
 export interface NavbarData {
-  logo: string;
   links: NavLink[];
   cta: {
     label: string;
