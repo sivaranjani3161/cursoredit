@@ -382,7 +382,8 @@ export default function ContactPage() {
         </div>{/* /container */}
 
         {/* ── MAP — full page width, overlaps footer ── */}
-<div className="w-full mt-[50px] relative z-10 mb-[40px] md:mb-[-50px]">          <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
+<div className="w-full mt-[50px] relative z-10 mb-[40px] md:mb-[-50px]">        
+    <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
             <div className="w-full h-[220px] sm:h-[260px] md:h-[330px] lg:h-[300px] rounded-[14px] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.14)]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.448904904782!2d76.9458066!3d11.0049071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6fc7c10d73613283%3A0x6ace2fa2c7965662!2sFinest%20Coder!5e0!3m2!1sen!2sin!4v1776966689940!5m2!1sen!2sin"

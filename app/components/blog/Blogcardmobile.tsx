@@ -15,167 +15,46 @@ export default function BlogCardMobile({
   featured = false,
   compact = false,
 }: BlogCardMobileProps) {
-  // ── Compact variant: horizontal card with left thumbnail ──
+<div className="bg-red-500"> hi</div>
+  // ── COMPACT (horizontal) ──
   if (compact) {
-    return (
-      <Link
-        href={`/blog/${post.slug}`}
-        style={{ textDecoration: "none", display: "block" }}
-      >
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            alignItems: "flex-start",
-            backgroundColor: "#ffffff",
-            border: "1px solid #E5E7EB",
-            borderRadius: "12px",
-            overflow: "hidden",
-            padding: "12px",
-            transition: "box-shadow 0.2s",
-          }}
-        >
-          {/* Thumbnail */}
-          <div
-            style={{
-              position: "relative",
-              width: "88px",
-              height: "88px",
-              borderRadius: "8px",
-              overflow: "hidden",
-              flexShrink: 0,
-            }}
-          >
-            <Image
-              src={post.image}
-              alt={post.title}
-              fill
-              style={{ objectFit: "cover" }}
-            />
-          </div>
-          {/* Text */}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <span
-              style={{
-                display: "inline-block",
-                fontSize: "10px",
-                fontWeight: 500,
-                color: "#00BCD4",
-                border: "1.5px solid #00BCD4",
-                borderRadius: "999px",
-                padding: "2px 12px",
-                marginBottom: "8px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {post.date}
-            </span>
-            <p
-              style={{
-                fontSize: "13px",
-                fontWeight: 700,
-                color: "#111827",
-                lineHeight: 1.4,
-                display: "-webkit-box",
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: "vertical",
-                overflow: "hidden",
-                marginBottom: "8px",
-              }}
-            >
-              {post.title}
-            </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "5px",
-                fontSize: "12px",
-                fontWeight: 600,
-                color: "#00BCD4",
-              }}
-            >
-              Read More
-              <LongArrow />
-            </div>
-          </div>
-        </div>
-      </Link>
-    );
-  }
-
-  // ── Featured variant: tall card, large image, bigger text ──
-  if (featured) {
     return (
       <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block" }}>
         <div
           style={{
-            backgroundColor: "#ffffff",
-            borderRadius: "16px",
-            overflow: "hidden",
+            display: "flex",
+            gap: "12px",
+            padding: "16px",
             border: "1px solid #E5E7EB",
+            borderRadius: "12px",
+            background: "#fff",
+            alignItems: "center",
           }}
         >
-          <div style={{ position: "relative", width: "100%", height: "220px" }}>
-            <Image
-              src={post.image}
-              alt={post.title}
-              fill
-              style={{ objectFit: "cover" }}
-              priority
-            />
+          <div style={{ position: "relative", width: "88px", height: "88px", flexShrink: 0 }}>
+            <Image src={post.image} alt={post.title} fill style={{ objectFit: "cover", borderRadius: "8px" }} />
           </div>
-          <div style={{ padding: "18px" }}>
-            <span
-              style={{
-                display: "inline-block",
-                fontSize: "11px",
-                fontWeight: 500,
-                color: "#00BCD4",
-                border: "1.5px solid #00BCD4",
-                borderRadius: "999px",
-                padding: "4px 18px",
-                marginBottom: "12px",
-              }}
-            >
-              {post.date}
-            </span>
-            <h2
-              style={{
-                fontSize: "17px",
-                fontWeight: 700,
-                color: "#111827",
-                lineHeight: 1.4,
-                marginBottom: "10px",
-              }}
-            >
-              {post.title}
-            </h2>
+
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between", height: "88px" }}>
+            <span style={{ fontSize: "10px", color: "#00BCD4" }}>{post.date}</span>
+
             <p
               style={{
                 fontSize: "13px",
-                color: "#6B7280",
-                lineHeight: 1.65,
+                fontWeight: 700,
+                color: "#111827",
                 display: "-webkit-box",
-                WebkitLineClamp: 3,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
-                marginBottom: "14px",
+                minHeight: "34px",
               }}
             >
-              {post.excerpt}
+              {post.title}
             </p>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "13px",
-                fontWeight: 600,
-                color: "#00BCD4",
-              }}
-            >
-              Read More <LongArrow />
+
+            <div style={{ fontSize: "12px", color: "#00BCD4", fontWeight: 600 }}>
+              Read More →
             </div>
           </div>
         </div>
@@ -183,92 +62,105 @@ export default function BlogCardMobile({
     );
   }
 
-  // ── Default variant: standard card for horizontal scroll strip ──
-  return (
-    <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block", height: "100%" }}>
-      <div
-        style={{
-          backgroundColor: "#ffffff",
-          borderRadius: "14px",
-          overflow: "hidden",
-          border: "1px solid #E5E7EB",
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div style={{ position: "relative", width: "100%", height: "150px", flexShrink: 0 }}>
-          <Image src={post.image} alt={post.title} fill style={{ objectFit: "cover" }} />
-        </div>
-        <div style={{ padding: "14px", display: "flex", flexDirection: "column", flex: 1 }}>
-          <span
+  // ── FEATURED ──
+  if (featured) {
+    return (
+      <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block" }}>
+        <div style={{ border: "1px solid #E5E7EB", borderRadius: "16px", overflow: "hidden", background: "#fff" }}>
+          
+          <div style={{ position: "relative", height: "220px" }}>
+            <Image src={post.image} alt={post.title} fill style={{ objectFit: "cover" }} />
+          </div>
+
+          <div
             style={{
-              display: "inline-block",
-              fontSize: "10px",
-              fontWeight: 500,
-              color: "#00BCD4",
-              border: "1.5px solid #00BCD4",
-              borderRadius: "999px",
-              padding: "3px 14px",
-              marginBottom: "10px",
-              alignSelf: "flex-start",
+              padding: "16px",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              height: "160px", // ⭐ fixed height
             }}
           >
-            {post.date}
-          </span>
+            <span style={{ fontSize: "11px", color: "#00BCD4" }}>{post.date}</span>
+
+            <h2
+              style={{
+                fontSize: "15px",
+                fontWeight: 700,
+                color: "#111827",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                minHeight: "38px",
+              }}
+            >
+              {post.title}
+            </h2>
+
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#6B7280",
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                minHeight: "34px",
+              }}
+            >
+              {post.excerpt}
+            </p>
+
+            <div style={{ fontSize: "13px", fontWeight: 600, color: "#00BCD4" }}>
+              Read More →
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // ── DEFAULT ──
+  return (
+    <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block" }}>
+      <div style={{ border: "1px solid #E5E7EB", borderRadius: "14px", overflow: "hidden", background: "#fff" }}>
+        
+        <div style={{ position: "relative", height: "180px" }}>
+          <Image src={post.image} alt={post.title} fill style={{ objectFit: "cover" }} />
+        </div>
+
+        <div
+          style={{
+            padding: "16px",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            height: "130px", // ⭐ fixed height
+          }}
+        >
+          <span style={{ fontSize: "10px", color: "#00BCD4" }}>{post.date}</span>
+
           <p
             style={{
               fontSize: "13px",
               fontWeight: 700,
               color: "#111827",
-              lineHeight: 1.4,
-              marginBottom: "8px",
-              flex: 1,
               display: "-webkit-box",
-              WebkitLineClamp: 3,
+              WebkitLineClamp: 2,
               WebkitBoxOrient: "vertical",
               overflow: "hidden",
+              minHeight: "34px",
             }}
           >
             {post.title}
           </p>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "5px",
-              fontSize: "12px",
-              fontWeight: 600,
-              color: "#00BCD4",
-              marginTop: "auto",
-              paddingTop: "8px",
-            }}
-          >
-            Read More <LongArrow />
+
+          <div style={{ fontSize: "12px", fontWeight: 600, color: "#00BCD4" }}>
+            Read More →
           </div>
         </div>
       </div>
     </Link>
-  );
-}
-
-function LongArrow() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 36 12"
-      fill="none"
-      style={{ width: "34px", height: "11px", flexShrink: 0 }}
-    >
-      <line x1="0" y1="6" x2="28" y2="6" stroke="#00BCD4" strokeWidth="1.8" strokeLinecap="round" />
-      <polyline
-        points="22,1 28,6 22,11"
-        stroke="#00BCD4"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-      />
-    </svg>
   );
 }

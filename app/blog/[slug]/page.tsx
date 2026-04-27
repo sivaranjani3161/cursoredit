@@ -5,13 +5,9 @@ import { BlogDetail, BlogPost } from "@/app/types/blog";
 import RelatedCard from "@/app/components/blog/Relatedcard";
 import ParseteText from "@/app/components/blog/Parsetealtext";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
-
-// ── Data helpers ──────────────────────────────────────────────────────────────
 
 const allPosts = blogPostsData as BlogDetail[];
 
@@ -23,327 +19,171 @@ function getRelatedPosts(currentId: number): BlogPost[] {
   return allPosts.filter((p) => p.id !== currentId).slice(0, 5);
 }
 
-// ── Static params (SSG) ───────────────────────────────────────────────────────
-
 export async function generateStaticParams() {
   return allPosts.map((p) => ({ slug: p.slug }));
 }
 
-// ── Page ──────────────────────────────────────────────────────────────────────
-
 export default async function BlogDetailPage({ params }: PageProps) {
   const { slug } = await params;
   const post = getPost(slug);
-  if (!post) notFound();        // ← new  if (!post) notFound();
+  if (!post) notFound();
 
-  const related = getRelatedPosts(post.id);
+  const related = getRelatedPosts(post!.id);
 
   return (
-    <main style={{ backgroundColor: "#F9FAFB", minHeight: "100vh" }}>
+    <main className="bg-white min-h-screen">
 
-      {/* ── Hero Image: desktop ── */}
-      <div
-        className="hidden md:block"
-        style={{ maxWidth: "1200px", margin: "0 auto", padding: "32px 24px 0" }}
-      >
-        <div
-          style={{
-            position: "relative",
-            width: "100%",
-            height: "clamp(260px, 32vw, 380px)",
-            borderRadius: "16px",
-            overflow: "hidden",
-          }}
-        >
-          <Image
-            src={post.image}
-            alt={post.title}
-            fill
-            priority
-            style={{ objectFit: "cover", objectPosition: "center" }}
-          />
-        </div>
-      </div>
+      {/* ── Hero — exact same structure as Abouthero ── */}
+      <section className="bg-[#FDFDFD] pt-[40px] md:pt-[60px] px-4">
+        <div className="max-w-[1100px] mx-auto">
 
-      {/* ── Hero Image: mobile ── */}
-      <div
-        className="md:hidden"
-        style={{ position: "relative", width: "100%", height: "220px" }}
-      >
-        <Image
-          src={post.image}
-          alt={post.title}
-          fill
-          priority
-          style={{ objectFit: "cover", objectPosition: "center" }}
-        />
-      </div>
-
-      {/* ── Content + Sidebar grid ── */}
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          padding: "40px 24px 80px",
-          display: "grid",
-          gap: "40px",
-        }}
-        className="blog-detail-layout"
-      >
-        {/* ── LEFT: Article content ── */}
-        <article>
-          {/* Tags row */}
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap",
-              marginBottom: "20px",
-            }}
-          >
-            <TagPill label={post.date} />
-            {post.tags.map((tag) => (
-              <TagPill key={tag} label={tag} />
-            ))}
+          {/* Desktop */}
+          <div className="
+            hidden md:block group
+            w-full h-[260px] md:h-[320px] lg:h-[358px]
+            relative rounded-[12px] overflow-hidden
+            bg-white border border-[#EAEAEA]
+            shadow-[0_8px_30px_rgba(0,184,198,0.25)]
+          ">
+            <Image
+              src={post!.image}
+              alt={post!.title}
+              fill
+              priority
+              sizes="(max-width: 768px) 100vw, 1100px"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-[#00B8C6]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-xl" />
           </div>
 
-          {/* Title */}
-          <h1
-            style={{
-              fontSize: "clamp(22px, 3vw, 32px)",
-              fontWeight: 800,
-              color: "#111827",
-              lineHeight: 1.3,
-              marginBottom: "16px",
-            }}
-          >
-            <ParseteText text={post.title} />
-          </h1>
+          {/* Mobile */}
+          <div className="md:hidden relative w-full h-[200px] rounded-[10px] overflow-hidden">
+            <Image
+              src={post!.image}
+              alt={post!.title}
+              fill
+              priority
+              className="object-cover"
+            />
+          </div>
 
-          {/* Intro paragraph */}
-          <p
-            style={{
-              fontSize: "14px",
-              color: "#6B7280",
-              lineHeight: 1.8,
-              marginBottom: "36px",
-            }}
-          >
-            {post.intro}
-          </p>
+        </div>
+      </section>
 
-          {/* Dynamic sections */}
-          {post.sections.map((section, i) => {
-            switch (section.type) {
-              case "heading2":
-                return (
-                  <h2
-                    key={i}
-                    style={{
-                      fontSize: "clamp(18px, 2.2vw, 24px)",
-                      fontWeight: 700,
-                      color: "#111827",
-                      lineHeight: 1.35,
-                      marginTop: "36px",
-                      marginBottom: "14px",
-                    }}
-                  >
-                    <ParseteText text={section.text!} />
-                  </h2>
-                );
+      {/* ── Content + Sidebar — same max-width and px-4 as hero ── */}
+      <section className="px-4 pb-20">
+        <div
+          className="max-w-[1100px] mx-auto blog-detail-layout"
+          style={{ paddingTop: "40px", display: "grid", gap: "40px" }}
+        >
 
-              case "heading3":
-                return (
-                  <h3
-                    key={i}
-                    style={{
-                      fontSize: "16px",
-                      fontWeight: 700,
-                      color: "#111827",
-                      marginTop: "24px",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <ParseteText text={section.text!} />
-                  </h3>
-                );
+          {/* ── LEFT: Article ── */}
+          <article>
+            {/* Tags */}
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginBottom: "24px" }}>
+              <TagPill label={post!.date} />
+              {post!.tags.map((tag) => (
+                <TagPill key={tag} label={tag} />
+              ))}
+            </div>
 
-              case "paragraph":
-                return (
-                  <p
-                    key={i}
-                    style={{
-                      fontSize: "14px",
-                      color: "#374151",
-                      lineHeight: 1.85,
-                      marginBottom: "16px",
-                    }}
-                  >
-                    {section.text}
-                  </p>
-                );
+            {/* H1 */}
+            <h1 style={{ fontSize: "clamp(26px, 3.2vw, 36px)", fontWeight: 800, color: "#111827", lineHeight: 1.25, marginBottom: "18px" }}>
+              <ParseteText text={post!.title} />
+            </h1>
 
-              case "bulletList":
-                return (
-                  <ul
-                    key={i}
-                    style={{
-                      paddingLeft: "20px",
-                      marginBottom: "16px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "8px",
-                    }}
-                  >
-                    {section.items!.map((item, j) => (
-                      <li
-                        key={j}
-                        style={{
-                          fontSize: "14px",
-                          color: "#374151",
-                          lineHeight: 1.7,
-                        }}
-                      >
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                );
+            {/* Intro */}
+            <p style={{ fontSize: "16px", color: "#6B7280", lineHeight: 1.85, marginBottom: "40px" }}>
+              {post!.intro}
+            </p>
 
-              case "proTip":
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      backgroundColor: "#E0F7FA",
-                      borderRadius: "10px",
-                      padding: "18px 22px",
-                      marginTop: "24px",
-                      marginBottom: "24px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        display: "inline-block",
-                        backgroundColor: "#00BCD4",
-                        color: "#fff",
-                        fontWeight: 700,
-                        fontSize: "12px",
-                        borderRadius: "6px",
-                        padding: "3px 10px",
-                        marginBottom: "10px",
-                        letterSpacing: "0.04em",
-                      }}
-                    >
-                      ProTip!
-                    </span>
-                    <p
-                      style={{
-                        fontSize: "13px",
-                        color: "#0E7490",
-                        lineHeight: 1.75,
-                        margin: 0,
-                      }}
-                    >
-                      {section.tip}
+            {/* Sections */}
+            {post!.sections.map((section, i) => {
+              switch (section.type) {
+                case "heading2":
+                  return (
+                    <h2 key={i} style={{ fontSize: "clamp(20px, 2.4vw, 26px)", fontWeight: 700, color: "#111827", lineHeight: 1.3, marginTop: "44px", marginBottom: "16px" }}>
+                      <ParseteText text={section.text!} />
+                    </h2>
+                  );
+                case "heading3":
+                  return (
+                    <h3 key={i} style={{ fontSize: "18px", fontWeight: 700, color: "#111827", marginTop: "28px", marginBottom: "12px" }}>
+                      <ParseteText text={section.text!} />
+                    </h3>
+                  );
+                case "paragraph":
+                  return (
+                    <p key={i} style={{ fontSize: "16px", color: "#374151", lineHeight: 1.9, marginBottom: "18px" }}>
+                      {section.text}
                     </p>
-                  </div>
-                );
-
-              case "subSection":
-                return (
-                  <div key={i} style={{ marginBottom: "16px" }}>
-                    <p
-                      style={{
-                        fontSize: "14px",
-                        fontWeight: 700,
-                        color: "#111827",
-                        marginBottom: "8px",
-                      }}
-                    >
-                      {section.label}
-                    </p>
-                    <ul
-                      style={{
-                        paddingLeft: "20px",
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "6px",
-                      }}
-                    >
+                  );
+                case "bulletList":
+                  return (
+                    <ul key={i} style={{ paddingLeft: "22px", marginBottom: "18px", display: "flex", flexDirection: "column", gap: "10px" }}>
                       {section.items!.map((item, j) => (
-                        <li
-                          key={j}
-                          style={{
-                            fontSize: "14px",
-                            color: "#374151",
-                            lineHeight: 1.7,
-                          }}
-                        >
-                          {item}
-                        </li>
+                        <li key={j} style={{ fontSize: "16px", color: "#374151", lineHeight: 1.75 }}>{item}</li>
                       ))}
                     </ul>
-                  </div>
-                );
+                  );
+                case "proTip":
+                  return (
+                    <div key={i} style={{ backgroundColor: "#E0F7FA", borderRadius: "12px", padding: "20px 24px", marginTop: "28px", marginBottom: "28px" }}>
+                      <span style={{ display: "inline-block", backgroundColor: "#00BCD4", color: "#fff", fontWeight: 700, fontSize: "12px", borderRadius: "6px", padding: "4px 12px", marginBottom: "12px", letterSpacing: "0.05em" }}>
+                        ProTip!
+                      </span>
+                      <p style={{ fontSize: "15px", color: "#0E7490", lineHeight: 1.8, margin: 0 }}>
+                        {section.tip}
+                      </p>
+                    </div>
+                  );
+                case "subSection":
+                  return (
+                    <div key={i} style={{ marginBottom: "18px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: 700, color: "#111827", marginBottom: "10px" }}>{section.label}</p>
+                      <ul style={{ paddingLeft: "22px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {section.items!.map((item, j) => (
+                          <li key={j} style={{ fontSize: "16px", color: "#374151", lineHeight: 1.75 }}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                default:
+                  return null;
+              }
+            })}
+          </article>
 
-              default:
-                return null;
-            }
-          })}
-        </article>
+          {/* ── RIGHT: Related Resources ── */}
+          <aside>
+            <div style={{ backgroundColor: "#F3F4F6", borderRadius: "16px", padding: "24px 20px", position: "sticky", top: "100px" }}>
+              <h3 style={{ fontSize: "18px", fontWeight: 700, color: "#111827", marginBottom: "20px" }}>
+                Related Resources
+              </h3>
+              <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                {related.map((r) => (
+                  <RelatedCard key={r.id} post={r} />
+                ))}
+              </div>
+            </div>
+          </aside>
 
-        {/* ── RIGHT: Related Resources sidebar ── */}
-        <aside>
-          <h3
-            style={{
-              fontSize: "18px",
-              fontWeight: 700,
-              color: "#111827",
-              marginBottom: "20px",
-            }}
-          >
-            Related Resources
-          </h3>
-          <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-            {related.map((r) => (
-              <RelatedCard key={r.id} post={r} />
-            ))}
-          </div>
-        </aside>
-      </div>
+        </div>
+      </section>
 
-      {/* ── Layout styles ── */}
       <style>{`
-        .blog-detail-layout {
-          grid-template-columns: 1fr 340px;
-        }
+        .blog-detail-layout { grid-template-columns: 1fr 340px; }
         @media (max-width: 900px) {
-          .blog-detail-layout {
-            grid-template-columns: 1fr !important;
-          }
+          .blog-detail-layout { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </main>
   );
 }
 
-// ── Tag pill sub-component ────────────────────────────────────────────────────
-
 function TagPill({ label }: { label: string }) {
   return (
-    <span
-      style={{
-        display: "inline-block",
-        fontSize: "12px",
-        fontWeight: 500,
-        color: "#00BCD4",
-        border: "1.5px solid #00BCD4",
-        borderRadius: "999px",
-        padding: "4px 18px",
-        whiteSpace: "nowrap",
-      }}
-    >
+    <span style={{ display: "inline-block", fontSize: "12px", fontWeight: 500, color: "#00BCD4", border: "1.5px solid #00BCD4", borderRadius: "999px", padding: "4px 18px", whiteSpace: "nowrap" }}>
       {label}
     </span>
   );

@@ -58,7 +58,7 @@ export default function BlogCard({ post }: BlogCardProps) {
             display: "flex",
             flexDirection: "column",
             flex: 1,
-            padding: "20px",
+            padding: "16px",
           }}
         >
           {/* Date badge */}

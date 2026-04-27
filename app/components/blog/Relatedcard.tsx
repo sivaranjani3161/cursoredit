@@ -8,22 +8,18 @@ interface RelatedCardProps {
 
 export default function RelatedCard({ post }: RelatedCardProps) {
   return (
-    <Link
-      href={`/blog/${post.slug}`}
-      style={{ textDecoration: "none", display: "block" }}
-    >
+    <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block" }}>
       <div
         style={{
-          border: "1px solid #E5E7EB",
           borderRadius: "12px",
           overflow: "hidden",
-          backgroundColor: "#fff",
+          backgroundColor: "#ffffff",
           transition: "box-shadow 0.2s",
         }}
         className="hover:shadow-md group"
       >
         {/* Thumbnail */}
-        <div style={{ position: "relative", width: "100%", height: "160px" }}>
+        <div style={{ position: "relative", width: "100%", height: "150px" }}>
           <Image
             src={post.image}
             alt={post.title}

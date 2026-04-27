@@ -16,7 +16,7 @@
       },
       {
         "type": "paragraph",
-        "text": "The software development landscape is quietly undergoing a major shift: Developers are no longer working alone—they're increasingly collaborating with intelligent systems that can understand intent, suggest improvements, write functional code, and even debug in real time. Today, coding isn't just about syntax and logic; it's about effectively working alongside AI-powered tools that are transforming the way software is written, reviewed, and deployed. Whether you're just getting started or already building real-world applications, understanding this new paradigm is essential. In this article, we'll explore how cutting-edge tools like Cursor, Cline, Windsurf, and agent-based AI systems are revolutionizing daily development workflows and what steps you can take to thrive in this new AI-augmented era."
+        "text": "The software development landscape is quietly undergoing a major shift. Developers are no longer working alone—they’re increasingly collaborating with intelligent systems that can understand intent, suggest improvements, write functional code, and even debug in real time.Today, coding isn’t just about syntax and logic; it’s about effectively working alongside AI-powered tools that are transforming the way software is written, reviewed, and deployed. Whether you’re just getting started or already building real-world applications, understanding this new paradigm is essential. In this article, we’ll explore how cutting-edge tools like Cursor, Cline, Windsurf, and agent-based AI systems are revolutionizing daily development workflows and what steps you can take to thrive in this new AI-augmented era."
       },
       {
         "type": "heading2",
@@ -24,16 +24,9 @@
       },
       {
         "type": "paragraph",
-        "text": "Modern tools like Cursor are transforming the development experience. Unlike traditional editors, Cursor brings in an AI-powered assistant that understands your project context, suggests code, and even responds to queries about the codebase — all within the same window."
+        "text": "Modern tools like Cursor are transforming the development experience. Unlike traditional editors, Cursor brings in an AI-powered assistant that understands your project context, suggests code, and even responds to queries about the codebase — all within the same window.Another rising tool, Cline, simplifies your command-line interactions. Instead of remembering long flags or writing scripts from scratch, you describe your goal, and Cline figures out the rest.These innovations don’t just save time—they eliminate repetitive, low-value tasks and free developers to focus on high-impact work like logic, architecture, and problem-solving."
       },
-      {
-        "type": "paragraph",
-        "text": "Another rising tool, Cline, simplifies your command-line interactions. Instead of remembering long flags or writing scripts from scratch, you describe your goal, and Cline figures out the rest."
-      },
-      {
-        "type": "paragraph",
-        "text": "These innovations don't just save time—they eliminate repetitive, low-value tasks and free developers to focus on high-impact work like logic, architecture, and problem-solving."
-      },
+   
       {
         "type": "proTip",
         "tip": "Start building your projects in Cursor. You'll notice faster iterations and less context-switching, especially when working on large codebases."
@@ -237,7 +230,7 @@
     "date": "May 7, 2025",
     "title": "Building a Startup with Zero Investment: A Guide for Students",
     "excerpt": "Starting a business while juggling classes, assignments, and exams might sound like an impossible task. Add zero investment to the equation, and it feels even more daunting. But here's the truth: the best time to start is now.",
-    "image": "/blog3.png",
+    "image": "/startup.png",
     "category": "Startup",
     "tags": ["Startup", "Students", "Entrepreneurship"],
     "intro": "Starting a business while juggling classes, assignments, and exams might sound like an impossible task. Add zero investment to the equation, and it feels even more daunting. But here's the truth: the best time to start is now.",
@@ -304,7 +297,7 @@
     "date": "May 4, 2025",
     "title": "From Logic to Code: Building a Problem-Solving Mindset",
     "excerpt": "AI is no longer just a tool for automation — it's becoming a collaborator in the coding process. It's redefining how developers write, review, and ship code. Here's how you can stay ahead.",
-    "image": "/blog4.png",
+    "image": "/logic.png",
     "category": "Learning",
     "tags": ["DSA", "Problem Solving", "Coding"],
     "intro": "The ability to think logically before writing a single line of code is what separates good developers from great ones. Let's explore how to build this mindset from the ground up.",
@@ -366,7 +359,7 @@
     "date": "Feb 21, 2025",
     "title": "How to Handle Tight Deadlines Without Burning Out",
     "excerpt": "In the demanding world of software development, tight deadlines are often unavoidable. While delivering projects on time is essential, it's equally important to preserve your mental and physical well-being.",
-    "image": "/blog5.png",
+    "image": "/discuss.png",
     "category": "Productivity",
     "tags": ["Productivity", "Mental Health", "Work-Life Balance"],
     "intro": "In the demanding world of software development, tight deadlines are often unavoidable. While delivering projects on time is essential, it's equally important to preserve your mental and physical well-being.",
@@ -428,7 +421,7 @@
     "date": "Feb 3, 2025",
     "title": "Continuous Learning: What It Is & Why It's Important",
     "excerpt": "Learning never stops. That's not a cliché—it's reality. The world keeps moving, industries shift, and new ideas emerge daily. Staying sharp means committing to growth beyond the classroom.",
-    "image": "/blog6.png",
+    "image": "/idea.png",
     "category": "Career",
     "tags": ["Career", "Learning", "Growth"],
     "intro": "Learning never stops. That's not a cliché—it's reality. The world keeps moving, industries shift, and new ideas emerge daily. Staying sharp means committing to growth beyond the classroom.",
