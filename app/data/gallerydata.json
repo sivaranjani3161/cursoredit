@@ -1,0 +1,47 @@
+[
+  {
+    "id": "ramco",
+    "title": "Workshop & Campus Drive",
+    "subtitle": "@Ramco Institute of Technology",
+   "image": "/ramcocover.png",
+    "backImage1": "/gal1.png",
+    "backImage2": "/gal2.png" },
+  {
+    "id": "kalaignar",
+    "title": "Workshop & Campus Drive",
+    "subtitle": "@KalaignarKarunanidhi Institute Of Technology",
+   "image": "kalaignarcover.png",
+    "backImage1": "gal3.png",
+    "backImage2": "/gal4.png"  
+  },
+  {
+    "id": "jai_shriram",
+    "title": "Workshop & Campus Drive",
+    "subtitle": "@Jai Shriram Engineering College",
+   "image": "sri5.png",
+    "backImage1": "/gal5.png",
+    "backImage2": "/gal6.png"
+  },
+  {
+    "id": "psr",
+    "title": "Workshop & Campus Drive",
+    "subtitle": "@PSR Engineering College",
+   "image": "/psrcover.png",
+    "backImage1": "/gal7.png",
+    "backImage2": "/gal1.png"  },
+  {
+    "id": "velalar",
+    "title": "Campus Drive",
+    "subtitle": "@Velalar College of Engineering and Technology",
+   "image": "/velalarcover.png",
+    "backImage1": "/gal2.png",
+    "backImage2": "/gal5.png"  },
+  {
+    "id": "hindusthan",
+    "title": "Workshop & Campus Drive",
+    "subtitle": "@Hindusthan College of Engineering and Technology",
+   "image": "/hindustancover.png",
+    "backImage1": "/gal6.png",
+    "backImage2": "/gal3.png"
+   }
+]

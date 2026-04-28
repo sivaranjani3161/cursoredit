@@ -1,0 +1,29 @@
+{
+  "id": "kalaignar",
+  "title": "Workshop & Campus Drive",
+  "highlight": "@KalaignarKarunanidhi Institute Of Technology",
+
+  "carousel": [
+    "/kit1.png",
+    "/kit2.png",
+    "/kit3.png"
+  ],
+
+  "collage": [
+    
+    "/kit3.png",
+    "/kit4.png",
+
+     "/kit1.png",
+             "/kit2.png",
+
+    "/kit5.png",
+       
+
+    "/kit6.png"
+
+
+
+    
+  ]
+}

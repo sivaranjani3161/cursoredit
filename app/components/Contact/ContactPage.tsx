@@ -56,34 +56,30 @@ export default function ContactPage() {
 
   return (
     <>
-      {/* ── ANIMATIONS (injected once, CSS-only, zero JS overhead) ── */}
+      {/*
+        Only the keyframe animation definitions are kept here — these cannot be
+        expressed with Tailwind utility classes alone. All layout, spacing,
+        color, and responsive styles below use Tailwind classes exclusively.
+      */}
       <style>{`
-        /* Fade-up for section entry */
         @keyframes fadeUp {
           from { opacity: 0; transform: translateY(28px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        /* Subtle pulse ring on the teal dots */
         @keyframes dotPulse {
           0%,100% { box-shadow: 0 0 0 0 rgba(0,184,198,0.5); }
           50%      { box-shadow: 0 0 0 6px rgba(0,184,198,0); }
         }
-        /* Shimmer sweep on the card (mobile only) */
-        @keyframes shimmer {
-          0%   { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        /* Slide-in from left for card (mobile) */
         @keyframes slideInLeft {
           from { opacity: 0; transform: translateX(-30px); }
           to   { opacity: 1; transform: translateX(0); }
         }
-        /* Slide-in from right for form (mobile) */
         @keyframes slideInRight {
           from { opacity: 0; transform: translateX(30px); }
           to   { opacity: 1; transform: translateX(0); }
         }
-        /* Hero zoom on hover — desktop only */
+
+        /* Hero zoom — desktop hover */
         .hero-zoom img {
           transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94) !important;
         }
@@ -91,135 +87,56 @@ export default function ContactPage() {
           transform: scale(1.04) !important;
         }
 
-        /* ── MOBILE / TABLET ANIMATIONS ── */
+        /* Apply keyframe animations on mobile/tablet only */
         @media (max-width: 1023px) {
-          .contact-card-animate {
-            animation: slideInLeft 0.6s ease both;
-            animation-delay: 0.1s;
-          }
-          .contact-form-animate {
-            animation: slideInRight 0.6s ease both;
-            animation-delay: 0.25s;
-          }
-          .hero-section-animate {
-            animation: fadeUp 0.55s ease both;
-          }
-          .map-animate {
-            animation: fadeUp 0.6s ease both;
-            animation-delay: 0.35s;
-          }
-          /* Teal dot pulse on mobile */
-          .teal-dot {
-            animation: dotPulse 2s ease-in-out infinite;
-          }
-          /* Input focus lift on mobile */
-          .mobile-input:focus {
-            transform: translateY(-1px);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-          }
-          /* Button tap bounce */
-          .submit-btn:active {
-            transform: scale(0.96);
-            transition: transform 0.1s ease;
-          }
-          /* Social icon hover pop */
-          .social-icon:hover {
-            transform: scale(1.18);
-            transition: transform 0.2s ease;
-          }
-        }
-
-        /* Tab (md 768-1023) — stack card above form, full width each */
-        @media (min-width: 768px) and (max-width: 1023px) {
-          .contact-grid-tab {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 32px !important;
-          }
-          .contact-card-tab {
-            width: 100% !important;
-            max-width: 100% !important;
-            min-height: 280px !important;
-            /* Horizontal layout on tablet */
-            flex-direction: row !important;
-            align-items: flex-start !important;
-            gap: 40px !important;
-            padding: 36px 40px !important;
-          }
-          .card-info-tab {
-            flex: 1;
-          }
-          .card-socials-tab {
-            margin-top: 0 !important;
-            align-self: flex-end !important;
-          }
-          .contact-form-tab {
-            width: 100% !important;
-          }
-        }
-
-        /* Mobile (<768px) — card becomes compact info strip */
-        @media (max-width: 767px) {
-          .contact-grid-mobile {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 20px !important;
-          }
-          .contact-card-mobile {
-            width: 100% !important;
-            min-height: unset !important;
-            padding: 28px 24px !important;
-            gap: 20px !important;
-          }
-          .contact-card-mobile h2 {
-            font-size: 22px !important;
-            line-height: 130% !important;
-          }
-          .contact-form-mobile {
-            width: 100% !important;
-          }
-          /* Tighter spacing for mobile inputs */
-          .mobile-field-gap {
-            gap: 10px !important;
-          }
+          .contact-card-animate  { animation: slideInLeft  0.6s ease both 0.10s; }
+          .contact-form-animate  { animation: slideInRight 0.6s ease both 0.25s; }
+          .hero-section-animate  { animation: fadeUp       0.55s ease both; }
+          .map-animate           { animation: fadeUp       0.6s  ease both 0.35s; }
+          .teal-dot              { animation: dotPulse     2s ease-in-out infinite; }
+          .mobile-input:focus    { transform: translateY(-1px); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+          .submit-btn:active     { transform: scale(0.96); transition: transform 0.1s ease; }
+          .social-icon:hover     { transform: scale(1.18); transition: transform 0.2s ease; }
         }
       `}</style>
 
-      <section className="w-full bg-[#FDFDFD] pt-[40px] md:pt-[60px] pb-0">
+      {/* ── PAGE WRAPPER ── */}
+      <section className="w-full bg-[#FDFDFD] pt-10 md:pt-[60px] pb-0">
 
         <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
 
-          <div className="
-            hero-zoom hero-section-animate
-            relative w-full h-[180px] sm:h-[250px] md:h-[320px] lg:h-[358px]
-            rounded-[12px] overflow-hidden
-          ">
+          {/* HERO IMAGE */}
+          <div className="hero-zoom hero-section-animate relative w-full h-[180px] sm:h-[250px] md:h-[320px] lg:h-[358px] rounded-xl overflow-hidden   shadow-[0_8px_30px_rgba(0,184,198,0.25)]
+">
             <Image src={hero.image} alt="hero" fill sizes="100vw" className="object-cover" />
           </div>
 
-          <div className="
-            mt-[40px]
-            grid grid-cols-1 lg:grid-cols-2 gap-[40px] xl:gap-[60px] items-start
-            contact-grid-tab contact-grid-mobile
-          ">
+          {/* CONTENT GRID */}
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-[60px] items-start">
 
-            <div className="
-              contact-card-animate contact-card-tab contact-card-mobile
-              relative w-full
-              min-h-[460px]
-              bg-[#5A5A5A] text-white rounded-[12px]
-              px-[40px] py-[44px]
-              flex flex-col gap-[32px]
-              overflow-hidden
-              shadow-[0_20px_50px_rgba(0,0,0,0.30)]
-            ">
+            {/* LEFT: INFO CARD */}
+            <div
+              className="
+                contact-card-animate
+                relative w-full min-h-[460px]
+                bg-[#5A5A5A] text-white rounded-xl
+                px-10 py-11
+                flex flex-col gap-8
+                overflow-hidden
+                shadow-[0_20px_50px_rgba(0,0,0,0.30)]
+                max-lg:min-h-0 max-lg:flex-row max-lg:items-start max-lg:gap-10
+                max-md:flex-col max-md:gap-5 max-md:px-6 max-md:py-7
+              "
+            >
+              {/* Background decorative circles */}
               <div className="absolute inset-0 pointer-events-none">
                 <div className="absolute w-[260px] h-[260px] bg-white/10 rounded-full bottom-[-70px] right-[-50px]" />
-                <div className="absolute w-[160px] h-[160px] bg-white/5 rounded-full bottom-[30px] right-[90px]" />
+                <div className="absolute w-[160px] h-[160px] bg-white/5  rounded-full bottom-[30px]  right-[90px]" />
               </div>
 
-              <div className="card-info-tab relative z-10 flex flex-col gap-[32px]">
-                <h2 className="text-[28px] md:text-[32px] leading-[130%] font-medium">
+              {/* Info block */}
+              <div className="relative z-10 flex flex-col gap-8 flex-1 max-md:gap-5">
+                <h2 className="text-[28px] md:text-[32px] max-md:text-[22px] leading-[130%] font-medium">
                   Feel Free To <span className="font-bold">Contact</span>
                   <br />And <span className="font-bold">Reach Us !</span>
                 </h2>
@@ -240,7 +157,8 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="card-socials-tab relative z-10 flex gap-[10px] pt-2 mt-auto">
+              {/* Socials */}
+              <div className="relative z-10 flex gap-[10px] pt-2 mt-auto max-lg:self-end max-lg:mt-0">
                 {(contactInfo.socials as { icon: string; link: string }[]).map((s, i) => (
                   <a
                     key={i}
@@ -253,9 +171,9 @@ export default function ContactPage() {
               </div>
             </div>
 
-            {/* RIGHT: form */}
-            <div className="contact-form-animate contact-form-tab contact-form-mobile w-full pt-0 lg:pt-[6px]">
-              <div className="space-y-[14px] mobile-field-gap">
+            {/* RIGHT: FORM */}
+            <div className="contact-form-animate w-full pt-0 lg:pt-[6px]">
+              <div className="flex flex-col gap-[14px] max-md:gap-[10px]">
 
                 {fields.map((field) => (
                   <div key={field.key}>
@@ -269,15 +187,15 @@ export default function ContactPage() {
                         let error = "";
                         if (!value) { error = "Required"; }
                         else {
-                          if (field.key === "name" && !/^[A-Za-z\s]+$/.test(value)) error = "Only letters allowed";
+                          if (field.key === "name"  && !/^[A-Za-z\s]+$/.test(value))            error = "Only letters allowed";
                           if (field.key === "email" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) error = "Invalid email";
-                          if (field.key === "phone" && !/^\d{10}$/.test(value)) error = "Enter 10 digits";
+                          if (field.key === "phone" && !/^\d{10}$/.test(value))                   error = "Enter 10 digits";
                         }
                         setErrors((prev) => ({ ...prev, [field.key]: error }));
                       }}
                       className={`
                         mobile-input
-                        w-full border rounded-[10px] px-4 py-[11px] text-[14px] outline-none transition bg-white
+                        w-full rounded-[10px] px-4 py-[11px] text-sm outline-none transition bg-white border
                         ${errors[field.key]
                           ? "border-red-500 focus:ring-2 focus:ring-red-400"
                           : isValidField(field.key, form[field.key])
@@ -292,6 +210,7 @@ export default function ContactPage() {
                   </div>
                 ))}
 
+                {/* SUBJECT SELECT */}
                 <div>
                   <div className="relative">
                     <select
@@ -303,8 +222,8 @@ export default function ContactPage() {
                       }}
                       className={`
                         mobile-input
-                        w-full border rounded-[10px] px-4 py-[11px] pr-10 text-[14px] bg-white outline-none
-                        appearance-none cursor-pointer
+                        w-full rounded-[10px] px-4 py-[11px] pr-10 text-sm bg-white outline-none
+                        appearance-none cursor-pointer border
                         ${errors.subject
                           ? "border-red-500 focus:ring-2 focus:ring-red-400"
                           : form.subject
@@ -344,7 +263,7 @@ export default function ContactPage() {
                     }}
                     className={`
                       mobile-input
-                      w-full border rounded-[10px] px-4 py-[11px] text-[14px] h-[140px] resize-none outline-none bg-white
+                      w-full rounded-[10px] px-4 py-[11px] text-sm h-[140px] resize-none outline-none bg-white border
                       ${errors.message
                         ? "border-red-500 focus:ring-2 focus:ring-red-400"
                         : isValidField("message", form.message)
@@ -358,10 +277,11 @@ export default function ContactPage() {
                   )}
                 </div>
 
+                {/* SUBMIT */}
                 <div className="pt-[6px]">
                   <button
                     onClick={handleSubmit}
-                    className="submit-btn bg-[#00B8C6] text-white px-8 py-[12px] rounded-full text-[14px] font-medium hover:opacity-90 transition w-full lg:w-auto"
+                    className="submit-btn bg-[#00B8C6] text-white px-8 py-3 rounded-full text-sm font-medium hover:opacity-90 transition w-full lg:w-auto"
                   >
                     Submit Message
                   </button>
@@ -373,8 +293,9 @@ export default function ContactPage() {
           </div>{/* /grid */}
         </div>{/* /container */}
 
-<div className="w-full mt-[50px] relative z-10 mb-[40px] md:mb-[-50px]">        
-    <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
+        {/* MAP */}
+        <div className="w-full mt-[50px] relative z-10 mb-10 md:mb-[-50px] map-animate">
+          <div className="max-w-[1180px] mx-auto px-6 lg:px-8">
             <div className="w-full h-[220px] sm:h-[260px] md:h-[330px] lg:h-[300px] rounded-[14px] overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.14)]">
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3916.448904904782!2d76.9458066!3d11.0049071!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x6fc7c10d73613283%3A0x6ace2fa2c7965662!2sFinest%20Coder!5e0!3m2!1sen!2sin!4v1776966689940!5m2!1sen!2sin"
@@ -389,10 +310,11 @@ export default function ContactPage() {
 
       </section>
 
+      {/* POPUP */}
       {popup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
           <div
-            className="bg-white rounded-[12px] p-6 text-center w-[90%] max-w-[280px] relative shadow-xl"
+            className="bg-white rounded-xl p-6 text-center w-[90%] max-w-[280px] relative shadow-xl"
             style={{ animation: "fadeUp 0.3s ease both" }}
           >
             <button

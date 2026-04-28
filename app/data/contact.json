@@ -7,11 +7,11 @@
     "phone": "+91 91500 48550",
     "email": "support@finestcoder.com",
     "socials": [
-      { "icon": "/facebook.png", "link": "#" },
-      { "icon": "/tweet.png", "link": "#" },
-      { "icon": "/insta.png", "link": "#" },
-      { "icon": "/linkedin.png", "link": "#" },
-      { "icon": "/youtube.png", "link": "#" }
+      { "icon": "/facebook.png", "link": "https://www.facebook.com/finestcoder/" },
+      { "icon": "/tweet.png", "link": "https://x.com/finestcoder" },
+      { "icon": "/insta.png", "link": "https://www.instagram.com/finestcoder/" },
+      { "icon": "/linkedin.png", "link": "https://www.linkedin.com/company/finestcoder/posts/?feedView=all" },
+      { "icon": "/youtube.png", "link": "https://www.youtube.com/@wefinestcoder" }
     ]
   }
 }

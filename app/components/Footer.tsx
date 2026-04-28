@@ -40,7 +40,7 @@ export default function Footer() {
     <Image src="/facebook.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
   </a>
 
-  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+  <a href="https://x.com/finestcoder" target="_blank" rel="noopener noreferrer">
     <Image src="/tweet.png" alt="" width={32} height={32} className="hover:scale-110 transition" />
   </a>
 
