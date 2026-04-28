@@ -6,6 +6,7 @@ import navData from "@/app/data/navbar.json";
 import type { NavbarData } from "@/app/types/navbar";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
+import EnquiryModal from "@/app/components/Enquirymodel"; 
 
 const data = navData as NavbarData;
 
@@ -13,11 +14,11 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileExpandedIndex, setMobileExpandedIndex] = useState<number | null>(null);
+  const [enquiryOpen, setEnquiryOpen] = useState(false); // ← NEW
   const pathname = usePathname();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  // Close dropdown when clicking outside — NOT on mouse leave
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -28,7 +29,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close everything on route change
   useEffect(() => {
     setDropdownOpen(false);
     setOpen(false);
@@ -61,7 +61,6 @@ export default function Navbar() {
                 const isCoursesActive = pathname.startsWith("/courses");
                 return (
                   <div key={index} className="relative" ref={dropdownRef}>
-                    {/* Toggle button — click opens/closes, NO onMouseLeave */}
                     <button
                       onClick={() => setDropdownOpen((prev) => !prev)}
                       className={`
@@ -83,7 +82,6 @@ export default function Navbar() {
                       </svg>
                     </button>
 
-                    {/* Dropdown — pointer-events-auto so every item is clickable */}
                     {dropdownOpen && (
                       <div className="
                         absolute top-[calc(100%+8px)] left-0
@@ -145,18 +143,19 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* CTA */}
-          <Link
-            href={data.cta.href}
+          {/* CTA — now opens modal instead of navigating */}
+          <button
+            onClick={() => setEnquiryOpen(true)}
             className="
               hidden md:inline-flex shrink-0 items-center justify-center
               bg-[#00B8C6] text-white
               px-[12px] lg:px-[22px] py-[7px] lg:py-[10px]
               rounded-full text-[13px] lg:text-[15px] font-medium whitespace-nowrap
+              hover:opacity-90 active:scale-[0.97] transition
             "
           >
             {data.cta.label}
-          </Link>
+          </button>
 
           {/* HAMBURGER */}
           <button
@@ -260,19 +259,26 @@ export default function Navbar() {
               );
             })}
 
-            <Link
-              href={data.cta.href}
-              onClick={() => setOpen(false)}
+            {/* Mobile CTA — opens modal */}
+            <button
+              onClick={() => {
+                setOpen(false);
+                setEnquiryOpen(true);
+              }}
               className="
                 mt-[12px] block bg-[#00B8C6] text-white
                 text-center py-[11px] rounded-full text-[14px] font-medium
+                hover:opacity-90 active:scale-[0.97] transition w-full
               "
             >
               {data.cta.label}
-            </Link>
+            </button>
           </div>
         </>
       )}
+
+      {/* ENQUIRY MODAL */}
+      <EnquiryModal isOpen={enquiryOpen} onClose={() => setEnquiryOpen(false)} />
     </>
   );
 }
