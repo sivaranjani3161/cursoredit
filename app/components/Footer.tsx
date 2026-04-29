@@ -89,9 +89,7 @@ export default function Footer() {
                   className="mt-[3px]"
                 />
                 <p className="leading-[1.6] max-w-[220px] md:max-w-[240px] lg:max-w-[260px]">
-                  No.987, 1st Floor, Raj Chambers,
-                  Thadagam Main Road, R.S. Puram,
-                  Coimbatore. 641002
+                   574/7, GROUND FLOOR-A, KNG PUDUR PIRIVU, SOMAYAMPALAYAM POST, COIMBATORE- 641108
                 </p>
               </div>
 
