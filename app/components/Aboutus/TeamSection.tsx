@@ -33,8 +33,7 @@ export default function TeamShowcase() {
   }, [started]);
 
   const member = data.members[active];
-  const isBlue = active % 2 === 0;
-
+const isBlue = true;
   return (
     <section ref={sectionRef} className="py-[60px] md:py-[100px] bg-[#FDFDFD]">
       <div className="max-w-[900px] mx-auto px-6 text-center">
@@ -79,12 +78,10 @@ export default function TeamShowcase() {
         </div>
 
         {/* ── TAB & DESKTOP LAYOUT — all members side by side ── */}
-        <div className="hidden sm:flex flex-row items-start justify-center gap-6 md:gap-10 mt-[50px] md:mt-[70px]">
-          {data.members.map((m, i) => (
+<div className="hidden sm:flex flex-row items-start justify-center gap-[40px] md:gap-[70px] lg:gap-[90px] mt-[50px] md:mt-[70px]">          {data.members.map((m, i) => (
             <div
               key={i}
-              className="group flex flex-col items-center text-center cursor-pointer"
-              style={{
+className="group flex flex-col items-center text-center cursor-pointer px-2 md:px-4"              style={{
                 animation: `fadeSlideUp 0.6s ease forwards`,
                 animationDelay: `${i * 150}ms`,
               }}
@@ -111,7 +108,6 @@ export default function TeamShowcase() {
                 />
               </div>
 
-              {/* Name + role + linkedin — spotlight shadow on hover */}
               <div
                 className="
                   mt-4 px-4 py-3 rounded-2xl
