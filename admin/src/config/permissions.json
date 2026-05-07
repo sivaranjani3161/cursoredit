@@ -1,0 +1,5 @@
+{
+  "admin": ["courses", "blogs", "gallery", "enquiries", "testimonials", "users", "permissions"],
+  "editor": ["courses", "blogs", "gallery"],
+  "viewer": ["courses"]
+}

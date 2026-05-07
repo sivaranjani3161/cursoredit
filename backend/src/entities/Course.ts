@@ -1,0 +1,55 @@
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, ManyToOne, JoinColumn, Index } from "typeorm";
+import { CourseHighlight } from "./CourseHighlight";
+import { CourseStructure } from "./CourseStructure";
+import { CourseFeature } from "./CourseFeature";
+import { Enquiry } from "./Enquiry";
+import { User } from "./User";
+
+@Entity("courses")
+export class Course {
+  @PrimaryGeneratedColumn()
+  id!: number;
+
+  @Column({ type: "varchar", length: 255 })
+  title!: string;
+
+  @Column({ type: "varchar", length: 255, unique: true })
+  slug!: string;
+
+  @Column({ type: "text", nullable: true })
+  description!: string | null;
+
+  @Column({ type: "varchar", length: 500, nullable: true })
+  heroImage!: string | null;
+
+  @Column({ type: "boolean", default: true })
+  isActive!: boolean;
+
+  @Column()
+  @Index()
+  createdBy!: number;
+
+ @ManyToOne(() => User, (user) => user.courses, {
+  onDelete: "CASCADE",
+})
+  @JoinColumn({ name: "created_by" })
+createdByUser!: User;
+
+  @OneToMany(() => CourseHighlight, (highlight) => highlight.course, { cascade: true })
+  courseHighlights!: CourseHighlight[];
+
+  @OneToMany(() => CourseStructure, (structure) => structure.course, { cascade: true })
+  courseStructure!: CourseStructure[];
+
+  @OneToMany(() => CourseFeature, (feature) => feature.course, { cascade: true })
+  courseFeatures!: CourseFeature[];
+
+  @OneToMany(() => Enquiry, (enquiry) => enquiry.course)
+  enquiries!: Enquiry[];
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
+}

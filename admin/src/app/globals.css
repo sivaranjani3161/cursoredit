@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: #0066FF;
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+:root {
+  --background: #f4f7fa;
+  --foreground: #1a1a1a;
+  --primary: #0066FF;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-urbanist), sans-serif;
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .card-minimal {
+    background: #ffffff;
+    border: 1px solid #e1e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 12px;
+  }
+  
+  .sidebar-minimal {
+    background: #ffffff;
+    border-right: 1px solid #e1e8f0;
+  }
+
+  .btn-primary {
+    background: #0066FF;
+    color: #ffffff;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background: #0052cc;
+  }
+}
