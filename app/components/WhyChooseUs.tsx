@@ -19,8 +19,20 @@ export default function WhyChooseUs() {
         Why <span className="font-bold">Choose Us</span>
       </h2>
 
-      {/* ✅ FIXED WRAPPER (tablet handled) */}
-      <div className="mt-[30px] md:mt-[40px] max-w-[1200px] mx-auto flex flex-col lg:flex-row items-center gap-[30px] md:gap-[40px]">
+      {/* ✅ FIXED WRAPPER */}
+      <div
+        className="
+          mt-[30px] md:mt-[40px]
+          max-w-[1200px]
+          mx-auto
+
+          flex flex-col
+          lg:grid lg:grid-cols-[480px_1fr]
+
+          gap-[30px] md:gap-[40px]
+          items-center lg:items-stretch
+        "
+      >
 
         {/* IMAGE */}
         <div className="relative w-full sm:w-[80%] md:w-[70%] lg:w-[480px] aspect-[498/528] shrink-0 mx-auto">
@@ -34,14 +46,31 @@ export default function WhyChooseUs() {
         </div>
 
         {/* FEATURES */}
-        <div className="flex flex-col gap-[12px] sm:gap-[16px] w-full md:max-w-[600px] lg:max-w-none mx-auto">
+        <div
+          className="
+            w-full
+            md:max-w-[600px]
+            lg:max-w-none
+            mx-auto
+
+            flex flex-col
+            gap-[12px] sm:gap-[16px]
+
+            lg:grid
+            lg:grid-rows-3
+            lg:h-full
+          "
+        >
 
           {features.map((item, i) => (
             <div
               key={i}
               className="
-                flex items-start sm:items-center gap-[12px] sm:gap-[16px]
-                px-[14px] sm:px-[16px] py-[14px] sm:py-[16px]
+                h-full
+                flex items-start sm:items-center
+                gap-[12px] sm:gap-[16px]
+                px-[14px] sm:px-[16px]
+                py-[14px] sm:py-[16px]
                 rounded-[12px]
                 border transition-all duration-300
                 bg-white shadow-md border-[#E5E5E5]
@@ -50,14 +79,14 @@ export default function WhyChooseUs() {
 
               {/* ICON */}
               <div className="w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] md:w-[84px] md:h-[84px] bg-[#00B8C6] rounded-[10px] flex items-center justify-center shrink-0">
-  <Image
-    src={item.icon}
-    alt=""
-    width={28}
-    height={28}
-    style={{ width: "auto", height: "auto" }}
-  />
-</div>
+                <Image
+                  src={item.icon}
+                  alt=""
+                  width={28}
+                  height={28}
+                  style={{ width: "auto", height: "auto" }}
+                />
+              </div>
 
               {/* TEXT */}
               <div className="flex flex-col">

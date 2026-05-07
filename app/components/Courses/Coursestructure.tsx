@@ -5,7 +5,8 @@ export default function CourseStructure() {
   const { sectionTitle, phases } = data;
 
   return (
-<section className="w-full bg-[#FDFDFD] px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-6 md:pb-8">        <section className="w-full bg-[#FDFDFD] px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-6 md:pb-8"></section>
+<section className="w-full bg-[#FDFDFD] px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-6 md:pb-8">   
+       <section className="w-full bg-[#FDFDFD] px-4 sm:px-6 lg:px-8 py-12 md:py-16 pb-6 md:pb-8"></section>
       <div className="max-w-[900px] mx-auto">
 
         <h2 className="text-center text-[28px] sm:text-[36px] md:text-[42px] leading-[100%] mb-10 md:mb-14">
@@ -13,7 +14,6 @@ export default function CourseStructure() {
           <span className="font-bold text-[#2E2E2E]">{sectionTitle.bold}</span>
         </h2>
 
-        {/* ── MOBILE LAYOUT (below sm) ── */}
         <div className="flex flex-col gap-4 sm:hidden">
           {phases.map((phase) => (
             <div

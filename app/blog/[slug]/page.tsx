@@ -108,7 +108,7 @@ export default async function BlogDetailPage({ params }: PageProps) {
                   );
                 case "heading3":
                   return (
-                    <h3 key={i} style={{ fontSize: "18px", fontWeight: 700, color: "#111827", marginTop: "28px", marginBottom: "12px" }}>
+                    <h3 key={i} style={{ fontSize: "18px", fontWeight: 700, color: "#2e69e9ff", marginTop: "28px", marginBottom: "12px" }}>
                       <ParseteText text={section.text!} />
                     </h3>
                   );
