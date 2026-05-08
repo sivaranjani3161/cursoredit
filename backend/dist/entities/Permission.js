@@ -11,13 +11,14 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Permission = void 0;
 const typeorm_1 = require("typeorm");
-const RolePermission_1 = require("./RolePermission");
+const Role_1 = require("./Role");
 let Permission = class Permission {
     id;
-    code; // USER_CREATE, USER_READ, REPORT_VIEW
+    code;
     name;
     description;
-    roles;
+    roleId;
+    role;
     createdAt;
     updatedAt;
 };
@@ -27,7 +28,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Permission.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 100, unique: true }),
+    (0, typeorm_1.Column)({ type: "varchar", length: 100 }),
     __metadata("design:type", String)
 ], Permission.prototype, "code", void 0);
 __decorate([
@@ -39,15 +40,20 @@ __decorate([
     __metadata("design:type", Object)
 ], Permission.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => RolePermission_1.RolePermission, (rolePermission) => rolePermission.permission),
-    __metadata("design:type", Array)
-], Permission.prototype, "roles", void 0);
+    (0, typeorm_1.Column)({ name: "role_id" }),
+    __metadata("design:type", Number)
+], Permission.prototype, "roleId", void 0);
 __decorate([
-    (0, typeorm_1.CreateDateColumn)(),
+    (0, typeorm_1.ManyToOne)(() => Role_1.Role, (role) => role.permissions),
+    (0, typeorm_1.JoinColumn)({ name: "role_id" }),
+    __metadata("design:type", Role_1.Role)
+], Permission.prototype, "role", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)({ name: "created_at" }),
     __metadata("design:type", Date)
 ], Permission.prototype, "createdAt", void 0);
 __decorate([
-    (0, typeorm_1.UpdateDateColumn)(),
+    (0, typeorm_1.UpdateDateColumn)({ name: "updated_at" }),
     __metadata("design:type", Date)
 ], Permission.prototype, "updatedAt", void 0);
 exports.Permission = Permission = __decorate([

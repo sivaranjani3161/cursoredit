@@ -23,6 +23,7 @@ let Enquiry = class Enquiry {
     course;
     status;
     createdAt;
+    updatedAt;
 };
 exports.Enquiry = Enquiry;
 __decorate([
@@ -30,39 +31,65 @@ __decorate([
     __metadata("design:type", Number)
 ], Enquiry.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+    }),
     __metadata("design:type", String)
 ], Enquiry.prototype, "fullName", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+    }),
     __metadata("design:type", String)
 ], Enquiry.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 50, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 50,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], Enquiry.prototype, "phone", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text" }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({
+        type: "text",
+        nullable: true,
+    }),
+    __metadata("design:type", Object)
 ], Enquiry.prototype, "message", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({
+        nullable: true,
+    }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Object)
 ], Enquiry.prototype, "courseId", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Course_1.Course, { onDelete: "SET NULL", nullable: true }),
-    (0, typeorm_1.JoinColumn)({ name: "courseId" }),
+    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.enquiries, {
+        onDelete: "SET NULL",
+        nullable: true,
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "course_id" }),
     __metadata("design:type", Object)
 ], Enquiry.prototype, "course", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: EnquiryStatus_1.EnquiryStatus, default: EnquiryStatus_1.EnquiryStatus.NEW }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: EnquiryStatus_1.EnquiryStatus,
+        default: EnquiryStatus_1.EnquiryStatus.NEW,
+    }),
     __metadata("design:type", String)
 ], Enquiry.prototype, "status", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], Enquiry.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], Enquiry.prototype, "updatedAt", void 0);
 exports.Enquiry = Enquiry = __decorate([
     (0, typeorm_1.Entity)("enquiries")
 ], Enquiry);

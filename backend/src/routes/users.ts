@@ -59,17 +59,24 @@ export default async function userRoutes(app: FastifyInstance) {
     "/users",
     async (req, reply) => {
       const { email, name, roleId } = req.body;
+      const normalizedEmail = String(email || "").trim().toLowerCase();
+      const normalizedName = String(name || "").trim();
+      const parsedRoleId = Number(roleId);
 
-      const role = await roleRepo.findOne({ where: { id: roleId } });
+      if (!normalizedEmail || !normalizedName || Number.isNaN(parsedRoleId)) {
+        return reply.status(400).send({ error: "email, name and roleId are required" });
+      }
+
+      const role = await roleRepo.findOne({ where: { id: parsedRoleId } });
       if (!role) return reply.status(400).send({ error: "Role not found" });
 
-      const existing = await userRepo.findOne({ where: { email } });
+      const existing = await userRepo.findOne({ where: { email: normalizedEmail } });
       if (existing) return reply.status(409).send({ error: "User already exists" });
 
       const user = userRepo.create({
-        email,
-        name,
-        roleId,
+        email: normalizedEmail,
+        name: normalizedName,
+        roleId: parsedRoleId,
         status: UserStatus.ACTIVE,
         authProvider: "google",
         password: null,
@@ -82,17 +89,64 @@ export default async function userRoutes(app: FastifyInstance) {
     }
   );
 
-  // PUT /api/users/:id — update user role
-  app.put<{ Params: { id: string }; Body: { roleId: number } }>(
+  // PUT /api/users/:id — update user details
+  app.put<{
+    Params: { id: string };
+    Body: { roleId?: number; name?: string; email?: string; status?: UserStatus };
+  }>(
     "/users/:id",
     async (req, reply) => {
       const { id } = req.params;
-      const { roleId } = req.body;
-      const user = await userRepo.findOne({ where: { id: Number(id) } });
+      const { roleId, name, email, status } = req.body;
+      const userId = Number(id);
+      const user = await userRepo.findOne({ where: { id: userId } });
       if (!user) return reply.status(404).send({ error: "User not found" });
-      user.roleId = roleId;
+
+      if (roleId !== undefined) {
+        const role = await roleRepo.findOne({ where: { id: Number(roleId) } });
+        if (!role) return reply.status(400).send({ error: "Role not found" });
+        user.roleId = Number(roleId);
+      }
+
+      if (name !== undefined) {
+        const trimmedName = String(name).trim();
+        if (!trimmedName) return reply.status(400).send({ error: "Name cannot be empty" });
+        user.name = trimmedName;
+      }
+
+      if (email !== undefined) {
+        const normalizedEmail = String(email).trim().toLowerCase();
+        if (!normalizedEmail) return reply.status(400).send({ error: "Email cannot be empty" });
+        const existing = await userRepo.findOne({ where: { email: normalizedEmail } });
+        if (existing && existing.id !== userId) {
+          return reply.status(409).send({ error: "Email already in use" });
+        }
+        user.email = normalizedEmail;
+      }
+
+      if (status !== undefined) {
+        if (!Object.values(UserStatus).includes(status)) {
+          return reply.status(400).send({ error: "Invalid status value" });
+        }
+        user.status = status;
+      }
+
       const saved = await userRepo.save(user);
-      return reply.send(saved);
+      const withRole = await userRepo.findOne({
+        where: { id: saved.id },
+        relations: ["role"],
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          status: true,
+          authProvider: true,
+          roleId: true,
+          createdAt: true,
+          role: { id: true, name: true, code: true },
+        },
+      });
+      return reply.send(withRole);
     }
   );
 

@@ -26,7 +26,7 @@ export default function PermissionButton({
   title,
 }: PermissionButtonProps) {
   const variants = {
-    primary: 'bg-[#0066FF] text-white hover:bg-[#0052cc]',
+    primary: 'bg-[#00B8C6] text-white hover:bg-[#00B8C6]/90',
     danger: 'bg-rose-50 text-rose-600 hover:bg-rose-100',
     warning: 'bg-amber-50 text-amber-600 hover:bg-amber-100',
     ghost: 'hover:bg-gray-100 text-gray-500 hover:text-gray-900',

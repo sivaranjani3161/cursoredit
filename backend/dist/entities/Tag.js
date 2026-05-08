@@ -16,7 +16,9 @@ let Tag = class Tag {
     id;
     name;
     slug;
-    blogs;
+    blogTags;
+    createdAt;
+    updatedAt;
 };
 exports.Tag = Tag;
 __decorate([
@@ -24,17 +26,33 @@ __decorate([
     __metadata("design:type", Number)
 ], Tag.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 100 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 100,
+        unique: true,
+    }),
     __metadata("design:type", String)
 ], Tag.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 100, unique: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 100,
+        unique: true,
+    }),
     __metadata("design:type", String)
 ], Tag.prototype, "slug", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => BlogTag_1.BlogTag, (blogTag) => blogTag.tag),
     __metadata("design:type", Array)
-], Tag.prototype, "blogs", void 0);
+], Tag.prototype, "blogTags", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], Tag.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], Tag.prototype, "updatedAt", void 0);
 exports.Tag = Tag = __decorate([
     (0, typeorm_1.Entity)("tags")
 ], Tag);

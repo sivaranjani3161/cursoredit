@@ -24,9 +24,9 @@ let Blog = class Blog {
     coverImage;
     publishedAt;
     status;
-    userId;
-    user;
-    tags;
+    createdBy;
+    createdByUser;
+    blogTags;
     relatedBlogs;
     createdAt;
     updatedAt;
@@ -68,16 +68,18 @@ __decorate([
     (0, typeorm_1.Column)(),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
-], Blog.prototype, "userId", void 0);
+], Blog.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.blogs),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.blogs, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "created_by" }),
     __metadata("design:type", User_1.User)
-], Blog.prototype, "user", void 0);
+], Blog.prototype, "createdByUser", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => BlogTag_1.BlogTag, (blogTag) => blogTag.blog),
     __metadata("design:type", Array)
-], Blog.prototype, "tags", void 0);
+], Blog.prototype, "blogTags", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => RelatedBlog_1.RelatedBlog, (relatedBlog) => relatedBlog.blog),
     __metadata("design:type", Array)

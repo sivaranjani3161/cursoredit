@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, Save, AlertCircle, Info } from 'lucide-react';
+import { X, Save, Info } from 'lucide-react';
 import NestedEntityManager from '../common/NestedEntityManager';
 import ImageUpload from '../common/ImageUpload';
 
@@ -11,6 +11,8 @@ interface CourseFormProps {
   onCancel: () => void;
   loading?: boolean;
 }
+
+type Tab = 'highlights' | 'features' | 'structure';
 
 export default function CourseForm({
   initialData,
@@ -24,10 +26,12 @@ export default function CourseForm({
     description: '',
     heroImage: '',
     isActive: true,
-    courseHighlights: [],
-    courseStructure: [],
-    courseFeatures: [],
+    courseHighlights: [] as any[],
+    courseStructure: [] as any[],
+    courseFeatures: [] as any[],
   });
+
+  const [activeTab, setActiveTab] = useState<Tab>('highlights');
 
   useEffect(() => {
     if (initialData) {
@@ -40,155 +44,214 @@ export default function CourseForm({
     }
   }, [initialData]);
 
+  const sanitizeNested = (arr: any[]) => {
+    if (!Array.isArray(arr)) return [];
+    return arr
+      .map((item) => {
+        const title = String(item?.title ?? '').trim();
+        const description = Array.isArray(item?.description)
+          ? item.description.map((p: any) => String(p ?? '').trim()).filter((p: string) => p.length > 0)
+          : [];
+        return { ...item, title, description };
+      })
+      .filter((item) => item.title.length > 0);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    onSave({
+      ...formData,
+      courseHighlights: sanitizeNested(formData.courseHighlights),
+      courseFeatures: sanitizeNested(formData.courseFeatures),
+      courseStructure: sanitizeNested(formData.courseStructure),
+    });
   };
 
-  const generateSlug = (title: string) => {
-    return title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
-  };
+  const generateSlug = (title: string) =>
+    title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-  const handleTitleChange = (title: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      title,
-      slug: generateSlug(title),
-    }));
-  };
+  const tabs: { key: Tab; label: string; count: number }[] = [
+    { key: 'highlights', label: 'Highlights', count: formData.courseHighlights.length },
+    { key: 'features', label: 'Features', count: formData.courseFeatures.length },
+    { key: 'structure', label: 'Structure', count: formData.courseStructure.length },
+  ];
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6 text-gray-900">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm animate-in fade-in duration-300" 
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
         onClick={onCancel}
       />
 
-      {/* Modal Content */}
-      <div className="relative w-full max-w-4xl max-h-[90vh] bg-[#fdfdfe] rounded-3xl shadow-2xl border border-blue-100 flex flex-col overflow-hidden animate-in zoom-in-95 duration-300">
-        
-        {/* Header */}
-        <div className="px-8 py-6 border-b border-blue-200 flex items-center justify-between bg-white/50">
+      {/* Modal */}
+      <div className="relative w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden">
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-100 flex-shrink-0">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
-              {initialData ? 'Edit Course' : 'Create New Course'}
+            <h2 className="text-base font-bold text-gray-900">
+              {initialData ? 'Edit Course' : 'New Course'}
             </h2>
-            <p className="text-sm text-gray-500">Enter details for the educational program</p>
+            <p className="text-xs text-gray-400 mt-0.5">Fill in the course details below</p>
           </div>
           <button
             onClick={onCancel}
-            className="p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-100 rounded-xl transition-all"
+            className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Scrollable Form */}
-        <form onSubmit={handleSubmit} id="course-form" className="flex-1 overflow-y-auto p-8 space-y-10 custom-scrollbar">
-          
-          {/* Basic Info Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Course Title</label>
+        {/* ── Scrollable Body ── */}
+        <form onSubmit={handleSubmit} id="course-form" className="flex-1 overflow-y-auto">
+
+          {/* Basic Info — compact 2-col grid */}
+          <div className="px-5 py-4 grid grid-cols-2 gap-x-5 gap-y-3 border-b border-gray-100">
+
+            {/* Left column: Title + Slug + Toggle */}
+            <div className="space-y-3">
+              {/* Title */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  Course Title <span className="text-rose-400">*</span>
+                </label>
                 <input
                   type="text"
                   required
                   value={formData.title}
-                  onChange={(e) => handleTitleChange(e.target.value)}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    title: e.target.value,
+                    slug: generateSlug(e.target.value),
+                  }))}
                   placeholder="e.g. Full Stack Development"
-                  className="w-full px-4 py-3 rounded-xl border border-blue-200 text-gray-900 placeholder:text-gray-400 bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066FF] transition-all text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] transition-all"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">URL Slug</label>
+              {/* Slug */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  URL Slug <span className="text-rose-400">*</span>
+                </label>
                 <div className="relative">
                   <input
                     type="text"
                     required
                     value={formData.slug}
-                    onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl border border-blue-200 text-gray-900 bg-white placeholder:text-gray-400 shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066FF] transition-all text-sm font-mono"
+                    onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
+                    className="w-full px-3 py-2 pr-8 rounded-lg border border-gray-200 text-sm text-gray-900 font-mono focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] transition-all"
                   />
-                  <Info className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Info className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-300" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 pt-4">
-                <label className="relative inline-flex items-center cursor-pointer">
+              {/* Description */}
+              <div>
+                <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                  Description
+                </label>
+                <textarea
+                  value={formData.description}
+                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Brief course description..."
+                  rows={3}
+                  className="w-full px-3 py-2 rounded-lg border border-gray-200 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] transition-all resize-none"
+                />
+              </div>
+
+              {/* Active toggle */}
+              <label className="inline-flex items-center gap-3 cursor-pointer select-none">
+                <div className="relative">
                   <input
                     type="checkbox"
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
                     className="sr-only peer"
                   />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0066FF]"></div>
-                  <span className="ml-3 text-sm font-bold text-gray-700 uppercase tracking-widest">Active Status</span>
-                </label>
-              </div>
+                  <div className="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-[#00B8C6] transition-all after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:after:translate-x-4" />
+                </div>
+                <span className="text-xs font-semibold text-gray-600">Active</span>
+              </label>
             </div>
 
-            <div className="space-y-6">
+            {/* Right column: Hero image — compact */}
+            <div>
+              <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                Hero Image
+              </label>
               <ImageUpload
-                label="Hero Image"
                 value={formData.heroImage}
-                onChange={(url) => setFormData({ ...formData, heroImage: url })}
-              />
-            </div>
-
-            <div className="md:col-span-2 space-y-2">
-              <label className="text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Course Introduction</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Briefly describe the course content..."
-                rows={3}
-                className="w-full px-4 py-3 rounded-xl border border-blue-200 text-gray-900 bg-white placeholder:text-gray-400 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-[#0066FF] transition-all text-sm resize-none"
+                onChange={(url) => setFormData(prev => ({ ...prev, heroImage: url }))}
+                compact
               />
             </div>
           </div>
 
-          <div className="h-px bg-gray-100" />
+          {/* ── Nested Entities — Tab strip ── */}
+          <div className="flex-1">
+            {/* Tab bar */}
+            <div className="flex items-center gap-0 border-b border-gray-100 px-5 bg-gray-50/50">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold transition-all border-b-2 -mb-px ${
+                    activeTab === tab.key
+                      ? 'border-[#00B8C6] text-[#00B8C6]'
+                      : 'border-transparent text-gray-400 hover:text-gray-700'
+                  }`}
+                >
+                  {tab.label}
+                  {tab.count > 0 && (
+                    <span className={`inline-flex items-center justify-center w-4 h-4 rounded-full text-[10px] font-black ${
+                      activeTab === tab.key ? 'bg-[#00B8C6] text-white' : 'bg-gray-200 text-gray-500'
+                    }`}>
+                      {tab.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
 
-          {/* Nested Entities Section */}
-          <div className="space-y-12">
-            <NestedEntityManager
-              title="Course Highlights"
-              items={formData.courseHighlights}
-              onChange={(items) => setFormData({ ...formData, courseHighlights: items as any })}
-              showIcon={true}
-            />
-
-            <div className="h-px bg-gray-100" />
-
-            <NestedEntityManager
-              title="Key Features"
-              items={formData.courseFeatures}
-              onChange={(items) => setFormData({ ...formData, courseFeatures: items as any })}
-            />
-
-            <div className="h-px bg-gray-100" />
-
-            <NestedEntityManager
-              title="Course Structure (Phases)"
-              items={formData.courseStructure}
-              onChange={(items) => setFormData({ ...formData, courseStructure: items as any })}
-              showIcon={true}
-            />
+            {/* Tab content */}
+            <div className="p-4">
+              {activeTab === 'highlights' && (
+                <NestedEntityManager
+                  title="Course Highlights"
+                  items={formData.courseHighlights}
+                  onChange={(items) => setFormData(prev => ({ ...prev, courseHighlights: items as any }))}
+                  showIcon={true}
+                />
+              )}
+              {activeTab === 'features' && (
+                <NestedEntityManager
+                  title="Key Features"
+                  items={formData.courseFeatures}
+                  onChange={(items) => setFormData(prev => ({ ...prev, courseFeatures: items as any }))}
+                />
+              )}
+              {activeTab === 'structure' && (
+                <NestedEntityManager
+                  title="Course Structure (Phases)"
+                  items={formData.courseStructure}
+                  onChange={(items) => setFormData(prev => ({ ...prev, courseStructure: items as any }))}
+                  showIcon={true}
+                  numberField={{ key: 'phaseNumber', label: 'Phase #' }}
+                />
+              )}
+            </div>
           </div>
         </form>
 
-        {/* Footer */}
-        <div className="px-8 py-6 border-t border-blue-200 flex items-center justify-end gap-3 bg-white">
+        {/* ── Footer ── */}
+        <div className="px-5 py-3 border-t border-gray-100 flex items-center justify-end gap-2 flex-shrink-0 bg-white">
           <button
             type="button"
             onClick={onCancel}
-            className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-500 hover:bg-gray-50 transition-all"
+            className="px-4 py-2 rounded-lg text-xs font-bold text-gray-500 hover:bg-gray-100 transition-all"
           >
             Cancel
           </button>
@@ -196,14 +259,14 @@ export default function CourseForm({
             form="course-form"
             type="submit"
             disabled={loading}
-            className="px-8 py-2.5 rounded-xl bg-[#0066FF] text-white text-sm font-bold hover:bg-[#0052cc] transition-all flex items-center gap-2 shadow-lg shadow-blue-500/20 disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#00B8C6] text-white text-xs font-bold hover:brightness-95 transition-all disabled:opacity-50"
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <Save className="w-4 h-4" />
+              <Save className="w-3.5 h-3.5" />
             )}
-            {initialData ? 'Update Course' : 'Publish Course'}
+            {initialData ? 'Update Course' : 'Create Course'}
           </button>
         </div>
       </div>

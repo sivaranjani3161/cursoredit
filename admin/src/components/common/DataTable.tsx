@@ -55,12 +55,12 @@ export default function DataTable<T extends { id: any }>({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 rounded-lg bg-blue-50">
-              <Icon className="w-5 h-5 text-[#0066FF]" />
+            <div className="p-2 rounded-lg bg-[#00B8C6]/10">
+              <Icon className="w-5 h-5 text-[#00B8C6]" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
           </div>
-          <p className="text-sm text-gray-500 ml-12">Manage your {title.toLowerCase()} and their details</p>
+          <p className="text-sm text-gray-500 mt-1">Manage your {title.toLowerCase()} and their details</p>
         </div>
         
         {onAdd && (
@@ -76,7 +76,7 @@ export default function DataTable<T extends { id: any }>({
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+      <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100">
         <div className="flex-1 relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
@@ -84,7 +84,7 @@ export default function DataTable<T extends { id: any }>({
             placeholder={searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-[#0066FF] transition-all text-sm"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] transition-all text-sm"
           />
         </div>
         <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-all text-sm font-medium">
@@ -94,7 +94,7 @@ export default function DataTable<T extends { id: any }>({
       </div>
 
       {/* Table Container */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -119,7 +119,7 @@ export default function DataTable<T extends { id: any }>({
                 <tr>
                   <td colSpan={columns.length + 1} className="px-6 py-12 text-center">
                     <div className="flex justify-center">
-                      <div className="w-8 h-8 border-4 border-blue-100 border-t-[#0066FF] rounded-full animate-spin" />
+                      <div className="w-8 h-8 border-4 border-[#00B8C6]/15 border-t-[#00B8C6] rounded-full animate-spin" />
                     </div>
                   </td>
                 </tr>
@@ -145,7 +145,7 @@ export default function DataTable<T extends { id: any }>({
                           {onView && (
                             <button
                               onClick={() => onView(item)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-all"
+                              className="p-1.5 text-gray-400 hover:text-[#00B8C6] hover:bg-[#00B8C6]/5 rounded-md transition-all"
                               title="View"
                             >
                               <Eye className="w-4 h-4" />

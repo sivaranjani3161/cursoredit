@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Testimonial = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
+const TestimonialType_1 = require("./enums/TestimonialType");
 let Testimonial = class Testimonial {
     id;
     type;
@@ -24,8 +25,8 @@ let Testimonial = class Testimonial {
     description;
     isActive;
     sortOrder;
-    userId;
-    user;
+    createdBy;
+    createdByUser;
     createdAt;
     updatedAt;
 };
@@ -35,7 +36,10 @@ __decorate([
     __metadata("design:type", Number)
 ], Testimonial.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 50 }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: TestimonialType_1.TestimonialType,
+    }),
     __metadata("design:type", String)
 ], Testimonial.prototype, "type", void 0);
 __decorate([
@@ -78,12 +82,12 @@ __decorate([
     (0, typeorm_1.Column)(),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
-], Testimonial.prototype, "userId", void 0);
+], Testimonial.prototype, "createdBy", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.testimonials),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.JoinColumn)({ name: "created_by" }),
     __metadata("design:type", User_1.User)
-], Testimonial.prototype, "user", void 0);
+], Testimonial.prototype, "createdByUser", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

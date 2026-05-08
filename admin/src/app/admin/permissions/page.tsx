@@ -3,16 +3,16 @@ import { ShieldCheck } from 'lucide-react';
 
 export default function PermissionsPage() {
   return (
-    <div className="max-w-6xl mx-auto p-8 bg-white min-h-screen">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 bg-white min-h-screen">
       {/* Header */}
-      <div className="mb-12">
+      <div className="mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="p-3 rounded-xl bg-blue-50">
-            <ShieldCheck className="w-6 h-6 text-[#0066FF]" />
+          <div className="p-3 rounded-xl bg-[#00B8C6]/10">
+            <ShieldCheck className="w-6 h-6 text-[#00B8C6]" />
           </div>
 
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 tracking-tight">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
               System Permissions
             </h1>
 

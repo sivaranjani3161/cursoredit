@@ -27,7 +27,12 @@ __decorate([
     __metadata("design:type", Number)
 ], RefreshToken.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 512, unique: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 512,
+        unique: true,
+        select: false,
+    }),
     __metadata("design:type", String)
 ], RefreshToken.prototype, "token", void 0);
 __decorate([
@@ -37,7 +42,7 @@ __decorate([
 ], RefreshToken.prototype, "userId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => User_1.User, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.JoinColumn)({ name: "user_id" }),
     __metadata("design:type", User_1.User)
 ], RefreshToken.prototype, "user", void 0);
 __decorate([

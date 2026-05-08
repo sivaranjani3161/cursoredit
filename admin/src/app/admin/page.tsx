@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
             </p>
           </div>
 
-          <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-blue-600 font-bold shadow-sm">
+          <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-[#00B8C6] font-bold shadow-sm">
             {user?.name?.[0]}
           </div>
         </div>

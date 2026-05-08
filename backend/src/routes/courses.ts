@@ -4,6 +4,27 @@ import { Course } from "../entities/Course";
 
 export default async function courseRoutes(app: FastifyInstance) {
   const courseRepo = AppDataSource.getRepository(Course);
+  const mapNestedItems = (arr: any[]) =>
+    Array.isArray(arr)
+      ? arr
+          .map((item: any) => ({
+            id: item?.id ? Number(item.id) : undefined,
+            title: String(item?.title ?? "").trim(),
+            description: Array.isArray(item?.description)
+              ? item.description.map((part: any) => String(part ?? "").trim()).filter(Boolean)
+              : [],
+            icon: item?.icon ? String(item.icon) : null,
+            phaseNumber:
+              item?.phaseNumber !== undefined && item?.phaseNumber !== null
+                ? Number(item.phaseNumber)
+                : undefined,
+            sortOrder:
+              item?.sortOrder !== undefined && item?.sortOrder !== null
+                ? Number(item.sortOrder)
+                : 0,
+          }))
+          .filter((item: any) => item.title.length > 0)
+      : [];
 
   /*
     GET /api/courses
@@ -34,10 +55,17 @@ export default async function courseRoutes(app: FastifyInstance) {
   app.post("/courses", async (req, reply) => {
     try {
       const body = req.body as any;
+      const title = String(body?.title ?? "").trim();
+      const slug = String(body?.slug ?? "").trim();
+      const createdBy = Number(body?.createdBy);
+
+      if (!title || !slug || Number.isNaN(createdBy)) {
+        return reply.status(400).send({ error: "title, slug and createdBy are required" });
+      }
 
       const existing = await courseRepo.findOne({
         where: {
-          slug: body.slug,
+          slug,
         },
       });
 
@@ -47,7 +75,17 @@ export default async function courseRoutes(app: FastifyInstance) {
         });
       }
 
-      const course = courseRepo.create(body);
+      const course = courseRepo.create({
+        title,
+        slug,
+        description: body?.description ? String(body.description) : null,
+        heroImage: body?.heroImage ? String(body.heroImage) : null,
+        isActive: body?.isActive ?? true,
+        createdBy,
+        courseHighlights: mapNestedItems(body?.courseHighlights),
+        courseFeatures: mapNestedItems(body?.courseFeatures),
+        courseStructure: mapNestedItems(body?.courseStructure),
+      });
       await courseRepo.save(course);
 
       return reply.status(201).send(course);
@@ -96,7 +134,11 @@ export default async function courseRoutes(app: FastifyInstance) {
 
   /*
     PUT /api/courses/:id
-    Update course and its related entities
+    Update course and explicitly replace nested entities via cascade.
+    TypeORM cascade-saves child arrays when we assign them on the parent entity.
+    We clear the old children first (by loading with relations), then assign
+    fresh items from the request body — old rows without an id will be
+    inserted; rows with an existing id will be updated.
   */
   app.put<{
     Params: { id: string };
@@ -104,9 +146,12 @@ export default async function courseRoutes(app: FastifyInstance) {
     try {
       const id = Number(req.params.id);
       const body = req.body as any;
+      const normalizedSlug =
+        body.slug !== undefined ? String(body.slug ?? "").trim() : undefined;
 
       const course = await courseRepo.findOne({
         where: { id },
+        relations: ["courseHighlights", "courseStructure", "courseFeatures"],
       });
 
       if (!course) {
@@ -115,9 +160,30 @@ export default async function courseRoutes(app: FastifyInstance) {
         });
       }
 
-      // Merge and save (TypeORM will handle cascading updates if configured)
-      const updated = courseRepo.merge(course, body);
-      await courseRepo.save(updated);
+      // Update flat scalar fields
+      course.title = body.title ?? course.title;
+      if (normalizedSlug !== undefined && normalizedSlug !== course.slug) {
+        const slugExists = await courseRepo.findOne({ where: { slug: normalizedSlug } });
+        if (slugExists && slugExists.id !== id) {
+          return reply.status(400).send({ error: "Slug already exists" });
+        }
+        course.slug = normalizedSlug;
+      }
+      course.description = body.description ?? course.description;
+      course.heroImage = body.heroImage ?? course.heroImage;
+      course.isActive = body.isActive ?? course.isActive;
+
+      course.courseHighlights = mapNestedItems(body.courseHighlights ?? []) as any;
+      course.courseFeatures = mapNestedItems(body.courseFeatures ?? []) as any;
+      course.courseStructure = mapNestedItems(body.courseStructure ?? []) as any;
+
+      await courseRepo.save(course);
+
+      // Re-fetch with fresh relations for response
+      const updated = await courseRepo.findOne({
+        where: { id },
+        relations: ["courseHighlights", "courseStructure", "courseFeatures"],
+      });
 
       return reply.send(updated);
     } catch (err) {

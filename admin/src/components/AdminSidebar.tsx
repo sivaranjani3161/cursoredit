@@ -15,7 +15,6 @@ import {
   ChevronRight,
   Users,
 } from 'lucide-react';
-import permissionsConfig from '@/config/permissions.json';
 
 const navItems = [
   { label: 'Dashboard',    href: '/admin',               icon: LayoutDashboard, module: 'dashboard' },
@@ -37,15 +36,19 @@ export default function AdminSidebar() {
   const user = session?.user as any;
   const userRole = user?.role || 'viewer';
   const isAdmin = userRole === 'admin';
-  
-  // Use the minimal JSON to filter accessible modules
-  const accessibleModules = (permissionsConfig as any)[userRole] || [];
+
+  const hasModuleAccess = (module: string) => {
+    if (isAdmin) return true;
+    const ops = user?.permissions?.[module];
+    if (!ops) return false;
+    return Object.values(ops).some(Boolean);
+  };
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 sidebar-minimal flex flex-col z-50">
+    <aside className="fixed left-0 top-0 h-full w-64 bg-white/95 backdrop-blur-md border-r border-slate-200/80 flex flex-col z-50 shadow-[0_0_30px_rgba(15,23,42,0.05)]">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-6 border-b border-gray-100">
-        <div className="w-8 h-8 rounded-lg bg-[#0066FF] flex-shrink-0 flex items-center justify-center text-white font-bold">
+      <div className="flex items-center gap-3 px-6 py-6 border-b border-slate-100">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-cyan-500 to-teal-500 flex-shrink-0 flex items-center justify-center text-white font-bold shadow-sm">
           F
         </div>
         <div>
@@ -57,8 +60,7 @@ export default function AdminSidebar() {
       {/* Nav */}
       <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
         {navItems.map(({ label, href, icon: Icon, module }) => {
-          // Dashboard is always visible, others based on minimal JSON
-          const isAllowed = isAdmin || module === 'dashboard' || accessibleModules.includes(module);
+          const isAllowed = module === 'dashboard' || hasModuleAccess(module);
           if (!isAllowed) return null;
 
           const isActive = pathname === href || (href !== '/admin' && pathname.startsWith(href));
@@ -68,8 +70,8 @@ export default function AdminSidebar() {
               href={href}
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all group ${
                 isActive
-                  ? 'bg-blue-50 text-[#0066FF]'
-                  : 'text-gray-500 hover:text-[#0066FF] hover:bg-gray-50'
+                  ? 'bg-cyan-50 text-cyan-700'
+                  : 'text-gray-500 hover:text-cyan-700 hover:bg-cyan-50/70'
               }`}
             >
               <Icon className="w-4 h-4 flex-shrink-0" />
@@ -90,8 +92,8 @@ export default function AdminSidebar() {
                   href={href}
                   className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all group ${
                     isActive
-                      ? 'bg-blue-50 text-[#0066FF]'
-                      : 'text-gray-500 hover:text-[#0066FF] hover:bg-gray-50'
+                      ? 'bg-cyan-50 text-cyan-700'
+                      : 'text-gray-500 hover:text-cyan-700 hover:bg-cyan-50/70'
                   }`}
                 >
                   <Icon className="w-4 h-4 flex-shrink-0" />
@@ -105,11 +107,11 @@ export default function AdminSidebar() {
       </nav>
 
       {/* User + Sign Out */}
-      <div className="border-t border-gray-100 px-4 py-4 space-y-2">
+      <div className="border-t border-slate-100 px-4 py-4 space-y-2">
         {session?.user && (
           <div className="flex items-center gap-3 px-2 py-2">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-[#0066FF] font-bold text-xs">
-               {user.name?.[0]}
+            <div className="w-8 h-8 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-700 font-bold text-xs border border-cyan-100">
+               {user.name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold truncate text-gray-900">{user.name}</p>

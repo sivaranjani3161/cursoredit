@@ -21,24 +21,18 @@ let User = class User {
     id;
     email;
     name;
-    // Auth
     password;
     authProvider;
     oauthId;
-    // Invite Flow
     inviteToken;
     inviteExpiresAt;
-    // Status
     status;
-    // Role
     roleId;
     role;
-    // Admin Ownership Relations
     blogs;
     galleryEvents;
     courses;
     testimonials;
-    // Audit
     createdAt;
     updatedAt;
 };
@@ -48,35 +42,68 @@ __decorate([
     __metadata("design:type", Number)
 ], User.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, unique: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        unique: true,
+    }),
     __metadata("design:type", String)
 ], User.prototype, "email", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 100, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 100,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "name", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+        select: false,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 50, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 50,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "authProvider", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "oauthId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, unique: true, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        unique: true,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "inviteToken", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "datetime", nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "datetime",
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], User.prototype, "inviteExpiresAt", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "enum", enum: UserStatus_1.UserStatus, default: UserStatus_1.UserStatus.INVITED }),
+    (0, typeorm_1.Column)({
+        type: "enum",
+        enum: UserStatus_1.UserStatus,
+        default: UserStatus_1.UserStatus.INVITED,
+    }),
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
@@ -86,23 +113,23 @@ __decorate([
 ], User.prototype, "roleId", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => Role_1.Role, (role) => role.users),
-    (0, typeorm_1.JoinColumn)({ name: "roleId" }),
+    (0, typeorm_1.JoinColumn)({ name: "role_id" }),
     __metadata("design:type", Role_1.Role)
 ], User.prototype, "role", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Blog_1.Blog, (blog) => blog.user),
+    (0, typeorm_1.OneToMany)(() => Blog_1.Blog, (blog) => blog.createdByUser),
     __metadata("design:type", Array)
 ], User.prototype, "blogs", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => GalleryEvent_1.GalleryEvent, (event) => event.user),
+    (0, typeorm_1.OneToMany)(() => GalleryEvent_1.GalleryEvent, (event) => event.createdByUser),
     __metadata("design:type", Array)
 ], User.prototype, "galleryEvents", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Course_1.Course, (course) => course.user),
+    (0, typeorm_1.OneToMany)(() => Course_1.Course, (course) => course.createdByUser),
     __metadata("design:type", Array)
 ], User.prototype, "courses", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => Testimonial_1.Testimonial, (testimonial) => testimonial.user),
+    (0, typeorm_1.OneToMany)(() => Testimonial_1.Testimonial, (testimonial) => testimonial.createdByUser),
     __metadata("design:type", Array)
 ], User.prototype, "testimonials", void 0);
 __decorate([

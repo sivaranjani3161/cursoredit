@@ -1,198 +1,271 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Check, Save, Lock } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useState } from 'react';
+import { Save, ShieldCheck, ShieldOff } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
-const MODULES = ["courses", "blogs", "gallery", "enquiries", "testimonials"];
-const OPERATIONS = ["create", "read", "update", "delete"];
 
-interface RolePermissionMap {
-  roleId: number;
-  roleCode: string;
-  roleName: string;
-  permissions: Record<string, Record<string, boolean>>;
+const MODULES: Array<{ key: string; label: string }> = [
+  { key: 'courses',      label: 'Courses'      },
+  { key: 'blogs',        label: 'Blogs'        },
+  { key: 'gallery',      label: 'Gallery'      },
+  { key: 'enquiries',    label: 'Enquiries'    },
+  { key: 'testimonials', label: 'Testimonials' },
+];
+
+const OPS: Array<{ key: 'create'|'read'|'update'|'delete'; label: string }> = [
+  { key: 'create', label: 'Create' },
+  { key: 'read',   label: 'Read'   },
+  { key: 'update', label: 'Update' },
+  { key: 'delete', label: 'Delete' },
+];
+
+type OpKey = (typeof OPS)[number]['key'];
+type PermMap = Record<string, Record<OpKey, boolean>>;
+
+interface Role { id: number; name: string; code: string; }
+
+function emptyMap(): PermMap {
+  const m: PermMap = {} as any;
+  for (const mod of MODULES) {
+    m[mod.key] = { create: false, read: false, update: false, delete: false };
+  }
+  return m;
 }
 
 export default function PermissionsGrid() {
-  const [data, setData] = useState<RolePermissionMap[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState<number | null>(null);
+  const [roles, setRoles]               = useState<Role[]>([]);
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
+  const [permissions, setPermissions]   = useState<PermMap | null>(null);
+  const [loadingRoles, setLoadingRoles] = useState(true);
+  const [loadingPerms, setLoadingPerms] = useState(false);
+  const [saving, setSaving]             = useState(false);
 
+  const selectedRole = useMemo(() => roles.find(r => r.id === selectedRoleId) || null, [roles, selectedRoleId]);
+  const isAdmin = selectedRole?.code === 'admin';
+
+  /* Fetch roles once */
   useEffect(() => {
-    fetchPermissions();
+    (async () => {
+      try {
+        setLoadingRoles(true);
+        const res = await fetch(`${BACKEND_URL}/api/roles`);
+        if (!res.ok) throw new Error();
+        const data: Role[] = await res.json();
+        setRoles(data);
+        if (data.length) setSelectedRoleId(data[0].id);
+      } catch { toast.error('Failed to load roles'); }
+      finally { setLoadingRoles(false); }
+    })();
   }, []);
 
-  const fetchPermissions = async () => {
+  /* Fetch permissions whenever role changes */
+  useEffect(() => {
+    if (selectedRoleId == null) return;
+    (async () => {
+      try {
+        setLoadingPerms(true);
+        const res = await fetch(`${BACKEND_URL}/api/permissions?roleId=${selectedRoleId}`);
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        const norm = emptyMap();
+        for (const mod of MODULES) for (const op of OPS) norm[mod.key][op.key] = Boolean(data?.[mod.key]?.[op.key]);
+        setPermissions(norm);
+      } catch {
+        toast.error('Failed to load permissions');
+        setPermissions(emptyMap());
+      } finally { setLoadingPerms(false); }
+    })();
+  }, [selectedRoleId]);
+
+  const toggle = (moduleKey: string, op: OpKey) => {
+    if (!permissions || isAdmin) return;
+    setPermissions(prev => prev ? { ...prev, [moduleKey]: { ...prev[moduleKey], [op]: !prev[moduleKey][op] } } : prev);
+  };
+
+  const handleSave = async () => {
+    if (selectedRoleId == null || !permissions || isAdmin) return;
     try {
-      const res = await fetch(`${BACKEND_URL}/api/permissions/all`);
-      if (res.ok) {
-        const result = await res.json();
-        setData(result);
+      setSaving(true);
+      const res = await fetch(`${BACKEND_URL}/api/permissions`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roleId: selectedRoleId, permissions }),
+      });
+      if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error || 'Failed'); }
+      toast.success('Permissions saved');
+      /* Re-fetch to confirm */
+      const refresh = await fetch(`${BACKEND_URL}/api/permissions?roleId=${selectedRoleId}`);
+      if (refresh.ok) {
+        const data = await refresh.json();
+        const norm = emptyMap();
+        for (const mod of MODULES) for (const op of OPS) norm[mod.key][op.key] = Boolean(data?.[mod.key]?.[op.key]);
+        setPermissions(norm);
       }
-    } catch (error) {
-      console.error('Error fetching permissions:', error);
-    } finally {
-      setLoading(false);
-    }
+    } catch (e: any) { toast.error(e?.message || 'Save failed'); }
+    finally { setSaving(false); }
   };
 
-  const togglePermission = (roleId: number, module: string, op: string) => {
-    setData((prev) =>
-      prev.map((item) => {
-        if (item.roleId === roleId) {
-          if (item.roleCode === 'admin') return item;
-          return {
-            ...item,
-            permissions: {
-              ...item.permissions,
-              [module]: {
-                ...item.permissions[module],
-                [op]: !item.permissions[module][op],
-              },
-            },
-          };
-        }
-        return item;
-      })
-    );
-  };
-
-  const handleSave = async (roleId: number) => {
-  setSaving(roleId);
-
-  console.log("ROLE ID:", roleId);
-
-  const roleData = data.find((d) => d.roleId === roleId);
-
-  console.log("ROLE DATA:", roleData);
-
-  if (!roleData) {
-    console.log("NO ROLE DATA");
-    return;
-  }
-
-  const payload = {
-    roleId,
-    permissions: roleData.permissions,
-  };
-
-  console.log("PAYLOAD:", payload);
-
-  try {
-    console.log("FETCH START");
-
-    const res = await fetch("http://localhost:3001/api/permissions", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    console.log("FETCH RESPONSE:", res);
-
-    const text = await res.text();
-
-    console.log("RESPONSE TEXT:", text);
-
-  } catch (error) {
-    console.error("FULL FETCH ERROR:", error);
-  } finally {
-    setSaving(null);
-  }
-};
-
-  if (loading) return (
-    <div className="flex items-center justify-center py-20">
-      <div className="w-6 h-6 border-2 border-[#0066FF] border-t-transparent rounded-full animate-spin" />
-    </div>
-  );
+  const isLoading = loadingRoles || loadingPerms || permissions == null;
 
   return (
-    <div className="space-y-10">
-      {MODULES.map((module) => (
-        <div key={module} className="card-minimal overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-100 bg-gray-50/50 flex justify-between items-center">
-            <h3 className="text-sm font-bold capitalize text-gray-900 tracking-tight">{module} Module</h3>
-            <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Access Matrix</span>
+    <div className="space-y-5">
+
+      {/* ── Role Selector ── */}
+      <div className="bg-white rounded-xl border border-gray-100 px-5 py-4">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">
+              Select Role
+            </label>
+            {loadingRoles ? (
+              <div className="h-9 w-56 rounded-lg bg-gray-100 animate-pulse" />
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {roles.map(role => (
+                  <button
+                    key={role.id}
+                    type="button"
+                    onClick={() => setSelectedRoleId(role.id)}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${
+                      selectedRoleId === role.id
+                        ? 'bg-[#00B8C6] text-white border-[#00B8C6]'
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-[#00B8C6]/50 hover:text-[#00B8C6]'
+                    }`}
+                  >
+                    {role.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-gray-50">
-                  <th className="px-6 py-4 text-gray-400 text-[10px] font-bold uppercase tracking-widest w-1/4">System Role</th>
-                  {OPERATIONS.map((op) => (
-                    <th key={op} className="px-4 py-4 text-center text-gray-400 text-[10px] font-bold uppercase tracking-widest">
-                      {op}
-                    </th>
-                  ))}
-                  <th className="px-6 py-4 text-right text-gray-400 text-[10px] font-bold uppercase tracking-widest">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {data.map((roleMap) => {
-                  const isAdmin = roleMap.roleCode === 'admin';
+          {selectedRole && (
+            <div className="flex items-center gap-3">
+              {isAdmin ? (
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-700 text-xs font-bold">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Full Access — Read Only
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving || isLoading}
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00B8C6] text-white text-xs font-bold transition-all hover:brightness-95 disabled:opacity-50"
+                >
+                  {saving
+                    ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    : <Save className="w-3.5 h-3.5" />}
+                  Save Permissions
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Permissions Table ── */}
+      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+        {isAdmin && (
+          <div className="px-5 py-2.5 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2 text-emerald-700 text-xs font-semibold">
+            <ShieldCheck className="w-3.5 h-3.5" />
+            Admin role always has full access to all modules. These settings cannot be changed.
+          </div>
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left table-fixed">
+            <thead>
+              <tr className="bg-gray-50/70 border-b border-gray-100">
+                <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 w-36">Module</th>
+                <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400">Active Permissions</th>
+                <th className="px-5 py-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 w-52 text-right">Assign (C / R / U / D)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-50">
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i}>
+                    <td className="px-5 py-3.5"><div className="h-3 w-20 rounded bg-gray-100 animate-pulse" /></td>
+                    <td className="px-5 py-3.5"><div className="h-3 w-36 rounded bg-gray-100 animate-pulse" /></td>
+                    <td className="px-5 py-3.5 text-right"><div className="h-3 w-28 rounded bg-gray-100 animate-pulse ml-auto" /></td>
+                  </tr>
+                ))
+              ) : (
+                MODULES.map(mod => {
+                  const activeOps = OPS.filter(op => isAdmin || Boolean(permissions?.[mod.key]?.[op.key]));
                   return (
-                    <tr key={roleMap.roleId} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
-                            isAdmin ? 'bg-blue-100 text-[#0066FF]' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            {roleMap.roleName}
-                          </span>
-                          {isAdmin && <Lock className="text-gray-300 w-3 h-3" />}
-                        </div>
+                    <tr key={mod.key} className="hover:bg-gray-50/40 transition-colors">
+                      {/* Module name */}
+                      <td className="px-5 py-3.5">
+                        <span className="text-sm font-semibold text-gray-800">{mod.label}</span>
                       </td>
-                      {OPERATIONS.map((op) => {
-                        const isChecked = roleMap.permissions[module]?.[op];
-                        return (
-                          <td key={op} className="px-4 py-4">
-                            <div className="flex justify-center">
-                              <button
-                                disabled={isAdmin}
-                                onClick={() => togglePermission(roleMap.roleId, module, op)}
-                                className={`w-6 h-6 rounded-md border flex items-center justify-center transition-all ${
-                                  isChecked
-                                    ? 'bg-[#0066FF] border-[#0066FF] text-white shadow-sm'
-                                    : 'border-gray-200 bg-white hover:border-gray-300'
-                                } ${isAdmin ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
-                              >
-                                {isChecked && <Check className="w-3.5 h-3.5 stroke-[3]" />}
-                              </button>
-                            </div>
-                          </td>
-                        );
-                      })}
-                      <td className="px-6 py-4 text-right">
-                        <button
-                          disabled={isAdmin || saving === roleMap.roleId}
-                          onClick={() => handleSave(roleMap.roleId)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all ${
-                            isAdmin 
-                              ? 'text-gray-300 cursor-not-allowed' 
-                              : 'bg-white text-[#0066FF] border border-blue-100 hover:bg-blue-50'
-                          }`}
-                        >
-                          {saving === roleMap.roleId ? (
-                            <div className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <Save className="w-3 h-3" />
-                          )}
-                          Save
-                        </button>
+
+                      {/* Active permission badges */}
+                      <td className="px-5 py-3.5">
+                        {activeOps.length === 0 ? (
+                          <div className="flex items-center gap-1.5 text-gray-300 text-xs">
+                            <ShieldOff className="w-3.5 h-3.5" />
+                            No access
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap gap-1.5">
+                            {activeOps.map(op => (
+                              <span key={op.key}
+                                className="inline-flex items-center px-2 py-0.5 rounded-full bg-[#00B8C6]/10 text-[#00B8C6] text-[10px] font-bold uppercase tracking-wide">
+                                {op.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Checkboxes */}
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-4">
+                          {OPS.map(op => (
+                            <label key={op.key} className="flex flex-col items-center gap-1 cursor-pointer group select-none">
+                              <input
+                                type="checkbox"
+                                checked={isAdmin ? true : Boolean(permissions?.[mod.key]?.[op.key])}
+                                disabled={isAdmin || saving}
+                                onChange={() => toggle(mod.key, op.key)}
+                                className="w-4 h-4 rounded border-gray-300 text-[#00B8C6] focus:ring-[#00B8C6]/20 cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                              />
+                              <span className="text-[9px] font-black uppercase tracking-wider text-gray-300 group-hover:text-gray-500 transition-colors">
+                                {op.key[0].toUpperCase()}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
                       </td>
                     </tr>
                   );
-                })}
-              </tbody>
-            </table>
-          </div>
+                })
+              )}
+            </tbody>
+          </table>
         </div>
-      ))}
+
+        {/* Bottom save bar for non-admin */}
+        {!isAdmin && !isLoading && (
+          <div className="px-5 py-3 border-t border-gray-100 flex justify-end bg-gray-50/30">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={saving}
+              className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-[#00B8C6] text-white text-xs font-bold hover:brightness-95 transition-all disabled:opacity-50"
+            >
+              {saving
+                ? <span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                : <Save className="w-3.5 h-3.5" />}
+              Save Changes
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

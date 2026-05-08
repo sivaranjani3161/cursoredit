@@ -17,6 +17,7 @@ let RelatedBlog = class RelatedBlog {
     relatedBlogId;
     blog;
     relatedBlog;
+    createdAt;
 };
 exports.RelatedBlog = RelatedBlog;
 __decorate([
@@ -28,15 +29,23 @@ __decorate([
     __metadata("design:type", Number)
 ], RelatedBlog.prototype, "relatedBlogId", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, (blog) => blog.relatedBlogs, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "blogId" }),
+    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, (blog) => blog.relatedBlogs, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "blog_id" }),
     __metadata("design:type", Blog_1.Blog)
 ], RelatedBlog.prototype, "blog", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "relatedBlogId" }),
+    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "related_blog_id" }),
     __metadata("design:type", Blog_1.Blog)
 ], RelatedBlog.prototype, "relatedBlog", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], RelatedBlog.prototype, "createdAt", void 0);
 exports.RelatedBlog = RelatedBlog = __decorate([
     (0, typeorm_1.Entity)("related_blogs")
 ], RelatedBlog);

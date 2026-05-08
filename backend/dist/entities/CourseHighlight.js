@@ -20,6 +20,8 @@ let CourseHighlight = class CourseHighlight {
     icon;
     sortOrder;
     course;
+    createdAt;
+    updatedAt;
 };
 exports.CourseHighlight = CourseHighlight;
 __decorate([
@@ -32,26 +34,49 @@ __decorate([
     __metadata("design:type", Number)
 ], CourseHighlight.prototype, "courseId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+    }),
     __metadata("design:type", String)
 ], CourseHighlight.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text", nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "json",
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], CourseHighlight.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], CourseHighlight.prototype, "icon", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    (0, typeorm_1.Column)({
+        type: "int",
+        default: 0,
+    }),
     __metadata("design:type", Number)
 ], CourseHighlight.prototype, "sortOrder", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.highlights, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "courseId" }),
+    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.courseHighlights, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "course_id" }),
     __metadata("design:type", Course_1.Course)
 ], CourseHighlight.prototype, "course", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseHighlight.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseHighlight.prototype, "updatedAt", void 0);
 exports.CourseHighlight = CourseHighlight = __decorate([
     (0, typeorm_1.Entity)("course_highlights")
 ], CourseHighlight);

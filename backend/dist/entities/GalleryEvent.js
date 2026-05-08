@@ -21,9 +21,9 @@ let GalleryEvent = class GalleryEvent {
     coverImage;
     description;
     eventDate;
-    userId;
-    user;
-    images;
+    createdBy;
+    createdByUser;
+    galleryImages;
     createdAt;
     updatedAt;
 };
@@ -60,16 +60,18 @@ __decorate([
     (0, typeorm_1.Column)(),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
-], GalleryEvent.prototype, "userId", void 0);
+], GalleryEvent.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.galleryEvents),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.galleryEvents, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "created_by" }),
     __metadata("design:type", User_1.User)
-], GalleryEvent.prototype, "user", void 0);
+], GalleryEvent.prototype, "createdByUser", void 0);
 __decorate([
     (0, typeorm_1.OneToMany)(() => GalleryImage_1.GalleryImage, (image) => image.event),
     __metadata("design:type", Array)
-], GalleryEvent.prototype, "images", void 0);
+], GalleryEvent.prototype, "galleryImages", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

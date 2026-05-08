@@ -14,6 +14,7 @@ const typeorm_1 = require("typeorm");
 const CourseHighlight_1 = require("./CourseHighlight");
 const CourseStructure_1 = require("./CourseStructure");
 const CourseFeature_1 = require("./CourseFeature");
+const Enquiry_1 = require("./Enquiry");
 const User_1 = require("./User");
 let Course = class Course {
     id;
@@ -22,11 +23,12 @@ let Course = class Course {
     description;
     heroImage;
     isActive;
-    userId;
-    user;
-    highlights;
-    structures;
-    features;
+    createdBy;
+    createdByUser;
+    courseHighlights;
+    courseStructure;
+    courseFeatures;
+    enquiries;
     createdAt;
     updatedAt;
 };
@@ -59,24 +61,30 @@ __decorate([
     (0, typeorm_1.Column)(),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
-], Course.prototype, "userId", void 0);
+], Course.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.courses),
-    (0, typeorm_1.JoinColumn)({ name: "userId" }),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.courses, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "created_by" }),
     __metadata("design:type", User_1.User)
-], Course.prototype, "user", void 0);
+], Course.prototype, "createdByUser", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => CourseHighlight_1.CourseHighlight, (highlight) => highlight.course),
+    (0, typeorm_1.OneToMany)(() => CourseHighlight_1.CourseHighlight, (highlight) => highlight.course, { cascade: true }),
     __metadata("design:type", Array)
-], Course.prototype, "highlights", void 0);
+], Course.prototype, "courseHighlights", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => CourseStructure_1.CourseStructure, (structure) => structure.course),
+    (0, typeorm_1.OneToMany)(() => CourseStructure_1.CourseStructure, (structure) => structure.course, { cascade: true }),
     __metadata("design:type", Array)
-], Course.prototype, "structures", void 0);
+], Course.prototype, "courseStructure", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => CourseFeature_1.CourseFeature, (feature) => feature.course),
+    (0, typeorm_1.OneToMany)(() => CourseFeature_1.CourseFeature, (feature) => feature.course, { cascade: true }),
     __metadata("design:type", Array)
-], Course.prototype, "features", void 0);
+], Course.prototype, "courseFeatures", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Enquiry_1.Enquiry, (enquiry) => enquiry.course),
+    __metadata("design:type", Array)
+], Course.prototype, "enquiries", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

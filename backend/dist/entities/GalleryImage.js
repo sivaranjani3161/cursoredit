@@ -20,6 +20,7 @@ let GalleryImage = class GalleryImage {
     sortOrder;
     event;
     createdAt;
+    updatedAt;
 };
 exports.GalleryImage = GalleryImage;
 __decorate([
@@ -32,26 +33,42 @@ __decorate([
     __metadata("design:type", Number)
 ], GalleryImage.prototype, "eventId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 500 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 500,
+    }),
     __metadata("design:type", String)
 ], GalleryImage.prototype, "imageUrl", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], GalleryImage.prototype, "altText", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    (0, typeorm_1.Column)({
+        type: "int",
+        default: 0,
+    }),
     __metadata("design:type", Number)
 ], GalleryImage.prototype, "sortOrder", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => GalleryEvent_1.GalleryEvent, (event) => event.images, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "eventId" }),
+    (0, typeorm_1.ManyToOne)(() => GalleryEvent_1.GalleryEvent, (event) => event.galleryImages, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "event_id" }),
     __metadata("design:type", GalleryEvent_1.GalleryEvent)
 ], GalleryImage.prototype, "event", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)
 ], GalleryImage.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], GalleryImage.prototype, "updatedAt", void 0);
 exports.GalleryImage = GalleryImage = __decorate([
     (0, typeorm_1.Entity)("gallery_images")
 ], GalleryImage);

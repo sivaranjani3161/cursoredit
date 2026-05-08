@@ -36,6 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppDataSource = void 0;
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
+const typeorm_naming_strategies_1 = require("typeorm-naming-strategies");
 const path = __importStar(require("path"));
 const dotenv = __importStar(require("dotenv"));
 // Load .env explicitly for CLI usage (like migrations)
@@ -48,6 +49,7 @@ exports.AppDataSource = new typeorm_1.DataSource({
     password: process.env.DB_PASSWORD || "password",
     database: process.env.DB_NAME || "finestapp",
     synchronize: false,
+    namingStrategy: new typeorm_naming_strategies_1.SnakeNamingStrategy(),
     logging: process.env.NODE_ENV !== "production",
     entities: [path.join(__dirname, "../entities/*.{ts,js}")],
     migrations: [path.join(__dirname, "../migrations/*.{ts,js}")],

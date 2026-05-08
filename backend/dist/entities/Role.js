@@ -12,14 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Role = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
-const RolePermission_1 = require("./RolePermission");
+const Permission_1 = require("./Permission");
 let Role = class Role {
     id;
     name;
-    code; // ADMIN, MANAGER, VIEWER
+    code;
     description;
-    permissions;
     users;
+    permissions;
     createdAt;
     updatedAt;
 };
@@ -41,13 +41,13 @@ __decorate([
     __metadata("design:type", Object)
 ], Role.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => RolePermission_1.RolePermission, (rolePermission) => rolePermission.role),
-    __metadata("design:type", Array)
-], Role.prototype, "permissions", void 0);
-__decorate([
     (0, typeorm_1.OneToMany)(() => User_1.User, (user) => user.role),
     __metadata("design:type", Array)
 ], Role.prototype, "users", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => Permission_1.Permission, (permission) => permission.role),
+    __metadata("design:type", Array)
+], Role.prototype, "permissions", void 0);
 __decorate([
     (0, typeorm_1.CreateDateColumn)(),
     __metadata("design:type", Date)

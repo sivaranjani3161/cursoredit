@@ -19,6 +19,8 @@ let CourseFeature = class CourseFeature {
     description;
     sortOrder;
     course;
+    createdAt;
+    updatedAt;
 };
 exports.CourseFeature = CourseFeature;
 __decorate([
@@ -31,22 +33,41 @@ __decorate([
     __metadata("design:type", Number)
 ], CourseFeature.prototype, "courseId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+    }),
     __metadata("design:type", String)
 ], CourseFeature.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text", nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "json",
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], CourseFeature.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    (0, typeorm_1.Column)({
+        type: "int",
+        default: 0,
+    }),
     __metadata("design:type", Number)
 ], CourseFeature.prototype, "sortOrder", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.features, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "courseId" }),
+    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.courseFeatures, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "course_id" }),
     __metadata("design:type", Course_1.Course)
 ], CourseFeature.prototype, "course", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseFeature.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseFeature.prototype, "updatedAt", void 0);
 exports.CourseFeature = CourseFeature = __decorate([
     (0, typeorm_1.Entity)("course_features")
 ], CourseFeature);

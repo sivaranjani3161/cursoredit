@@ -21,6 +21,8 @@ let CourseStructure = class CourseStructure {
     icon;
     sortOrder;
     course;
+    createdAt;
+    updatedAt;
 };
 exports.CourseStructure = CourseStructure;
 __decorate([
@@ -33,30 +35,55 @@ __decorate([
     __metadata("design:type", Number)
 ], CourseStructure.prototype, "courseId", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int" }),
+    (0, typeorm_1.Column)({
+        type: "int",
+    }),
     __metadata("design:type", Number)
 ], CourseStructure.prototype, "phaseNumber", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+    }),
     __metadata("design:type", String)
 ], CourseStructure.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "text", nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "json",
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], CourseStructure.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    (0, typeorm_1.Column)({
+        type: "varchar",
+        length: 255,
+        nullable: true,
+    }),
     __metadata("design:type", Object)
 ], CourseStructure.prototype, "icon", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "int", default: 0 }),
+    (0, typeorm_1.Column)({
+        type: "int",
+        default: 0,
+    }),
     __metadata("design:type", Number)
 ], CourseStructure.prototype, "sortOrder", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.structures, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "courseId" }),
+    (0, typeorm_1.ManyToOne)(() => Course_1.Course, (course) => course.courseStructure, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "course_id" }),
     __metadata("design:type", Course_1.Course)
 ], CourseStructure.prototype, "course", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseStructure.prototype, "createdAt", void 0);
+__decorate([
+    (0, typeorm_1.UpdateDateColumn)(),
+    __metadata("design:type", Date)
+], CourseStructure.prototype, "updatedAt", void 0);
 exports.CourseStructure = CourseStructure = __decorate([
-    (0, typeorm_1.Entity)("course_structure")
+    (0, typeorm_1.Entity)("course_structures")
 ], CourseStructure);

@@ -18,6 +18,7 @@ let BlogTag = class BlogTag {
     tagId;
     blog;
     tag;
+    createdAt;
 };
 exports.BlogTag = BlogTag;
 __decorate([
@@ -29,15 +30,23 @@ __decorate([
     __metadata("design:type", Number)
 ], BlogTag.prototype, "tagId", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, (blog) => blog.tags, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "blogId" }),
+    (0, typeorm_1.ManyToOne)(() => Blog_1.Blog, (blog) => blog.blogTags, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "blog_id" }),
     __metadata("design:type", Blog_1.Blog)
 ], BlogTag.prototype, "blog", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => Tag_1.Tag, (tag) => tag.blogs, { onDelete: "CASCADE" }),
-    (0, typeorm_1.JoinColumn)({ name: "tagId" }),
+    (0, typeorm_1.ManyToOne)(() => Tag_1.Tag, (tag) => tag.blogTags, {
+        onDelete: "CASCADE",
+    }),
+    (0, typeorm_1.JoinColumn)({ name: "tag_id" }),
     __metadata("design:type", Tag_1.Tag)
 ], BlogTag.prototype, "tag", void 0);
+__decorate([
+    (0, typeorm_1.CreateDateColumn)(),
+    __metadata("design:type", Date)
+], BlogTag.prototype, "createdAt", void 0);
 exports.BlogTag = BlogTag = __decorate([
     (0, typeorm_1.Entity)("blog_tags")
 ], BlogTag);
