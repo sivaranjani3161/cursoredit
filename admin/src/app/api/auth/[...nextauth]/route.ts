@@ -31,7 +31,7 @@ export const authOptions: NextAuthOptions = {
             // Build permissions map from role.permissions array
             const permsMap: Record<string, Record<string, boolean>> = {};
             const MODULES = ["courses","blogs","gallery","enquiries","testimonials"];
-            const OPS = ["create","read","update","delete"];
+            const OPS = ["create","read","update","delete","custom"];
             for (const mod of MODULES) {
               permsMap[mod] = {};
               for (const op of OPS) {

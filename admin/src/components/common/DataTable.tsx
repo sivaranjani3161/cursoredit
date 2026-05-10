@@ -1,7 +1,7 @@
 'use client';
 
-import { ReactNode, useState } from 'react';
-import { Search, Edit, Trash2, Eye, Filter, Plus } from 'lucide-react';
+import { ReactNode, useMemo, useState } from 'react';
+import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
 import PermissionButton from '../rbac/PermissionButton';
 
 export interface Column<T> {
@@ -23,6 +23,8 @@ interface DataTableProps<T> {
   loading?: boolean;
   searchPlaceholder?: string;
   searchKey?: keyof T;
+  /** Overrides the default “Add {title}” primary button label */
+  addButtonLabel?: string;
 }
 
 export default function DataTable<T extends { id: any }>({
@@ -38,117 +40,130 @@ export default function DataTable<T extends { id: any }>({
   loading,
   searchPlaceholder = 'Search...',
   searchKey,
+  addButtonLabel,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState('');
 
-  const filteredData = searchKey
-    ? data.filter((item) =>
-        String(item[searchKey] || '')
-          .toLowerCase()
-          .includes(search.toLowerCase())
-      )
-    : data;
+  const filteredData = useMemo(() => {
+    return data.filter((item) =>
+      searchKey
+        ? String(item[searchKey] || '').toLowerCase().includes(search.toLowerCase())
+        : true
+    );
+  }, [data, searchKey, search]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-2">
+
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-3 mb-1">
-            <div className="p-2 rounded-lg bg-[#00B8C6]/10">
-              <Icon className="w-5 h-5 text-[#00B8C6]" />
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+      <div className="flex items-center justify-between bg-white rounded-xl border border-slate-200 px-4 py-2.5 shadow-sm">
+        <div className="flex items-center gap-2.5">
+          <div className="p-1.5 rounded-lg bg-[#00B8C6]/10">
+            <Icon className="w-4 h-4 text-[#00B8C6]" />
           </div>
-          <p className="text-sm text-gray-500 mt-1">Manage your {title.toLowerCase()} and their details</p>
+          <div>
+            <h1 className="text-base font-bold text-gray-900 leading-tight">{title}</h1>
+            <p className="text-[11px] text-gray-400 leading-tight">
+              Manage your {title.toLowerCase()} and keep records up to date.
+            </p>
+          </div>
         </div>
-        
         {onAdd && (
           <PermissionButton
             module={module}
             action="create"
             onClick={onAdd}
             icon={Plus}
+            className="!rounded-lg !px-3 !py-1.5 !text-xs !bg-[#00B8C6] hover:!bg-[#009da9]"
           >
-            Add {title.replace(/s$/, '')}
+            {addButtonLabel ?? `Add ${title.replace(/s$/, '')}`}
           </PermissionButton>
         )}
       </div>
 
-      {/* Filters */}
-      <div className="flex items-center gap-4 bg-white p-4 rounded-xl border border-gray-100">
-        <div className="flex-1 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="text"
-            placeholder={searchPlaceholder}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] transition-all text-sm"
-          />
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg border border-gray-200 transition-all text-sm font-medium">
-          <Filter className="w-4 h-4" />
-          Filter
-        </button>
+      {/* Search */}
+      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200">
+        <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+        <input
+          type="text"
+          placeholder={searchPlaceholder}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 bg-transparent focus:outline-none text-sm text-slate-800 placeholder:text-slate-400"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch('')}
+            className="text-[10px] font-semibold text-slate-400 hover:text-slate-600"
+          >
+            Clear
+          </button>
+        )}
+        <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+          {filteredData.length} / {data.length}
+        </span>
       </div>
 
-      {/* Table Container */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+      {/* Table */}
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
-              <tr className="bg-gray-50/50 border-b border-gray-100">
+              <tr className="bg-slate-50 border-b border-slate-200">
                 {columns.map((col, i) => (
                   <th
                     key={i}
-                    className={`px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 ${col.className || ''}`}
+                    className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400"
                   >
                     {col.header}
                   </th>
                 ))}
                 {(onEdit || onDelete || onView) && (
-                  <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-gray-500 text-center">
+                  <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-center">
                     Actions
                   </th>
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-6 py-12 text-center">
+                  <td colSpan={columns.length + 1} className="px-4 py-8 text-center">
                     <div className="flex justify-center">
-                      <div className="w-8 h-8 border-4 border-[#00B8C6]/15 border-t-[#00B8C6] rounded-full animate-spin" />
+                      <div className="w-5 h-5 border-2 border-[#00B8C6]/20 border-t-[#00B8C6] rounded-full animate-spin" />
                     </div>
                   </td>
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={columns.length + 1} className="px-4 py-8 text-center text-sm text-gray-400">
                     No records found
                   </td>
                 </tr>
               ) : (
                 filteredData.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                  <tr key={item.id} className="hover:bg-cyan-50/30 transition-colors">
                     {columns.map((col, i) => (
-                      <td key={i} className={`px-6 py-4 text-sm text-gray-600 ${col.className || ''}`}>
+                      <td
+                        key={i}
+                        className={`px-4 py-2 text-sm text-gray-600 ${col.className || ''}`}
+                      >
                         {typeof col.accessor === 'function'
                           ? col.accessor(item)
                           : (item[col.accessor] as any)}
                       </td>
                     ))}
                     {(onEdit || onDelete || onView) && (
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-center gap-1">
+                      <td className="px-4 py-2">
+                        <div className="flex items-center justify-center gap-0.5">
                           {onView && (
                             <button
                               onClick={() => onView(item)}
-                              className="p-1.5 text-gray-400 hover:text-[#00B8C6] hover:bg-[#00B8C6]/5 rounded-md transition-all"
+                              className="p-1 text-gray-400 hover:text-[#00B8C6] hover:bg-[#00B8C6]/5 rounded transition-all"
                               title="View"
                             >
-                              <Eye className="w-4 h-4" />
+                              <Eye className="w-3.5 h-3.5" />
                             </button>
                           )}
                           {onEdit && (
@@ -157,7 +172,7 @@ export default function DataTable<T extends { id: any }>({
                               action="update"
                               onClick={() => onEdit(item)}
                               variant="ghost"
-                              className="!p-1.5 !bg-transparent !text-gray-400 hover:!text-amber-600 hover:!bg-amber-50"
+                              className="!p-1 !bg-transparent !text-gray-400 hover:!text-amber-600 hover:!bg-amber-50"
                               title="Edit"
                               icon={Edit}
                             />
@@ -168,7 +183,7 @@ export default function DataTable<T extends { id: any }>({
                               action="delete"
                               onClick={() => onDelete(item)}
                               variant="ghost"
-                              className="!p-1.5 !bg-transparent !text-gray-400 hover:!text-rose-600 hover:!bg-rose-50"
+                              className="!p-1 !bg-transparent !text-gray-400 hover:!text-rose-600 hover:!bg-rose-50"
                               title="Delete"
                               icon={Trash2}
                             />

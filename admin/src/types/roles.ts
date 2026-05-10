@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'editor' | 'viewer';
+ export type Role = 'admin' | 'editor' | 'viewer';
 
 export type Module =
   | 'courses'
@@ -7,7 +7,7 @@ export type Module =
   | 'enquiries'
   | 'testimonials';
 
-export type CrudOperation = 'create' | 'read' | 'update' | 'delete';
+export type CrudOperation = 'create' | 'read' | 'update' | 'delete' | 'custom';
 
 export type ModulePermissions = {
   [key in CrudOperation]: boolean;

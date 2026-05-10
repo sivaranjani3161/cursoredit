@@ -3,23 +3,14 @@ import { ShieldCheck } from 'lucide-react';
 
 export default function PermissionsPage() {
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 bg-white min-h-screen">
-      {/* Header */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-3 rounded-xl bg-[#00B8C6]/10">
-            <ShieldCheck className="w-6 h-6 text-[#00B8C6]" />
-          </div>
-
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              System Permissions
-            </h1>
-
-            <p className="text-gray-500 text-sm mt-1">
-              Manage roles and permission access across the platform
-            </p>
-          </div>
+    <div className="p-3 sm:p-4 space-y-2">
+      <div className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+        <div className="p-1.5 rounded-lg bg-cyan-50 border border-cyan-100">
+          <ShieldCheck className="w-4 h-4 text-[#00B8C6]" />
+        </div>
+        <div>
+          <h1 className="text-base font-bold text-gray-900 leading-tight">Roles</h1>
+          <p className="text-[11px] text-gray-400 leading-tight">Manage roles, users, and permissions in one place.</p>
         </div>
       </div>
 

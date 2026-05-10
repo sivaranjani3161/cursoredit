@@ -33,12 +33,6 @@ export class GalleryImage {
   })
   altText!: string | null;
 
-  @Column({
-    type: "int",
-    default: 0,
-  })
-  sortOrder!: number;
-
   @ManyToOne(() => GalleryEvent, (event) => event.galleryImages, {
     onDelete: "CASCADE",
   })

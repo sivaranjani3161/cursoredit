@@ -13,7 +13,7 @@ interface ImageUploadProps {
   compact?: boolean;
 }
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+const API_BASE = '/api/proxy';
 
 export default function ImageUpload({
   value,
@@ -34,7 +34,7 @@ export default function ImageUpload({
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch(`${BACKEND_URL}/api/upload`, {
+      const res = await fetch(`${API_BASE}/upload`, {
         method: 'POST',
         body: formData,
       });

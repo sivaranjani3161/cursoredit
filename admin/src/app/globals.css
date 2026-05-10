@@ -8,13 +8,16 @@
 }
 
 :root {
-  --background: #f4f7fa;
-  --foreground: #1a1a1a;
+  --background: #f6fbfc;
+  --foreground: #0f172a;
   --primary: #00B8C6;
 }
 
 body {
-  background: var(--background);
+  background:
+    radial-gradient(circle at 10% 0%, rgba(0, 184, 198, 0.06), transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(0, 184, 198, 0.05), transparent 35%),
+    var(--background);
   color: var(--foreground);
   font-family: var(--font-urbanist), sans-serif;
   min-height: 100vh;
@@ -42,5 +45,12 @@ body {
   .btn-primary:hover {
     background: #00B8C6;
     filter: brightness(0.96);
+  }
+
+  .surface-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
   }
 }

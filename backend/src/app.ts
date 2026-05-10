@@ -10,6 +10,11 @@ import userRoutes from "./routes/users";
 import permissionRoutes from "./routes/permissions";
 import courseRoutes from "./routes/courses";
 import uploadRoutes from "./routes/upload";
+import blogRoutes from "./routes/blogs";
+import testimonialRoutes from "./routes/testimonials";
+import galleryRoutes from "./routes/gallery";
+import enquiryRoutes from "./routes/enquiries";
+import awesomeClickRoutes from "./routes/awesome-clicks";
 import multipart from "@fastify/multipart";
 import staticPlugin from "@fastify/static";
 import * as path from "path";
@@ -81,6 +86,21 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(permissionRoutes, { prefix: "/api" });
 await app.register(courseRoutes, {
+  prefix: "/api",
+});
+await app.register(blogRoutes, {
+  prefix: "/api",
+});
+await app.register(testimonialRoutes, {
+  prefix: "/api",
+});
+await app.register(galleryRoutes, {
+  prefix: "/api",
+});
+await app.register(awesomeClickRoutes, {
+  prefix: "/api",
+});
+await app.register(enquiryRoutes, {
   prefix: "/api",
 });
 await app.register(uploadRoutes, {

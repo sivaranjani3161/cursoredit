@@ -17,7 +17,6 @@ let GalleryImage = class GalleryImage {
     eventId;
     imageUrl;
     altText;
-    sortOrder;
     event;
     createdAt;
     updatedAt;
@@ -47,13 +46,6 @@ __decorate([
     }),
     __metadata("design:type", Object)
 ], GalleryImage.prototype, "altText", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: "int",
-        default: 0,
-    }),
-    __metadata("design:type", Number)
-], GalleryImage.prototype, "sortOrder", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => GalleryEvent_1.GalleryEvent, (event) => event.galleryImages, {
         onDelete: "CASCADE",

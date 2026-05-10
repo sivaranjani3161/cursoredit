@@ -49,6 +49,11 @@ const users_1 = __importDefault(require("./routes/users"));
 const permissions_1 = __importDefault(require("./routes/permissions"));
 const courses_1 = __importDefault(require("./routes/courses"));
 const upload_1 = __importDefault(require("./routes/upload"));
+const blogs_1 = __importDefault(require("./routes/blogs"));
+const testimonials_1 = __importDefault(require("./routes/testimonials"));
+const gallery_1 = __importDefault(require("./routes/gallery"));
+const enquiries_1 = __importDefault(require("./routes/enquiries"));
+const awesome_clicks_1 = __importDefault(require("./routes/awesome-clicks"));
 const multipart_1 = __importDefault(require("@fastify/multipart"));
 const static_1 = __importDefault(require("@fastify/static"));
 const path = __importStar(require("path"));
@@ -111,6 +116,21 @@ const buildApp = async () => {
     await app.register(users_1.default, { prefix: "/api" });
     await app.register(permissions_1.default, { prefix: "/api" });
     await app.register(courses_1.default, {
+        prefix: "/api",
+    });
+    await app.register(blogs_1.default, {
+        prefix: "/api",
+    });
+    await app.register(testimonials_1.default, {
+        prefix: "/api",
+    });
+    await app.register(gallery_1.default, {
+        prefix: "/api",
+    });
+    await app.register(awesome_clicks_1.default, {
+        prefix: "/api",
+    });
+    await app.register(enquiries_1.default, {
         prefix: "/api",
     });
     await app.register(upload_1.default, {

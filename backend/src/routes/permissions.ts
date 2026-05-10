@@ -5,7 +5,7 @@ import { Role } from "../entities/Role";
 
 // Supported modules and operations
 export const MODULES = ["courses", "blogs", "gallery", "enquiries", "testimonials"] as const;
-export const OPERATIONS = ["create", "read", "update", "delete"] as const;
+export const OPERATIONS = ["create", "read", "update", "delete", "custom"] as const;
 export type PermCode = `${typeof MODULES[number]}:${typeof OPERATIONS[number]}`;
 
 export default async function permissionRoutes(app: FastifyInstance) {
@@ -18,11 +18,11 @@ export default async function permissionRoutes(app: FastifyInstance) {
     "/permissions",
     async (req, reply) => {
       const roleId = Number(req.query.roleId);
-if (typeof roleId !== "number") {
-  return reply.status(400).send({
-    error: "roleId is required"
-  });
-}
+      if (Number.isNaN(roleId)) {
+        return reply.status(400).send({
+          error: "roleId is required",
+        });
+      }
       const perms = await permRepo.find({ where: { roleId } });
 
       // Build structured map: { courses: { create: true, read: true, ... }, ... }
