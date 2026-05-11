@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Info, Save, X } from 'lucide-react';
+import { Save, X, Info, FileText } from 'lucide-react';
+import MDEditor from '@uiw/react-md-editor';
 import ImageUpload from '../common/ImageUpload';
 
 interface BlogFormProps {
@@ -13,10 +14,13 @@ interface BlogFormProps {
   loading?: boolean;
 }
 
-const inputClass =
-  'w-full h-9 px-3 rounded-md border border-slate-300 bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00B8C6]';
+const inp = 'w-full h-7 px-2 rounded border border-slate-200 bg-slate-50 text-[11px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00B8C6] focus:bg-white transition-colors';
+const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 mb-0.5';
 
-const SIDEBAR_WIDTH = 252;
+const SIDEBAR_WIDTH = 262;
+const TOP_OFFSET = 12;
+const RIGHT_OFFSET = 12;
+const BOTTOM_OFFSET = 12;
 
 export default function BlogForm({ initialData, existingBlogs, onSave, onCancel, loading }: BlogFormProps) {
   const [mounted, setMounted] = useState(false);
@@ -26,7 +30,6 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
     excerpt: '',
     content: '',
     coverImage: '',
-    publishedAt: '',
     status: 'DRAFT',
     tagsInput: '',
     relatedBlogIds: [] as number[],
@@ -36,9 +39,7 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
     setMounted(true);
     const original = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = original;
-    };
+    return () => { document.body.style.overflow = original; };
   }, []);
 
   useEffect(() => {
@@ -49,39 +50,26 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
       excerpt: initialData.excerpt ?? '',
       content: initialData.content ?? '',
       coverImage: initialData.coverImage ?? '',
-      publishedAt: initialData.publishedAt ? String(initialData.publishedAt).slice(0, 16) : '',
       status: initialData.status ?? 'DRAFT',
       tagsInput: Array.isArray(initialData.tags) ? initialData.tags.join(', ') : '',
       relatedBlogIds: Array.isArray(initialData.relatedBlogIds) ? initialData.relatedBlogIds : [],
     });
   }, [initialData]);
 
-  const relatedCandidates = useMemo(
-    () => existingBlogs.filter((item) => item.id !== initialData?.id),
-    [existingBlogs, initialData?.id]
-  );
+  const relatedCandidates = existingBlogs.filter((b) => b.id !== initialData?.id);
 
   const generateSlug = (title: string) =>
-    title
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)+/g, '');
+    title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const tags = formData.tagsInput
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-
+    const tags = formData.tagsInput.split(',').map((t) => t.trim()).filter(Boolean);
     onSave({
       title: formData.title,
       slug: formData.slug,
       excerpt: formData.excerpt || null,
-      content: formData.content,
+      content: formData.content.trim(),
       coverImage: formData.coverImage || null,
-      publishedAt: formData.publishedAt || null,
       status: formData.status,
       tags,
       relatedBlogIds: formData.relatedBlogIds,
@@ -92,165 +80,192 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
 
   return createPortal(
     <>
+      {/* Backdrop */}
       <div
-        className="fixed z-[59] bg-[#00B8C644] rounded-xl"
-        style={{ left: `${SIDEBAR_WIDTH + 12}px`, top: '12px', right: '12px', bottom: '12px' }}
+        className="fixed z-[59] bg-black/20 backdrop-blur-[1px]"
+        style={{ left: SIDEBAR_WIDTH, top: TOP_OFFSET, right: RIGHT_OFFSET, bottom: BOTTOM_OFFSET, borderRadius: 10 }}
         onClick={onCancel}
       />
-      <div
-        className="fixed inset-y-0 right-0 z-[60] flex items-center justify-center p-2"
-        style={{ left: `${SIDEBAR_WIDTH}px`, pointerEvents: 'none' }}
-      >
-        <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[860px]">
-          <div className="w-full max-h-[80vh] bg-white rounded-md border border-slate-200 shadow-sm flex flex-col overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 flex-shrink-0">
-              <div>
-                <h2 className="text-[18px] font-semibold text-slate-900 leading-none">
-                  {initialData ? 'Edit Blog' : 'New Blog'}
-                </h2>
-                <p className="text-[11px] text-slate-500 mt-1">Manage metadata, content, tags, and related posts.</p>
-              </div>
-              <button onClick={onCancel} className="p-1 text-slate-400 hover:text-slate-700">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            <form id="blog-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-4 space-y-3">
-              <div className="grid grid-cols-[1fr_280px] gap-3 items-start">
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Title *</label>
+      {/* Panel */}
+      <div
+        className="fixed z-[60] flex flex-col bg-white border border-slate-200 shadow-2xl overflow-hidden"
+        style={{ left: SIDEBAR_WIDTH, top: TOP_OFFSET, right: RIGHT_OFFSET, bottom: BOTTOM_OFFSET, borderRadius: 10 }}
+      >
+
+        {/* ── Header ── */}
+        <div className="flex items-center justify-between px-4 h-10 border-b border-slate-100 bg-white flex-shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="w-[3px] h-3.5 rounded-full bg-[#00B8C6]" />
+            <FileText className="w-3.5 h-3.5 text-[#00B8C6]" />
+            <h2 className="text-[12.5px] font-bold text-slate-800">
+              {initialData ? 'Edit Blog' : 'New Blog'}
+            </h2>
+            <span className="text-[10.5px] text-slate-400 font-normal">Metadata · Content · Tags</span>
+          </div>
+          <button onClick={onCancel} className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* ── Form ── */}
+        <form id="blog-form" onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0 overflow-hidden">
+
+          {/* ────────────────────────────────────────────────
+              META STRIP — flex-shrink-0, NEVER grows
+              Structure: [3-col grid | cover image 130px]
+              Row 1: Title(×2)   | Status    | [image]
+              Row 2: Slug(×2)    | Tags      | [image]
+              Row 3: Excerpt(×2) | Related   | [image]
+          ──────────────────────────────────────────────── */}
+          <div className="flex-shrink-0 border-b border-slate-100 bg-slate-50/40 px-4 py-2.5">
+            <div className="flex gap-3 items-start">
+
+              {/* Left 3-col grid */}
+              <div className="flex-1 grid grid-cols-3 gap-x-2.5 gap-y-2 min-w-0">
+
+                {/* Row 1 */}
+                <div className="col-span-2">
+                  <label className={lbl}>Title <span className="text-rose-400">*</span></label>
+                  <input
+                    required
+                    value={formData.title}
+                    onChange={(e) => setFormData((p) => ({ ...p, title: e.target.value, slug: generateSlug(e.target.value) }))}
+                    placeholder="Enter blog title…"
+                    className={inp}
+                  />
+                </div>
+                <div>
+                  <label className={lbl}>Status</label>
+                  <select
+                    value={formData.status}
+                    onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value }))}
+                    className={inp}
+                  >
+                    <option value="DRAFT">Draft</option>
+                    <option value="PUBLISHED">Published</option>
+                    <option value="ARCHIVED">Archived</option>
+                  </select>
+                </div>
+
+                {/* Row 2 */}
+                <div className="col-span-2">
+                  <label className={lbl}>Slug <span className="text-rose-400">*</span></label>
+                  <div className="relative">
                     <input
                       required
-                      value={formData.title}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          title: e.target.value,
-                          slug: generateSlug(e.target.value),
-                        }))
-                      }
-                      className={inputClass}
+                      value={formData.slug}
+                      onChange={(e) => setFormData((p) => ({ ...p, slug: e.target.value }))}
+                      className={`${inp} pr-6 font-mono`}
+                      placeholder="auto-generated-from-title"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Slug *</label>
-                    <div className="relative">
-                      <input
-                        required
-                        value={formData.slug}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, slug: e.target.value }))}
-                        className={`${inputClass} pr-8 font-mono`}
-                      />
-                      <Info className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-300" />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Excerpt</label>
-                    <textarea
-                      value={formData.excerpt}
-                      rows={2}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, excerpt: e.target.value }))}
-                      className="w-full px-3 py-2 rounded-md border border-slate-300 bg-white text-[13px] text-slate-900 placeholder:text-slate-400 resize-none focus:outline-none focus:border-[#00B8C6]"
-                    />
+                    <Info className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-300" />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <ImageUpload
-                    label="Cover Image"
-                    compact
-                    value={formData.coverImage}
-                    onChange={(url) => setFormData((prev) => ({ ...prev, coverImage: url }))}
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Status</label>
-                      <select
-                        value={formData.status}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, status: e.target.value }))}
-                        className={inputClass}
-                      >
-                        <option value="DRAFT">Draft</option>
-                        <option value="PUBLISHED">Published</option>
-                        <option value="ARCHIVED">Archived</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Published At</label>
-                      <input
-                        type="datetime-local"
-                        value={formData.publishedAt}
-                        onChange={(e) => setFormData((prev) => ({ ...prev, publishedAt: e.target.value }))}
-                        className={inputClass}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Content *</label>
-                <textarea
-                  required
-                  value={formData.content}
-                  rows={10}
-                  onChange={(e) => setFormData((prev) => ({ ...prev, content: e.target.value }))}
-                  className="w-full px-3 py-2 rounded-md border border-slate-300 bg-white text-[13px] text-slate-900 placeholder:text-slate-400 resize-y focus:outline-none focus:border-[#00B8C6]"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Tags (comma separated)</label>
+                  <label className={lbl}>Tags <span className="text-slate-300 font-normal normal-case">(comma)</span></label>
                   <input
                     value={formData.tagsInput}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, tagsInput: e.target.value }))}
-                    placeholder="design, web, mobile"
-                    className={inputClass}
+                    onChange={(e) => setFormData((p) => ({ ...p, tagsInput: e.target.value }))}
+                    placeholder="design, web…"
+                    className={inp}
+                  />
+                </div>
+
+                {/* Row 3 */}
+                <div className="col-span-2">
+                  <label className={lbl}>Excerpt</label>
+                  <textarea
+                    value={formData.excerpt}
+                    rows={2}
+                    onChange={(e) => setFormData((p) => ({ ...p, excerpt: e.target.value }))}
+                    placeholder="Short summary for listings and SEO…"
+                    className="w-full px-2 py-1.5 rounded border border-slate-200 bg-slate-50 text-[11px] text-slate-900 placeholder:text-slate-400 resize-none focus:outline-none focus:border-[#00B8C6] focus:bg-white transition-colors leading-relaxed"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wide text-slate-700 mb-1">Related Blogs</label>
-                  <div className="max-h-[110px] overflow-y-auto rounded-md border border-slate-200 p-2 space-y-1">
-                    {relatedCandidates.length === 0 && <p className="text-xs text-slate-400">No other blogs available.</p>}
-                    {relatedCandidates.map((item) => (
-                      <label key={item.id} className="flex items-center gap-2 text-xs text-slate-700">
-                        <input
-                          type="checkbox"
-                          checked={formData.relatedBlogIds.includes(item.id)}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
+                  <label className={lbl}>Related Blogs</label>
+                  {relatedCandidates.length === 0 ? (
+                    <div className="h-[46px] flex items-center px-2 rounded border border-dashed border-slate-200 text-[10px] text-slate-400 italic">
+                      No other blogs
+                    </div>
+                  ) : (
+                    <div className="h-[46px] overflow-y-auto rounded border border-slate-200 bg-slate-50 px-2 py-1 space-y-0.5">
+                      {relatedCandidates.map((item) => (
+                        <label key={item.id} className="flex items-center gap-1.5 text-[10px] text-slate-700 cursor-pointer hover:text-slate-900">
+                          <input
+                            type="checkbox"
+                            checked={formData.relatedBlogIds.includes(item.id)}
+                            onChange={(e) => setFormData((p) => ({
+                              ...p,
                               relatedBlogIds: e.target.checked
-                                ? [...prev.relatedBlogIds, item.id]
-                                : prev.relatedBlogIds.filter((id) => id !== item.id),
-                            }))
-                          }
-                        />
-                        <span>{item.title}</span>
-                      </label>
-                    ))}
-                  </div>
+                                ? [...p.relatedBlogIds, item.id]
+                                : p.relatedBlogIds.filter((id) => id !== item.id),
+                            }))}
+                            className="accent-[#00B8C6] flex-shrink-0"
+                          />
+                          <span className="truncate">{item.title}</span>
+                        </label>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+
+              {/* Cover image — fixed width, spans full 3-row height */}
+              <div className="flex-shrink-0 w-[130px]">
+                <label className={lbl}>Cover Image</label>
+                {/* 3 rows × ~28px each + 2 gaps × 8px = ~100px, close enough */}
+                <div className="h-[112px] rounded border border-slate-200 overflow-hidden bg-slate-50">
+                  <ImageUpload compact value={formData.coverImage} onChange={(url) => setFormData((p) => ({ ...p, coverImage: url }))} />
                 </div>
               </div>
-            </form>
 
-            <div className="px-4 py-2 border-t border-slate-100 flex items-center justify-end gap-2 bg-white flex-shrink-0">
-              <button type="button" onClick={onCancel} className="px-3 py-1.5 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-100 transition">
-                Cancel
-              </button>
-              <button
-                form="blog-form"
-                type="submit"
-                disabled={loading}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-slate-900 text-white text-xs font-medium hover:bg-slate-800 transition disabled:opacity-50"
-              >
-                <Save className="w-3 h-3" />
-                {initialData ? 'Update Blog' : 'Create Blog'}
-              </button>
             </div>
           </div>
+
+          {/* ── Content editor — takes ALL remaining vertical space ── */}
+          <div className="flex-1 flex flex-col min-h-0 px-4 py-2.5">
+            <label className={lbl}>Content <span className="text-rose-400">*</span></label>
+            <div data-color-mode="light" className="flex-1 min-h-0 rounded border border-slate-200 overflow-hidden">
+              <MDEditor
+                value={formData.content}
+                onChange={(value) => setFormData((p) => ({ ...p, content: value || '' }))}
+                height="100%"
+                visibleDragbar={false}
+                textareaProps={{ placeholder: 'Write blog content here…' }}
+                style={{ height: '100%', minHeight: 0 }}
+              />
+            </div>
+          </div>
+
+        </form>
+
+        {/* ── Footer ── */}
+        <div className="flex-shrink-0 px-4 h-10 border-t border-slate-100 flex items-center justify-end gap-2 bg-slate-50/60">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-3 py-1.5 rounded-lg text-[11px] font-medium text-slate-600 hover:bg-slate-100 transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            form="blog-form"
+            type="submit"
+            disabled={loading}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[#00B8C6] text-white text-[11px] font-semibold hover:bg-[#00a3b0] transition-colors disabled:opacity-50 shadow-sm"
+          >
+            {loading ? (
+              <div className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Save className="w-3 h-3" />
+            )}
+            {initialData ? 'Update Blog' : 'Create Blog'}
+          </button>
         </div>
+
       </div>
     </>,
     document.body

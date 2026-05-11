@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
 
 interface ImageUploadProps {
   value?: string;
@@ -14,7 +15,6 @@ interface ImageUploadProps {
 }
 
 const API_BASE = '/api/proxy';
-
 export default function ImageUpload({
   value,
   onChange,
@@ -69,7 +69,7 @@ export default function ImageUpload({
       <div className="relative group">
         {value ? (
           <div className={`relative w-full ${containerCls} border border-gray-200 overflow-hidden bg-gray-50`}>
-            <img src={value} alt="Uploaded" className="w-full h-full object-cover" />
+            <img src={resolveMediaUrl(value)} alt="Uploaded" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
               <button
                 type="button"

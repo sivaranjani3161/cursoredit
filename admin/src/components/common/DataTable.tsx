@@ -25,6 +25,9 @@ interface DataTableProps<T> {
   searchKey?: keyof T;
   /** Overrides the default “Add {title}” primary button label */
   addButtonLabel?: string;
+  /** Optional custom actions rendered before default actions */
+  renderRowActions?: (item: T) => ReactNode;
+  showSearch?: boolean;
 }
 
 export default function DataTable<T extends { id: any }>({
@@ -41,6 +44,8 @@ export default function DataTable<T extends { id: any }>({
   searchPlaceholder = 'Search...',
   searchKey,
   addButtonLabel,
+  renderRowActions,
+  showSearch = true,
 }: DataTableProps<T>) {
   const [search, setSearch] = useState('');
 
@@ -81,29 +86,30 @@ export default function DataTable<T extends { id: any }>({
         )}
       </div>
 
-      {/* Search */}
-      <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200">
-        <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-        <input
-          type="text"
-          placeholder={searchPlaceholder}
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 bg-transparent focus:outline-none text-sm text-slate-800 placeholder:text-slate-400"
-        />
-        {search && (
-          <button
-            type="button"
-            onClick={() => setSearch('')}
-            className="text-[10px] font-semibold text-slate-400 hover:text-slate-600"
-          >
-            Clear
-          </button>
-        )}
-        <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
-          {filteredData.length} / {data.length}
-        </span>
-      </div>
+      {showSearch && (
+        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200">
+          <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+          <input
+            type="text"
+            placeholder={searchPlaceholder}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="flex-1 bg-transparent focus:outline-none text-sm text-slate-800 placeholder:text-slate-400"
+          />
+          {search && (
+            <button
+              type="button"
+              onClick={() => setSearch('')}
+              className="text-[10px] font-semibold text-slate-400 hover:text-slate-600"
+            >
+              Clear
+            </button>
+          )}
+          <span className="text-[10px] text-gray-400 whitespace-nowrap shrink-0">
+            {filteredData.length} / {data.length}
+          </span>
+        </div>
+      )}
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
@@ -119,7 +125,7 @@ export default function DataTable<T extends { id: any }>({
                     {col.header}
                   </th>
                 ))}
-                {(onEdit || onDelete || onView) && (
+                {(renderRowActions || onEdit || onDelete || onView) && (
                   <th className="px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gray-400 text-center">
                     Actions
                   </th>
@@ -129,7 +135,7 @@ export default function DataTable<T extends { id: any }>({
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-4 py-8 text-center">
+                  <td colSpan={columns.length + ((renderRowActions || onEdit || onDelete || onView) ? 1 : 0)} className="px-4 py-8 text-center">
                     <div className="flex justify-center">
                       <div className="w-5 h-5 border-2 border-[#00B8C6]/20 border-t-[#00B8C6] rounded-full animate-spin" />
                     </div>
@@ -137,7 +143,7 @@ export default function DataTable<T extends { id: any }>({
                 </tr>
               ) : filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan={columns.length + 1} className="px-4 py-8 text-center text-sm text-gray-400">
+                  <td colSpan={columns.length + ((renderRowActions || onEdit || onDelete || onView) ? 1 : 0)} className="px-4 py-8 text-center text-sm text-gray-400">
                     No records found
                   </td>
                 </tr>
@@ -154,9 +160,10 @@ export default function DataTable<T extends { id: any }>({
                           : (item[col.accessor] as any)}
                       </td>
                     ))}
-                    {(onEdit || onDelete || onView) && (
+                    {(renderRowActions || onEdit || onDelete || onView) && (
                       <td className="px-4 py-2">
                         <div className="flex items-center justify-center gap-0.5">
+                          {renderRowActions?.(item)}
                           {onView && (
                             <button
                               onClick={() => onView(item)}

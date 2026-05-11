@@ -1,4 +1,17 @@
 @import "tailwindcss";
+@import "@uiw/react-md-editor/markdown-editor.css";
+@import "@uiw/react-markdown-preview/markdown.css";
+
+/* Make md-editor fill its container height */
+.w-md-editor {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.w-md-editor-content {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
 
 @theme inline {
   --color-background: var(--background);

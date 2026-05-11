@@ -12,7 +12,10 @@ interface Props {
   loading?: boolean;
 }
 
-const SIDEBAR_WIDTH = 252;
+const SIDEBAR_WIDTH = 262;
+const TOP_OFFSET = 12;
+const RIGHT_OFFSET = 12;
+const BOTTOM_OFFSET = 12;
 const inputClass =
   'w-full h-9 px-3 rounded-md border border-slate-300 bg-white text-[13px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00B8C6]';
 
@@ -50,13 +53,13 @@ export default function AwesomeClickForm({ initialData, onSave, onCancel, loadin
   return createPortal(
     <>
       <div
-        className="fixed z-[59] bg-[#00B8C644] rounded-xl"
-        style={{ left: `${SIDEBAR_WIDTH + 12}px`, top: '12px', right: '12px', bottom: '12px' }}
+        className="fixed z-[59] bg-[#00B8C6]/10 backdrop-blur-[2px] rounded-[10px]"
+        style={{ left: `${SIDEBAR_WIDTH}px`, top: `${TOP_OFFSET}px`, right: `${RIGHT_OFFSET}px`, bottom: `${BOTTOM_OFFSET}px` }}
         onClick={onCancel}
       />
-      <div className="fixed inset-y-0 right-0 z-[60] flex items-center justify-center p-2" style={{ left: `${SIDEBAR_WIDTH}px`, pointerEvents: 'none' }}>
-        <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[480px]">
-          <div className="w-full max-h-[80vh] bg-white rounded-md border border-slate-200 shadow-sm flex flex-col overflow-hidden">
+      <div className="fixed inset-y-0 right-0 z-[60] flex items-center justify-center p-2" style={{ left: `${SIDEBAR_WIDTH}px`, top: `${TOP_OFFSET}px`, right: `${RIGHT_OFFSET}px`, bottom: `${BOTTOM_OFFSET}px`, pointerEvents: 'none' }}>
+        <div style={{ pointerEvents: 'auto' }} className="w-full max-w-[560px]">
+          <div className="w-full max-h-full bg-white rounded-[10px] border border-slate-200 shadow-sm flex flex-col overflow-hidden">
             <div className="flex items-center justify-between px-4 py-2 border-b border-slate-100 flex-shrink-0">
               <h2 className="text-[18px] font-semibold text-slate-900">{initialData ? 'Edit Awesome Click' : 'New Awesome Click'}</h2>
               <button type="button" onClick={onCancel} className="p-1 text-slate-400 hover:text-slate-700">

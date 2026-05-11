@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import DataTable, { Column } from '@/components/common/DataTable';
 import TestimonialForm from '@/components/testimonials/TestimonialForm';
+import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
 
 const API_BASE = '/api/proxy';
 
@@ -89,6 +90,19 @@ export default function TestimonialsPage() {
   };
 
   const columns: Column<any>[] = [
+    {
+      header: 'Preview',
+      accessor: (item) =>
+        item.thumbnailUrl ? (
+          <img
+            src={resolveMediaUrl(item.thumbnailUrl)}
+            alt={item.name || 'testimonial'}
+            className="w-10 h-10 rounded-lg object-cover border border-slate-200"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200" />
+        ),
+    },
     { header: 'Name', accessor: 'name', className: 'font-semibold text-gray-900' },
     { header: 'Type', accessor: (item) => String(item.type || '-').toUpperCase(), className: 'text-xs text-gray-500' },
     { header: 'Company', accessor: (item) => item.company || '-', className: 'text-sm text-gray-600' },

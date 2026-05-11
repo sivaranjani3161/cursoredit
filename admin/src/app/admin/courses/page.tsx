@@ -92,6 +92,26 @@ export default function CoursesPage() {
     finally { setLoading(false); }
   };
 
+  const handleTogglePublish = async (course: any) => {
+    const next = !course.isActive;
+    try {
+      const res = await fetch(`${API_BASE}/courses/${course.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...course, isActive: next }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.error || 'Failed to update publish status');
+        return;
+      }
+      toast.success(next ? 'Course published' : 'Course unpublished');
+      fetchCourses();
+    } catch {
+      toast.error('An error occurred');
+    }
+  };
+
   const columns: Column<any>[] = [
     {
       header: 'Title',
@@ -143,6 +163,19 @@ export default function CoursesPage() {
         onAdd={() => { setSelectedCourse(null); setIsFormOpen(true); }}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        renderRowActions={(item) => (
+          <button
+            onClick={() => handleTogglePublish(item)}
+            title={item.isActive ? 'Unpublish' : 'Publish'}
+            className={`h-6 px-2 rounded-md border text-[10px] font-bold uppercase tracking-wide transition-all ${
+              item.isActive
+                ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100'
+                : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100'
+            }`}
+          >
+            {item.isActive ? 'Unpublish' : 'Publish'}
+          </button>
+        )}
       />
 
       {isFormOpen && (
