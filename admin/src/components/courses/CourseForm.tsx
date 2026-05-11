@@ -31,6 +31,51 @@ export default function CourseForm({ initialData, onSave, onCancel, loading }: C
     courseFeatures: [] as any[],
   });
 
+  // Helper to render an accordion section — NOT a sub-component (avoids remount on every render)
+  const renderAccordion = (
+    id: 'highlights' | 'features' | 'structure',
+    label: string,
+    count: number,
+    children: React.ReactNode
+  ) => {
+    const isOpen = openSection === id;
+    return (
+      <div key={id} className={`border rounded-lg overflow-hidden transition-all ${isOpen ? 'border-[#00B8C6]/40 shadow-sm' : 'border-slate-200'}`}>
+        <button
+          type="button"
+          onClick={() => toggleSection(id)}
+          className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors ${isOpen ? 'bg-[#00B8C6]/5 border-b border-[#00B8C6]/20' : 'bg-slate-50 hover:bg-slate-100/70'}`}
+        >
+          <div className="flex items-center gap-1.5">
+            <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-[#00B8C6]' : 'bg-slate-300'}`} />
+            <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider">{label}</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${count > 0 ? 'bg-[#00B8C6]/10 text-[#00B8C6]' : 'bg-slate-100 text-slate-400'}`}>
+              {count}
+            </span>
+            <span className={`text-slate-400 text-[10px] transition-transform duration-200 inline-block ${isOpen ? 'rotate-180' : ''}`}>▾</span>
+          </div>
+        </button>
+        {isOpen && (
+          <div className="bg-white">
+            <div className="p-2.5">{children}</div>
+            <div className="flex items-center justify-end px-2.5 pb-2.5">
+              <button
+                type="button"
+                onClick={() => setOpenSection(null)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#00B8C6] text-white text-[10.5px] font-semibold hover:bg-[#00a3b0] transition-colors shadow-sm"
+              >
+                <Save className="w-3 h-3" />
+                Save & Close
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const [mounted, setMounted] = useState(false);
   // Track which accordion is open — only one open at a time
   const [openSection, setOpenSection] = useState<'highlights' | 'features' | 'structure' | null>('highlights');
@@ -115,61 +160,7 @@ const panelStyle: React.CSSProperties = {
     borderRadius: '10px',
   };
 
-  /* ── Accordion section component ── */
-  const AccordionSection = ({
-    id,
-    label,
-    count,
-    children,
-  }: {
-    id: 'highlights' | 'features' | 'structure';
-    label: string;
-    count: number;
-    children: React.ReactNode;
-  }) => {
-    const isOpen = openSection === id;
-    return (
-      <div className={`border rounded-lg overflow-hidden transition-all ${isOpen ? 'border-[#00B8C6]/40 shadow-sm' : 'border-slate-200'}`}>
-        {/* Summary row */}
-        <button
-          type="button"
-          onClick={() => toggleSection(id)}
-          className={`w-full flex items-center justify-between px-3 py-2 text-left transition-colors ${isOpen ? 'bg-[#00B8C6]/5 border-b border-[#00B8C6]/20' : 'bg-slate-50 hover:bg-slate-100/70'}`}
-        >
-          <div className="flex items-center gap-1.5">
-            <span className={`w-1.5 h-1.5 rounded-full ${isOpen ? 'bg-[#00B8C6]' : 'bg-slate-300'}`} />
-            <span className="text-[10.5px] font-bold text-slate-700 uppercase tracking-wider">{label}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${count > 0 ? 'bg-[#00B8C6]/10 text-[#00B8C6]' : 'bg-slate-100 text-slate-400'}`}>
-              {count}
-            </span>
-            <span className={`text-slate-400 text-[10px] transition-transform duration-200 inline-block ${isOpen ? 'rotate-180' : ''}`}>▾</span>
-          </div>
-        </button>
 
-        {/* Content — animate open/close */}
-        {isOpen && (
-          <div className="bg-white">
-            <div className="p-2.5">
-              {children}
-            </div>
-            {/* Save & Close footer */}
-            <div className="flex items-center justify-end px-2.5 pb-2.5">
-              <button
-                type="button"
-                onClick={() => setOpenSection(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#00B8C6] text-white text-[10.5px] font-semibold hover:bg-[#00a3b0] transition-colors shadow-sm"
-              >
-                <Save className="w-3 h-3" />
-                Save & Close
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  };
 
   const modal = (
     <>
@@ -240,7 +231,7 @@ const panelStyle: React.CSSProperties = {
                 <div className="col-span-2">
                   <label className={lbl}>Description</label>
                   <textarea
-                    value={formData.description}
+                    value={formData.description ?? ''}
                     onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
                     placeholder="Brief course overview…"
                     rows={2}
@@ -248,22 +239,7 @@ const panelStyle: React.CSSProperties = {
                   />
                 </div>
 
-                {/* Active toggle */}
-                <div className="col-span-2 flex items-center gap-2">
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData((p) => ({ ...p, isActive: e.target.checked }))}
-                      className="sr-only peer"
-                    />
-                    <div className="w-7 h-3.5 bg-slate-200 rounded-full peer-checked:bg-[#00B8C6] transition-all after:content-[''] after:absolute after:left-[2px] after:top-[1px] after:w-2.5 after:h-2.5 after:bg-white after:rounded-full after:transition-all peer-checked:after:translate-x-3.5" />
-                  </label>
-                  <span className="text-[11px] text-slate-600 font-medium">Active / Published</span>
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${formData.isActive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-400'}`}>
-                    {formData.isActive ? 'Live' : 'Draft'}
-                  </span>
-                </div>
+
 
               </div>
 
@@ -285,37 +261,22 @@ const panelStyle: React.CSSProperties = {
           {/* ── Section 2: Accordions — scrollable ── */}
           <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2.5 space-y-1.5 bg-white">
 
-            <AccordionSection
-              id="highlights"
-              label="Highlights"
-              count={formData.courseHighlights.length}
-
-            >
+            {renderAccordion('highlights', 'Highlights', formData.courseHighlights.length,
               <CourseHighlightsManager
                 items={formData.courseHighlights}
                 onChange={(items) => setFormData((p) => ({ ...p, courseHighlights: items as any }))}
               />
-            </AccordionSection>
+            )}
 
-            <AccordionSection
-              id="features"
-              label="Key Features"
-              count={formData.courseFeatures.length}
-
-            >
+            {renderAccordion('features', 'Key Features', formData.courseFeatures.length,
               <NestedEntityManager
                 title="Key Features"
                 items={formData.courseFeatures}
                 onChange={(items) => setFormData((p) => ({ ...p, courseFeatures: items as any }))}
               />
-            </AccordionSection>
+            )}
 
-            <AccordionSection
-              id="structure"
-              label="Course Structure"
-              count={formData.courseStructure.length}
-
-            >
+            {renderAccordion('structure', 'Course Structure', formData.courseStructure.length,
               <NestedEntityManager
                 title="Course Structure (Phases)"
                 items={formData.courseStructure}
@@ -323,7 +284,7 @@ const panelStyle: React.CSSProperties = {
                 showIcon
                 numberField={{ key: 'phaseNumber', label: 'Phase #' }}
               />
-            </AccordionSection>
+            )}
 
           </div>
         </form>

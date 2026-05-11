@@ -24,8 +24,10 @@ const inp =
   'w-full h-7 px-2 rounded border border-slate-200 bg-slate-50 text-[11px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00B8C6] focus:bg-white transition-colors';
 const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 mb-0.5';
 
-export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel, loading }: Props) {
+export default function UnifiedGalleryForm({ type: initialType, initialData, onSave, onCancel, loading }: Props) {
   const [mounted, setMounted] = useState(false);
+  // Type is controlled inside the form (like Testimonial)
+  const [galleryType, setGalleryType] = useState<GalleryType>(initialType);
 
   // External (events)
   const [event, setEvent] = useState({
@@ -44,6 +46,9 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
     altText: '',
   });
 
+  const isExternal = galleryType === 'external';
+
+
   useEffect(() => {
     setMounted(true);
     const original = document.body.style.overflow;
@@ -55,7 +60,7 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
 
   useEffect(() => {
     if (!initialData) return;
-    if (type === 'external') {
+    if (initialType === 'external') {
       setEvent({
         title: initialData.title ?? '',
         slug: initialData.slug ?? '',
@@ -76,19 +81,19 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
         altText: initialData.altText ?? '',
       });
     }
-  }, [initialData, type]);
+  }, [initialData, initialType]);
+
 
   const generateSlug = (title: string) =>
     title.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-  const titleText = useMemo(() => {
-    if (type === 'external') return initialData ? 'Edit Event' : 'New Event';
-    return initialData ? 'Edit Internal Image' : 'New Internal Image';
-  }, [type, initialData]);
+  const titleText = initialData
+    ? (isExternal ? 'Edit Event' : 'Edit Internal Image')
+    : (isExternal ? 'New Gallery Event' : 'New Internal Image');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (type === 'external') {
+    if (isExternal) {
       onSave(
         {
           ...event,
@@ -111,6 +116,7 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
     }
   };
 
+
   if (!mounted) return null;
 
   return createPortal(
@@ -125,19 +131,48 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
         className="fixed z-[60] flex flex-col bg-white border border-slate-200 shadow-2xl rounded-[10px] overflow-hidden"
         style={{ left: `${SIDEBAR_WIDTH}px`, top: `${TOP_OFFSET}px`, right: `${RIGHT_OFFSET}px`, bottom: `${BOTTOM_OFFSET}px` }}
       >
+        {/* Header */}
         <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100 bg-white flex-shrink-0">
           <div className="flex items-center gap-3">
             <span className="w-1 h-5 rounded-full bg-[#00B8C6]" />
             <h2 className="text-sm font-bold text-slate-900">{titleText}</h2>
-            <span className="text-[11px] text-slate-400">Manage gallery details and media files.</span>
+            <span className="text-[11px] text-slate-400">
+              {isExternal ? 'Manage event details and gallery images.' : 'Add an internal FC image.'}
+            </span>
           </div>
           <button onClick={onCancel} className="p-1 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-100 transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
+        {/* Type + Active strip — like Testimonial */}
+        <div className="flex-shrink-0 flex items-center gap-4 px-5 py-2.5 border-b border-slate-100 bg-slate-50/40">
+          <div className="w-36">
+            <label className={lbl}>Gallery Type</label>
+            <select
+              value={galleryType}
+              onChange={(e) => setGalleryType(e.target.value as GalleryType)}
+              disabled={Boolean(initialData)}
+              className={inp}
+            >
+              <option value="external">External (Event)</option>
+              <option value="internal">Internal (FC Image)</option>
+            </select>
+          </div>
+          <div className="w-px h-7 bg-slate-200 mt-3.5" />
+          <div className="mt-3.5">
+            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+              isExternal
+                ? 'bg-cyan-50 text-cyan-700 border-cyan-100'
+                : 'bg-slate-100 text-slate-600 border-slate-200'
+            }`}>
+              {isExternal ? 'External Event' : 'Internal Image'}
+            </span>
+          </div>
+        </div>
+
         <form id="unified-gallery-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-5 py-4 space-y-3">
-              {type === 'external' ? (
+              {isExternal ? (
                 <>
                   <div className="grid grid-cols-[1fr_220px] gap-4 items-start">
                     <div className="flex flex-col gap-3">
@@ -272,7 +307,7 @@ export default function UnifiedGalleryForm({ type, initialData, onSave, onCancel
           <button
             form="unified-gallery-form"
             type="submit"
-            disabled={loading || (type === 'internal' && !internal.imageUrl.trim())}
+            disabled={loading || (!isExternal && !internal.imageUrl.trim())}
             className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-[#00B8C6] text-white text-[11px] font-semibold hover:bg-[#00a3b0] transition-colors disabled:opacity-50 shadow-sm"
           >
             <Save className="w-3 h-3" />

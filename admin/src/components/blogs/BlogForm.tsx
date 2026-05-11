@@ -31,6 +31,7 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
     content: '',
     coverImage: '',
     status: 'DRAFT',
+    publishedAt: '',
     tagsInput: '',
     relatedBlogIds: [] as number[],
   });
@@ -51,6 +52,7 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
       content: initialData.content ?? '',
       coverImage: initialData.coverImage ?? '',
       status: initialData.status ?? 'DRAFT',
+      publishedAt: initialData.publishedAt ? String(initialData.publishedAt).slice(0, 10) : '',
       tagsInput: Array.isArray(initialData.tags) ? initialData.tags.join(', ') : '',
       relatedBlogIds: Array.isArray(initialData.relatedBlogIds) ? initialData.relatedBlogIds : [],
     });
@@ -71,6 +73,7 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
       content: formData.content.trim(),
       coverImage: formData.coverImage || null,
       status: formData.status,
+      publishedAt: formData.publishedAt || null,
       tags,
       relatedBlogIds: formData.relatedBlogIds,
     });
@@ -135,17 +138,28 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
                     className={inp}
                   />
                 </div>
-                <div>
-                  <label className={lbl}>Status</label>
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value }))}
-                    className={inp}
-                  >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                    <option value="ARCHIVED">Archived</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className={lbl}>Status</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value }))}
+                      className={inp}
+                    >
+                      <option value="DRAFT">Draft</option>
+                      <option value="PUBLISHED">Published</option>
+                      <option value="ARCHIVED">Archived</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className={lbl}>Published Date</label>
+                    <input
+                      type="date"
+                      value={formData.publishedAt}
+                      onChange={(e) => setFormData((p) => ({ ...p, publishedAt: e.target.value }))}
+                      className={inp}
+                    />
+                  </div>
                 </div>
 
                 {/* Row 2 */}
