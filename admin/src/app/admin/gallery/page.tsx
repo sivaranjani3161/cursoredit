@@ -154,7 +154,7 @@ export default function GalleryPage() {
   const handleEdit = async (item: any) => {
     try {
       const type = item.__type as GalleryType;
-      setSelectedType(type);
+      setSelectedType(type); // seeds the form's initial type for edit
       const res = await fetch(
         type === 'external' ? `${API_BASE}/gallery/${item.id}` : `${API_BASE}/awesome-clicks/${item.id}`
       );
@@ -198,26 +198,18 @@ export default function GalleryPage() {
           <h1 className="text-base font-bold text-slate-900 leading-tight">Gallery</h1>
           <p className="text-[11px] text-slate-400 leading-tight">Internal and external entries in one place.</p>
         </div>
-        <div className="flex items-center gap-2">
-          <select
-            value={selectedType}
-            onChange={(e) => setSelectedType(e.target.value as GalleryType)}
-            className="h-8 rounded-lg border border-slate-200 bg-slate-50 px-3 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#00B8C6]/20 focus:border-[#00B8C6] focus:bg-white"
-          >
-            <option value="external">External (Events)</option>
-            <option value="internal">Internal (FC Images)</option>
-          </select>
-          <button
-            type="button"
-            onClick={() => {
-              setSelected(null);
-              setIsFormOpen(true);
-            }}
-            className="h-8 px-3 rounded-lg bg-[#00B8C6] text-white text-xs font-bold hover:brightness-95 transition-all"
-          >
-            Add
-          </button>
-        </div>
+        {/* ✅ Dropdown removed — type is selected inside the form */}
+        <button
+          type="button"
+          onClick={() => {
+            setSelected(null);
+            setSelectedType('external'); // default for new entries
+            setIsFormOpen(true);
+          }}
+          className="h-8 px-3 rounded-lg bg-[#00B8C6] text-white text-xs font-bold hover:brightness-95 transition-all"
+        >
+          Add
+        </button>
       </div>
 
       <DataTable
