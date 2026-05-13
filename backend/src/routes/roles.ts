@@ -85,11 +85,10 @@ export default async function roleRoutes(app: FastifyInstance) {
           return reply.status(400).send({ error: "Admin role cannot be deleted" });
         }
 
-        const usersWithRole = await userRepo.count({ where: { roleId: id } });
-        if (usersWithRole > 0) {
-          return reply.status(400).send({
-            error: "Role is assigned to users. Reassign users before deleting this role.",
-          });
+        // Auto-reassign any users on this role to admin before deleting
+        const adminRole = await roleRepo.findOne({ where: { code: "admin" } });
+        if (adminRole) {
+          await userRepo.update({ roleId: id }, { roleId: adminRole.id });
         }
 
         // Remove permissions first to avoid FK constraint failures.

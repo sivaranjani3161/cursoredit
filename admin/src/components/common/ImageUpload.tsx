@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Upload, X, Loader2, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Loader2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
 
@@ -10,11 +10,11 @@ interface ImageUploadProps {
   onChange: (url: string) => void;
   label?: string;
   className?: string;
-  /** Renders a short fixed-height box instead of a 16:9 aspect-ratio block */
   compact?: boolean;
 }
 
 const API_BASE = '/api/proxy';
+
 export default function ImageUpload({
   value,
   onChange,
@@ -28,17 +28,11 @@ export default function ImageUpload({
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     try {
       setUploading(true);
       const formData = new FormData();
       formData.append('file', file);
-
-      const res = await fetch(`${API_BASE}/upload`, {
-        method: 'POST',
-        body: formData,
-      });
-
+      const res = await fetch(`${API_BASE}/upload`, { method: 'POST', body: formData });
       if (res.ok) {
         const data = await res.json();
         onChange(data.url);
@@ -54,9 +48,7 @@ export default function ImageUpload({
     }
   };
 
-  const containerCls = compact
-    ? 'h-[130px] rounded-xl'
-    : 'aspect-video rounded-xl';
+  const containerCls = compact ? 'h-[130px] rounded-xl' : 'aspect-video rounded-xl';
 
   return (
     <div className={`space-y-1.5 ${className}`}>
@@ -70,7 +62,9 @@ export default function ImageUpload({
         {value ? (
           <div className={`relative w-full ${containerCls} border border-gray-200 overflow-hidden bg-gray-50`}>
             <img src={resolveMediaUrl(value)} alt="Uploaded" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center gap-2">
+
+            {/* Desktop: hover overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-all items-center justify-center gap-2 hidden sm:flex">
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -88,13 +82,33 @@ export default function ImageUpload({
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            {/* Mobile: always-visible action bar at bottom */}
+            <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-2 py-1.5 bg-black/40 sm:hidden">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white active:bg-white/30"
+                title="Change"
+              >
+                <Upload className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange('')}
+                className="p-1.5 bg-white/20 backdrop-blur-md rounded-lg text-white active:bg-rose-500"
+                title="Remove"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         ) : (
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={uploading}
-            className={`w-full ${containerCls} border-2 border-dashed border-gray-200 hover:border-[#00B8C6]/50 hover:bg-[#00B8C6]/5 transition-all flex flex-col items-center justify-center gap-1.5 group`}
+            className={`w-full ${containerCls} border-2 border-dashed border-gray-200 hover:border-[#00B8C6]/50 hover:bg-[#00B8C6]/5 active:bg-[#00B8C6]/5 transition-all flex flex-col items-center justify-center gap-1.5 group`}
           >
             {uploading ? (
               <Loader2 className="w-6 h-6 text-[#00B8C6] animate-spin" />
@@ -104,7 +118,7 @@ export default function ImageUpload({
                   <Upload className={`${compact ? 'w-4 h-4' : 'w-5 h-5'} text-gray-400 group-hover:text-[#00B8C6]`} />
                 </div>
                 <p className={`${compact ? 'text-[10px]' : 'text-xs'} font-semibold text-gray-400 group-hover:text-[#00B8C6] uppercase tracking-wide`}>
-                  {compact ? 'Upload Image' : `Upload ${label || 'Image'}`}
+                  {compact ? 'Upload' : `Upload ${label || 'Image'}`}
                 </p>
               </>
             )}

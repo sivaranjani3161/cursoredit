@@ -30,9 +30,7 @@ export default function EnquiriesPage() {
     }
   };
 
-  useEffect(() => {
-    fetchItems();
-  }, []);
+  useEffect(() => { fetchItems(); }, []);
 
   const filteredItems = useMemo(() => {
     return items.filter((row) => {
@@ -44,10 +42,10 @@ export default function EnquiriesPage() {
   }, [items, statusFilter, courseFilter]);
 
   const columns: Column<any>[] = [
-    { header: 'Name', accessor: 'fullName', className: 'font-semibold text-gray-900' },
-    { header: 'Email', accessor: 'email', className: 'text-sm text-gray-600' },
-    { header: 'Phone', accessor: (item) => item.phone || '-', className: 'text-xs text-gray-500' },
-    { header: 'Course', accessor: (item) => item.course?.title || '-', className: 'text-xs text-gray-500' },
+    { header: 'Name',    accessor: 'fullName',                                   className: 'font-semibold text-gray-900 text-sm' },
+    { header: 'Email',   accessor: 'email',                                      className: 'text-sm text-gray-600 hidden sm:table-cell' },
+    { header: 'Phone',   accessor: (item) => item.phone || '-',                  className: 'text-xs text-gray-500 hidden md:table-cell' },
+    { header: 'Course',  accessor: (item) => item.course?.title || '-',          className: 'text-xs text-gray-500 hidden sm:table-cell' },
     {
       header: 'Status',
       accessor: (item) => (
@@ -58,15 +56,17 @@ export default function EnquiriesPage() {
     },
     {
       header: 'Submitted',
-      accessor: (item) => new Date(item.createdAt).toLocaleString(),
-      className: 'text-[11px] text-gray-400',
+      accessor: (item) => new Date(item.createdAt).toLocaleDateString(),
+      className: 'text-[11px] text-gray-400 hidden lg:table-cell',
     },
   ];
 
   return (
     <div className="p-3 sm:p-4 space-y-2">
-      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 bg-white px-3 py-2 rounded-xl border border-slate-200">
-        <div className="flex flex-col gap-1 min-w-[140px]">
+      {/* Filter bar */}
+      <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 bg-white px-3 py-2.5 rounded-xl border border-slate-200">
+        {/* Status filter */}
+        <div className="flex flex-col gap-1 sm:min-w-[140px]">
           <label className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Status</label>
           <select
             value={statusFilter}
@@ -79,7 +79,9 @@ export default function EnquiriesPage() {
             <option value="RESOLVED">Resolved</option>
           </select>
         </div>
-        <div className="flex flex-col gap-1 min-w-[180px] flex-1">
+
+        {/* Course filter */}
+        <div className="flex flex-col gap-1 flex-1 sm:min-w-[180px]">
           <label className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Course</label>
           <select
             value={courseFilter}
@@ -89,13 +91,13 @@ export default function EnquiriesPage() {
             <option value="all">All courses</option>
             <option value="none">No course</option>
             {courses.map((c) => (
-              <option key={c.id} value={String(c.id)}>
-                {c.title}
-              </option>
+              <option key={c.id} value={String(c.id)}>{c.title}</option>
             ))}
           </select>
         </div>
-        <div className="flex items-end text-[11px] text-slate-400 pb-1 sm:ml-auto">
+
+        {/* Count */}
+        <div className="flex items-center sm:items-end text-[11px] text-slate-400 sm:pb-1 sm:ml-auto">
           Showing {filteredItems.length} of {items.length}
         </div>
       </div>

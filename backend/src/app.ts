@@ -14,7 +14,6 @@ import blogRoutes from "./routes/blogs";
 import testimonialRoutes from "./routes/testimonials";
 import galleryRoutes from "./routes/gallery";
 import enquiryRoutes from "./routes/enquiries";
-import awesomeClickRoutes from "./routes/awesome-clicks";
 import multipart from "@fastify/multipart";
 import staticPlugin from "@fastify/static";
 import * as path from "path";
@@ -41,7 +40,7 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   
   await app.register(helmet, {
     global: true,
-    contentSecurityPolicy: false, // Disabled for local development to allow loading images from self
+    contentSecurityPolicy: false, 
   });
 
   await app.register(multipart);
@@ -51,7 +50,6 @@ export const buildApp = async (): Promise<FastifyInstance> => {
     prefix: "/uploads/",
   });
 
-  // Swagger Documentation Setup
   await app.register(swagger, {
     openapi: {
       info: {
@@ -97,9 +95,7 @@ await app.register(testimonialRoutes, {
 await app.register(galleryRoutes, {
   prefix: "/api",
 });
-await app.register(awesomeClickRoutes, {
-  prefix: "/api",
-});
+
 await app.register(enquiryRoutes, {
   prefix: "/api",
 });

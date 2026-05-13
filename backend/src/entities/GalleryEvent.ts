@@ -7,14 +7,17 @@ export class GalleryEvent {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "varchar", length: 255 })
-  title!: string;
+  @Column({ type: "enum", enum: ["internal", "external"], default: "external" })
+  type!: "internal" | "external";
+
+  @Column({ type: "varchar", length: 255, nullable: true })
+  title!: string | null;
 
   @Column({ type: "varchar", length: 255, nullable: true })
   location!: string | null;
 
-  @Column({ type: "varchar", length: 255, unique: true })
-  slug!: string;
+  @Column({ type: "varchar", length: 255, unique: true, nullable: true })
+  slug!: string | null;
 
   @Column({ type: "varchar", length: 500, nullable: true })
   coverImage!: string | null;
@@ -25,15 +28,13 @@ export class GalleryEvent {
   @Column({ type: "date", nullable: true })
   eventDate!: Date | null;
 
-  @Column()
+  @Column({ nullable: true })
   @Index()
-  createdBy!: number;
+  createdBy!: number | null;
 
-@ManyToOne(() => User, (user) => user.galleryEvents, {
-  onDelete: "CASCADE",
-})
-@JoinColumn({ name: "created_by" })
-createdByUser!: User;
+  @ManyToOne(() => User, (user) => user.galleryEvents, { onDelete: "CASCADE" })
+  @JoinColumn({ name: "created_by" })
+  createdByUser!: User;
 
   @OneToMany(() => GalleryImage, (image) => image.event)
   galleryImages!: GalleryImage[];
