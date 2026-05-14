@@ -1,14 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import { ApiTestimonial } from "@/app/types/testimonial";
+import { safeUrl } from "@/lib/imageUtils";
 
-const videos = [
-  "/vid1.png",
-  "/vid2.png",
-  "/vid3.png",
-  "/vid1.png",
-  "/vid2.png",
-];
+interface VideoTestimonialsProps {
+  items: ApiTestimonial[];
+}
 
 const CARD_HALF = { base: 130, sm: 170, md: 230 };
 
@@ -18,17 +16,13 @@ function getCardHalf(): number {
   return CARD_HALF.base;
 }
 
-export default function VideoTestimonials() {
+export default function VideoTestimonials({ items }: VideoTestimonialsProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const activeRef    = useRef(1);
+  const activeRef = useRef(1);
   const scrollingRef = useRef(false);
 
-  const [active, _setActive] = useState(1);
-  const [padPx,  setPadPx]   = useState(0);
-
-  // Controls whether scale/opacity transition is ON.
-  // Starts false so the initial paint has no animated flash.
-  // Turns true after first scroll-snap settles.
+  const [active, _setActive] = useState(Math.min(1, Math.max(0, items.length - 1)));
+  const [padPx, setPadPx] = useState(0);
   const [transitionReady, setTransitionReady] = useState(false);
 
   const setActive = (i: number) => {
@@ -42,15 +36,12 @@ export default function VideoTestimonials() {
     const cards = Array.from(el.children) as HTMLElement[];
     const target = cards[index];
     if (!target) return;
-
     scrollingRef.current = true;
-    const scrollTo =
-      target.offsetLeft - el.offsetWidth / 2 + target.offsetWidth / 2;
+    const scrollTo = target.offsetLeft - el.offsetWidth / 2 + target.offsetWidth / 2;
     el.scrollTo({ left: scrollTo, behavior: "smooth" });
     setTimeout(() => { scrollingRef.current = false; }, 420);
   }, []);
 
-  // After mount: set padding, snap to card 1, enable transitions after settle
   useEffect(() => {
     const update = () => {
       const half = getCardHalf();
@@ -61,25 +52,15 @@ export default function VideoTestimonials() {
         const cards = Array.from(el.children) as HTMLElement[];
         const target = cards[activeRef.current];
         if (!target) return;
-        el.scrollLeft =
-          target.offsetLeft - el.offsetWidth / 2 + target.offsetWidth / 2;
+        el.scrollLeft = target.offsetLeft - el.offsetWidth / 2 + target.offsetWidth / 2;
       });
     };
-
     update();
     window.addEventListener("resize", update);
-
-    // Enable transitions only after initial position is settled
-    // so there's no animated flash on first paint
     const t = setTimeout(() => setTransitionReady(true), 50);
-
-    return () => {
-      window.removeEventListener("resize", update);
-      clearTimeout(t);
-    };
+    return () => { window.removeEventListener("resize", update); clearTimeout(t); };
   }, []);
 
-  // Sync active card with scroll
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -98,11 +79,27 @@ export default function VideoTestimonials() {
   }, []);
 
   const handlePrev = () => { if (activeRef.current > 0) scrollToCard(activeRef.current - 1); };
-  const handleNext = () => { if (activeRef.current < videos.length - 1) scrollToCard(activeRef.current + 1); };
+  const handleNext = () => { if (activeRef.current < items.length - 1) scrollToCard(activeRef.current + 1); };
 
   const canPrev = active > 0;
-  const canNext = active < videos.length - 1;
+  const canNext = active < items.length - 1;
   const sidePad = padPx > 0 ? `calc(50% - ${padPx}px)` : "0px";
+
+  // ── Empty state ──
+  if (items.length === 0) {
+    return (
+      <section className="py-[50px] md:py-[80px] bg-[#FDFDFD]">
+        <div className="text-center px-4">
+          <h2 className="text-[24px] sm:text-[32px] md:text-[54px] text-[#2E2E2E]">
+            Checkout our <span className="font-semibold">latest testimonials</span>
+          </h2>
+          <p className="mt-[10px] text-[14px] md:text-[16px] text-[#777] italic mt-[40px]">
+            Video testimonials coming soon...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="py-[50px] md:py-[80px] bg-[#FDFDFD]">
@@ -136,8 +133,7 @@ export default function VideoTestimonials() {
           ].join(" ")}
         >
           <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-            <path d="M8 1.5L2 8L8 14.5" stroke="white" strokeWidth="2.2"
-              strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M8 1.5L2 8L8 14.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
@@ -157,8 +153,7 @@ export default function VideoTestimonials() {
           ].join(" ")}
         >
           <svg width="10" height="16" viewBox="0 0 10 16" fill="none">
-            <path d="M2 1.5L8 8L2 14.5" stroke="white" strokeWidth="2.2"
-              strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M2 1.5L8 8L2 14.5" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
 
@@ -168,48 +163,70 @@ export default function VideoTestimonials() {
           className="flex items-center gap-[12px] sm:gap-[16px] md:gap-[20px] overflow-x-auto snap-x snap-mandatory"
           style={{ scrollbarWidth: "none", paddingLeft: sidePad, paddingRight: sidePad }}
         >
-          {videos.map((video, i) => {
+          {items.map((item, i) => {
             const isActive = i === active;
+            const hasThumbnail = Boolean(item.thumbnailUrl);
+            const thumbnailSrc = safeUrl(item.thumbnailUrl);
+            const hasVideo = Boolean(item.videoUrl);
+
             return (
               <div
-                key={i}
+                key={item.id}
                 onClick={() => scrollToCard(i)}
-                className="
-                  snap-center shrink-0 cursor-pointer
-                  flex items-center justify-center
-                  w-[260px] h-[158px]
-                  sm:w-[340px] sm:h-[200px]
-                  md:w-[460px] md:h-[260px]
-                "
+                className="snap-center shrink-0 cursor-pointer flex items-center justify-center w-[260px] h-[158px] sm:w-[340px] sm:h-[200px] md:w-[460px] md:h-[260px]"
               >
                 <div
                   className={[
                     "w-full h-full rounded-[12px] overflow-hidden origin-center",
-                    // Only add transition AFTER initial position is settled
                     transitionReady ? "transition-all duration-300 ease-out" : "",
-                    isActive
-                      ? "scale-100 opacity-100 shadow-xl"
-                      : "scale-[0.88] opacity-55",
+                    isActive ? "scale-100 opacity-100 shadow-xl" : "scale-[0.88] opacity-55",
                   ].join(" ")}
                 >
-                  <div className="relative w-full h-full group">
-                    {/*
-                      Images are ALWAYS in the DOM (no mounted gate = no flicker).
-                      fetchPriority="low" tells the browser not to eagerly preload
-                      non-active images, eliminating the preload warnings.
-                      Only the active image gets fetchPriority="high".
-                    */}
-                    <img
-                      src={video}
-                      alt={`Testimonial ${i + 1}`}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                      loading={isActive ? "eager" : "lazy"}
-                      // @ts-ignore — fetchPriority is valid HTML but TS types lag behind
-                      fetchPriority={isActive ? "high" : "low"}
-                      decoding="async"
-                    />
-                    {/* Play icon */}
+                  {/* Clickable video card */}
+                  <a
+                    href={hasVideo ? item.videoUrl! : undefined}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => { if (!hasVideo) e.preventDefault(); }}
+                    className="relative w-full h-full group block"
+                    style={{ textDecoration: "none" }}
+                  >
+                    {/* Thumbnail or gradient placeholder */}
+                    {hasThumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={thumbnailSrc!}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                        loading={isActive ? "eager" : "lazy"}
+                      />
+                    ) : (
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          background: "linear-gradient(135deg, #00B8C6 0%, #0097A7 60%, #006D77 100%)",
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <span style={{ fontSize: "32px", opacity: 0.5 }}>🎬</span>
+                        <p style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px", fontWeight: 600, margin: 0 }}>
+                          {item.name}
+                        </p>
+                        {item.role && (
+                          <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "11px", margin: 0 }}>
+                            {item.role}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Play icon overlay */}
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="
                         w-[38px] h-[38px] sm:w-[48px] sm:h-[48px] md:w-[60px] md:h-[60px]
@@ -227,7 +244,20 @@ export default function VideoTestimonials() {
                         " />
                       </div>
                     </div>
-                  </div>
+
+                    {/* Name overlay on thumbnail */}
+                    {hasThumbnail && (
+                      <div
+                        className="absolute bottom-0 left-0 right-0 px-3 py-2"
+                        style={{ background: "linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 100%)" }}
+                      >
+                        <p style={{ color: "#fff", fontSize: "12px", fontWeight: 600, margin: 0 }}>{item.name}</p>
+                        {item.role && (
+                          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: "10px", margin: 0 }}>{item.role}</p>
+                        )}
+                      </div>
+                    )}
+                  </a>
                 </div>
               </div>
             );
@@ -238,16 +268,14 @@ export default function VideoTestimonials() {
 
       {/* Dots */}
       <div className="mt-[16px] md:mt-[20px] flex justify-center gap-[8px]">
-        {videos.map((_, i) => (
+        {items.map((_, i) => (
           <button
             key={i}
             onClick={() => scrollToCard(i)}
             aria-label={`Go to slide ${i + 1}`}
             className={[
               "h-[6px] rounded-full transition-all duration-300 cursor-pointer",
-              i === active
-                ? "w-[24px] md:w-[28px] bg-[#00B8C6]"
-                : "w-[6px] bg-gray-300 hover:bg-gray-400",
+              i === active ? "w-[24px] md:w-[28px] bg-[#00B8C6]" : "w-[6px] bg-gray-300 hover:bg-gray-400",
             ].join(" ")}
           />
         ))}

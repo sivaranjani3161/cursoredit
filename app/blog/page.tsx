@@ -1,10 +1,11 @@
-import blogPostsData from "@/app/data/blogPosts.json";
-import { BlogPost } from "@/app/types/blog";
+import { fetchPublishedBlogs } from "@/lib/api";
 import BlogHero from "@/app/components/blog/BlogHero";
 import BlogGrid from "@/app/components/blog/BlogGrid";
 
-export default function BlogsPage() {
-  const posts = blogPostsData as BlogPost[];
+export const revalidate = 60; // ISR: re-fetch every 60s
+
+export default async function BlogsPage() {
+  const posts = await fetchPublishedBlogs();
 
   return (
     <main style={{ backgroundColor: "#F9FAFB", minHeight: "100vh" }}>

@@ -16,6 +16,6 @@ export interface ContactFormData {
   name: string;
   email: string;
   phone: string;
-  subject: string;
+  courseId: string;   // course ID selected from dropdown ("" = none selected)
   message: string;
 }

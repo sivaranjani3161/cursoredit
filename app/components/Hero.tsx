@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import heroData from "@/app/data/hero.json";
 
 export default function Hero() {
@@ -63,9 +64,11 @@ flex items-center justify-center">
               {heroData.subtitle}
             </p>
 
-          <button className="mt-[20px] md:mt-[44px] bg-[#00B8C6] text-white px-5 sm:px-6 md:px-10 h-[40px] md:h-[52px] rounded-full text-[13px] sm:text-[14px] md:text-[16px] font-semibold cursor-pointer">
-  Learn More
-</button>
+          <Link href="/about"
+            className="mt-[20px] md:mt-[44px] inline-flex items-center bg-[#00B8C6] text-white px-5 sm:px-6 md:px-10 h-[40px] md:h-[52px] rounded-full text-[13px] sm:text-[14px] md:text-[16px] font-semibold cursor-pointer hover:opacity-90 active:scale-[0.97] transition"
+          >
+            Learn More
+          </Link>
           </div>
         </div>
 

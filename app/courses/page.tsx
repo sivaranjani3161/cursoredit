@@ -1,33 +1,12 @@
-import CourseHero from "@/app/components/Courses/Coursehero";
-import CourseFeatures from "@/app/components/Courses/Coursefeatures";
-import CourseStructure from "@/app/components/Courses/Coursestructure";
-import KeyFeatures from "@/app/components/Courses/Keyfeatures";
-import EnrollCourse from "@/app/components/Courses/CourseEnroll";
+import { API, apiFetch } from "@/lib/api";
+import type { CourseBasic } from "@/app/types/course";
+import CoursesListingClient from "./CoursesListingClient";
 
-// Register all valid slugs for static generation
-export function generateStaticParams() {
-  return [
-    { slug: "full-stack-development" },
-    { slug: "mastering-css" },
-    { slug: "dev-ops-mastery" },
-    { slug: "qa-automation" },
-  ];
-}
+/** Fetch active courses for listing. Rendered server-side. */
+export const dynamic = "force-dynamic";
 
-// Every slug renders the same components for now.
-// When you need unique content, switch on `params.slug` here.
-export default function CourseDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
-  return (
-    <main>
-      <CourseHero />
-      <CourseFeatures />
-      <CourseStructure />
-      <KeyFeatures />
-      <EnrollCourse />
-    </main>
-  );
+export default async function CoursesPage() {
+  const courses = await apiFetch<CourseBasic[]>(API.courses.active()) ?? [];
+
+  return <CoursesListingClient courses={courses} />;
 }

@@ -1,30 +1,35 @@
-import CourseHero from "@/app/components/Courses/Coursehero";
-import CourseFeatures from "@/app/components/Courses/Coursefeatures";
-import CourseStructure from "@/app/components/Courses/Coursestructure";
-import KeyFeatures from "@/app/components/Courses/Keyfeatures";
+import { API, apiFetch } from "@/lib/api";
+import type { Course } from "@/app/types/course";
+import { notFound } from "next/navigation";
+import CourseHeroSection from "@/app/components/Courses/CourseHeroSection";
+import CourseFeaturesSection from "@/app/components/Courses/CourseFeaturesSection";
+import CourseStructureSection from "@/app/components/Courses/CourseStructureSection";
+import CourseKeyFeaturesSection from "@/app/components/Courses/CourseKeyFeaturesSection";
 import EnrollCourse from "@/app/components/Courses/CourseEnroll";
 
-export function generateStaticParams() {
-  return [
-    { slug: "full-stack-development" },
-    { slug: "mastering-css" },
-    { slug: "dev-ops-mastery" },
-    { slug: "qa-automation" },
-  ];
-}
+// force-dynamic: page is always server-rendered on request.
+// generateStaticParams must NOT coexist with force-dynamic (causes
+// Turbopack "negative timestamp" performance.measure error).
+export const dynamic = "force-dynamic";
 
-export default function CourseDetailPage({
+export default async function CourseDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+
+  const course = await apiFetch<Course>(API.courses.bySlug(slug));
+
+  if (!course) notFound();
+
   return (
     <main>
-      <CourseHero />
-      <CourseFeatures />
-      <CourseStructure />
-      <KeyFeatures />
-      <EnrollCourse />
+      <CourseHeroSection course={course} />
+      <CourseFeaturesSection course={course} />
+      <CourseStructureSection course={course} />
+      <CourseKeyFeaturesSection course={course} />
+      <EnrollCourse courseId={course.id} />
     </main>
   );
 }

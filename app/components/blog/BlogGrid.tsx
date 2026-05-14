@@ -1,14 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import BlogCard from "@/app/components/blog/BlogCard";
 import BlogCardMobile from "@/app/components/blog/Blogcardmobile";
-import { BlogPost } from "@/app/types/blog";
+import { ApiBlog } from "@/app/types/blog";
+import { safeUrl } from "@/lib/imageUtils";
 
 interface BlogGridProps {
-  posts: BlogPost[];
+  posts: ApiBlog[];
 }
 
 const INITIAL_COUNT = 6;
@@ -17,22 +17,43 @@ const LOAD_MORE_COUNT = 3;
 export default function BlogGrid({ posts }: BlogGridProps) {
   const [visibleCount, setVisibleCount] = useState(INITIAL_COUNT);
 
+  // Empty state
+  if (posts.length === 0) {
+    return (
+      <section style={{ padding: "64px 24px", textAlign: "center" }}>
+        <div
+          style={{
+            maxWidth: "480px",
+            margin: "0 auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: "16px",
+          }}
+        >
+          <div style={{ fontSize: "56px", opacity: 0.25 }}>📰</div>
+          <h2 style={{ fontSize: "22px", fontWeight: 700, color: "#111827", margin: 0 }}>
+            No blogs published yet
+          </h2>
+          <p style={{ fontSize: "15px", color: "#6B7280", lineHeight: 1.7, margin: 0 }}>
+            Check back soon — we're working on some great content for you.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   const visiblePosts = posts.slice(0, visibleCount);
   const hasMore = visibleCount < posts.length;
 
   const featured = visiblePosts[0];
-  const secondary = visiblePosts.slice(1, 3);  // 2-col mini grid
-  const rest = visiblePosts.slice(3);           // compact stacked list
+  const secondary = visiblePosts.slice(1, 3);
+  const rest = visiblePosts.slice(3);
 
   return (
     <>
-      {/* ══════════════════════════════════════════
-          DESKTOP + TABLET
-      ══════════════════════════════════════════ */}
-      <section
-        className="hidden md:block"
-        style={{ padding: "48px 24px" }}
-      >
+      {/* ── DESKTOP ── */}
+      <section className="hidden md:block" style={{ padding: "48px 24px" }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <div className="blog-grid-cols" style={{ display: "grid", gap: "28px" }}>
             {visiblePosts.map((post) => (
@@ -47,34 +68,19 @@ export default function BlogGrid({ posts }: BlogGridProps) {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          MOBILE  — 3-zone editorial layout
-          ┌─────────────────────┐
-          │   FEATURED  (hero)  │   full-width tall
-          ├──────────┬──────────┤
-          │  mini 2  │  mini 3  │   2-col grid
-          ├──────────┴──────────┤
-          │   compact 4         │   horizontal thumb
-          │   compact 5         │
-          │   compact 6         │
-          └─────────────────────┘
-      ══════════════════════════════════════════ */}
+      {/* ── MOBILE ── */}
       <section
         className="md:hidden"
-        style={{
-          width: "100%",
-          boxSizing: "border-box",
-          padding: "20px 16px 48px 16px",
-        }}
+        style={{ width: "100%", boxSizing: "border-box", padding: "20px 16px 48px 16px" }}
       >
-        {/* ZONE 1 — Featured hero card */}
+        {/* Zone 1 — Featured hero card */}
         {featured && (
           <div style={{ width: "100%", marginBottom: "12px" }}>
             <BlogCardMobile post={featured} featured />
           </div>
         )}
 
-        {/* ZONE 2 — 2-col mini cards */}
+        {/* Zone 2 — 2-col mini cards */}
         {secondary.length > 0 && (
           <div
             style={{
@@ -91,7 +97,7 @@ export default function BlogGrid({ posts }: BlogGridProps) {
           </div>
         )}
 
-        {/* ZONE 3 — Compact stacked list */}
+        {/* Zone 3 — Compact stacked list */}
         {rest.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "10px", width: "100%" }}>
             {rest.map((post) => (
@@ -112,15 +118,18 @@ export default function BlogGrid({ posts }: BlogGridProps) {
         @media (max-width: 1024px) {
           .blog-grid-cols { grid-template-columns: repeat(2, 1fr) !important; }
         }
+        @media (max-width: 640px) {
+          .blog-grid-cols { grid-template-columns: repeat(1, 1fr) !important; }
+        }
       `}</style>
     </>
   );
 }
 
-/* ─────────────────────────────────────────
-   MiniCard — used in the 2-col grid zone
-───────────────────────────────────────── */
-function MiniCard({ post }: { post: BlogPost }) {
+/* ── MiniCard (mobile 2-col zone) ── */
+function MiniCard({ post }: { post: ApiBlog }) {
+  const hasImage = Boolean(post.coverImage);
+  const imgSrc = safeUrl(post.coverImage);
   return (
     <Link href={`/blog/${post.slug}`} style={{ textDecoration: "none", display: "block" }}>
       <div
@@ -134,34 +143,33 @@ function MiniCard({ post }: { post: BlogPost }) {
           height: "100%",
         }}
       >
-        {/* Aspect-ratio image wrapper */}
-        <div style={{ position: "relative", width: "100%", paddingTop: "62%", flexShrink: 0 }}>
-          <Image
-            src={post.image}
-            alt={post.title}
-            fill
-            style={{ objectFit: "cover", position: "absolute", top: 0, left: 0 }}
-          />
+        {/* Image */}
+        <div style={{ position: "relative", width: "100%", paddingTop: "62%", flexShrink: 0, backgroundColor: "#E0F7FA" }}>
+          {hasImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imgSrc!}
+              alt={post.title}
+              style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover" }}
+            />
+          ) : (
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)",
+              }}
+            >
+              <span style={{ fontSize: "20px", opacity: 0.4 }}>📝</span>
+            </div>
+          )}
         </div>
 
-        {/* Text body */}
+        {/* Text */}
         <div style={{ padding: "10px", display: "flex", flexDirection: "column", flex: 1 }}>
-          <span
-            style={{
-              display: "inline-block",
-              fontSize: "9px",
-              fontWeight: 600,
-              color: "#00BCD4",
-              border: "1.2px solid #00BCD4",
-              borderRadius: "999px",
-              padding: "2px 9px",
-              marginBottom: "6px",
-              whiteSpace: "nowrap",
-              alignSelf: "flex-start",
-            }}
-          >
-            {post.date}
-          </span>
           <p
             style={{
               fontSize: "11.5px",
@@ -201,9 +209,7 @@ function MiniCard({ post }: { post: BlogPost }) {
   );
 }
 
-/* ─────────────────────────────────────────
-   LoadMoreButton
-───────────────────────────────────────── */
+/* ── LoadMoreButton ── */
 function LoadMoreButton({ onClick }: { onClick: () => void }) {
   return (
     <button

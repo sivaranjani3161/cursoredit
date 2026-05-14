@@ -1,10 +1,8 @@
 "use client";
 import { useState } from "react";
-import data from "@/app/data/CourseEnroll.json";
-import EnquiryModal from "@/app/components/Enquirymodel"; 
-export default function EnrollCourse() {
-  const { enrollBanner } = data;
+import EnquiryModal from "@/app/components/Enquirymodel";
 
+export default function EnrollCourse({ courseId }: { courseId?: string | number }) {
   const [enquiryOpen, setEnquiryOpen] = useState(false);
 
   return (
@@ -21,10 +19,8 @@ export default function EnrollCourse() {
               lineHeight: "100%",
             }}
           >
-            {enrollBanner.normalTitle}{" "}
-            <strong style={{ fontWeight: 700 }}>
-              {enrollBanner.boldTitle}
-            </strong>
+            Enroll Now and{" "}
+            <strong style={{ fontWeight: 700 }}>Start Your Journey!</strong>
           </h2>
 
           {/* DESCRIPTION */}
@@ -37,8 +33,10 @@ export default function EnrollCourse() {
               lineHeight: "150%",
             }}
           >
-            {enrollBanner.description}
-</p>
+            Take the first step to becoming an industry-ready developer. Our
+            courses equip you with the skills, experience, and confidence to
+            excel in the tech industry.
+          </p>
 
           <button
             onClick={() => setEnquiryOpen(true)}
@@ -53,6 +51,7 @@ export default function EnrollCourse() {
       <EnquiryModal
         isOpen={enquiryOpen}
         onClose={() => setEnquiryOpen(false)}
+        defaultCourseId={courseId}
       />
     </>
   );

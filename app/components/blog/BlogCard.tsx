@@ -1,21 +1,24 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { BlogPost } from "@/app/types/blog";
+import { ApiBlog, blogDisplayDate } from "@/app/types/blog";
+import { safeUrl } from "@/lib/imageUtils";
 
 interface BlogCardProps {
-  post: BlogPost;
+  post: ApiBlog;
 }
 
 export default function BlogCard({ post }: BlogCardProps) {
+  const hasImage = Boolean(post.coverImage);
+  const imgSrc = safeUrl(post.coverImage);
+  const displayDate = blogDisplayDate(post);
+
   return (
     <Link
       href={`/blog/${post.slug}`}
       className="group"
       style={{ textDecoration: "none", display: "flex", flexDirection: "column" }}
     >
-      {/* ── Card shell ── */}
       <div
         className="group-hover:shadow-md"
         style={{
@@ -37,48 +40,61 @@ export default function BlogCard({ post }: BlogCardProps) {
             height: "210px",
             flexShrink: 0,
             overflow: "hidden",
+            backgroundColor: "#E0F7FA",
           }}
         >
-          <Image
-            src={post.image}
-            alt={post.title}
-            fill
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            style={{
-              objectFit: "cover",
-              transition: "transform 0.5s ease",
-            }}
-            className="group-hover:scale-105"
-          />
+          {hasImage ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={imgSrc!}
+              alt={post.title}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                transition: "transform 0.5s ease",
+                display: "block",
+              }}
+              className="group-hover:scale-105"
+            />
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: "linear-gradient(135deg, #E0F7FA 0%, #B2EBF2 100%)",
+              }}
+            >
+              <span style={{ fontSize: "40px", opacity: 0.3 }}>📝</span>
+            </div>
+          )}
         </div>
 
         {/* ── Body ── */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            padding: "16px",
-          }}
-        >
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, padding: "16px" }}>
           {/* Date badge */}
-          <span
-            style={{
-              display: "inline-block",
-              alignSelf: "flex-start",
-              fontSize: "11px",
-              fontWeight: 500,
-              color: "#00BCD4",
-              border: "1.5px solid #00BCD4",
-              borderRadius: "999px",
-              padding: "4px 18px",
-              marginBottom: "14px",
-              whiteSpace: "nowrap",
-              letterSpacing: "0.01em",
-            }}
-          >
-            {post.date}
-          </span>
+          {displayDate && (
+            <span
+              style={{
+                display: "inline-block",
+                alignSelf: "flex-start",
+                fontSize: "11px",
+                fontWeight: 500,
+                color: "#00BCD4",
+                border: "1.5px solid #00BCD4",
+                borderRadius: "999px",
+                padding: "4px 18px",
+                marginBottom: "14px",
+                whiteSpace: "nowrap",
+                letterSpacing: "0.01em",
+              }}
+            >
+              {displayDate}
+            </span>
+          )}
 
           {/* Title */}
           <h3
@@ -96,20 +112,43 @@ export default function BlogCard({ post }: BlogCardProps) {
           </h3>
 
           {/* Excerpt */}
-          <p
-            style={{
-              fontSize: "13px",
-              color: "#6B7280",
-              lineHeight: 1.7,
-              flex: 1,
-              display: "-webkit-box",
-              WebkitLineClamp: 4,
-              WebkitBoxOrient: "vertical",
-              overflow: "hidden",
-            }}
-          >
-            {post.excerpt}
-          </p>
+          {post.excerpt && (
+            <p
+              style={{
+                fontSize: "13px",
+                color: "#6B7280",
+                lineHeight: 1.7,
+                flex: 1,
+                display: "-webkit-box",
+                WebkitLineClamp: 4,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+              }}
+            >
+              {post.excerpt}
+            </p>
+          )}
+
+          {/* Tags row */}
+          {post.tags.length > 0 && (
+            <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginTop: "10px" }}>
+              {post.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    fontSize: "10px",
+                    fontWeight: 500,
+                    color: "#6B7280",
+                    backgroundColor: "#F3F4F6",
+                    borderRadius: "999px",
+                    padding: "2px 10px",
+                  }}
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
 
           {/* Read More */}
           <div
@@ -125,33 +164,13 @@ export default function BlogCard({ post }: BlogCardProps) {
           >
             Read More
             <svg
-              xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 36 12"
               fill="none"
-              style={{
-                width: "36px",
-                height: "12px",
-                transition: "transform 0.2s ease",
-              }}
+              style={{ width: "36px", height: "12px", transition: "transform 0.2s ease" }}
               className="group-hover:translate-x-1"
             >
-              <line
-                x1="0"
-                y1="6"
-                x2="28"
-                y2="6"
-                stroke="#00BCD4"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-              />
-              <polyline
-                points="22,1 28,6 22,11"
-                stroke="#00BCD4"
-                strokeWidth="1.8"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                fill="none"
-              />
+              <line x1="0" y1="6" x2="28" y2="6" stroke="#00BCD4" strokeWidth="1.8" strokeLinecap="round" />
+              <polyline points="22,1 28,6 22,11" stroke="#00BCD4" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" fill="none" />
             </svg>
           </div>
         </div>

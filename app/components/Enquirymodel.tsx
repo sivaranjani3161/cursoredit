@@ -3,23 +3,45 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import type { ContactFormData } from "@/app/types/contact";
+import type { CourseBasic } from "@/app/types/course";
+
+const BACKEND = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3001";
 
 interface EnquiryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  /** Pre-select this course when the modal opens (e.g. from a course detail page) */
+  defaultCourseId?: string | number;
 }
 
-export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
+export default function EnquiryModal({ isOpen, onClose, defaultCourseId }: EnquiryModalProps) {
   const [form, setForm] = useState<ContactFormData>({
     name: "",
     email: "",
     phone: "",
-    subject: "",
+    courseId: "",
     message: "",
   });
 
   const [errors, setErrors] = useState<Partial<Record<keyof ContactFormData, string>>>({});
   const [popup, setPopup] = useState<"success" | "error" | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [courses, setCourses] = useState<CourseBasic[]>([]);
+
+  // Fetch active courses for the subject dropdown
+  useEffect(() => {
+    fetch(`${BACKEND}/api/courses/active`, { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CourseBasic[]) => setCourses(Array.isArray(data) ? data : []))
+      .catch(() => setCourses([]));
+  }, []);
+
+  // Auto-fill the course when a defaultCourseId is provided and the modal opens
+  useEffect(() => {
+    if (isOpen && defaultCourseId) {
+      setForm((prev) => ({ ...prev, courseId: String(defaultCourseId) }));
+    }
+  }, [isOpen, defaultCourseId]);
 
   // Lock body scroll when modal is open
   useEffect(() => {
@@ -47,28 +69,46 @@ export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
     if (!form.name || !/^[A-Za-z\s]+$/.test(form.name)) err.name = "Only letters allowed";
     if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) err.email = "Invalid email format";
     if (!form.phone || !/^\d{10}$/.test(form.phone)) err.phone = "Enter 10 digit number";
-    if (!form.subject) err.subject = "Select a subject";
+    if (!form.courseId) err.courseId = "Select a course";
     if (!form.message || form.message.length < 4) err.message = "Minimum 4 characters";
     setErrors(err);
     return Object.keys(err).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (!validate()) {
+  const handleSubmit = async () => {
+    if (!validate()) { setPopup("error"); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${BACKEND}/api/enquiries`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: form.name.trim(),
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          courseId: Number(form.courseId),
+          message: form.message.trim(),
+        }),
+      });
+      if (res.ok) {
+        setPopup("success");
+        setForm({ name: "", email: "", phone: "", courseId: "", message: "" });
+        setErrors({});
+      } else {
+        setPopup("error");
+      }
+    } catch {
       setPopup("error");
-      return;
+    } finally {
+      setSubmitting(false);
     }
-    setPopup("success");
-    setForm({ name: "", email: "", phone: "", subject: "", message: "" });
-    setErrors({});
   };
 
   const handleClose = () => {
     onClose();
-    // Reset after close animation
     setTimeout(() => {
       setPopup(null);
-      setForm({ name: "", email: "", phone: "", subject: "", message: "" });
+      setForm({ name: "", email: "", phone: "", courseId: "", message: "" });
       setErrors({});
     }, 300);
   };
@@ -76,12 +116,12 @@ export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
   const isValidField = (key: keyof ContactFormData, value: string) => {
     if (!value) return false;
     switch (key) {
-      case "name": return /^[A-Za-z\s]+$/.test(value);
-      case "email": return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-      case "phone": return /^\d{10}$/.test(value);
-      case "message": return value.length >= 4;
-      case "subject": return !!value;
-      default: return false;
+      case "name":     return /^[A-Za-z\s]+$/.test(value);
+      case "email":    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+      case "phone":    return /^\d{10}$/.test(value);
+      case "message":  return value.length >= 4;
+      case "courseId": return !!value;
+      default:         return false;
     }
   };
 
@@ -183,31 +223,35 @@ export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
               </div>
             ))}
 
-            {/* SUBJECT SELECT */}
+            {/* COURSE SELECT */}
             <div>
               <div className="relative">
                 <select
-                  value={form.subject}
+                  value={form.courseId}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setForm({ ...form, subject: value });
-                    setErrors((prev) => ({ ...prev, subject: value ? "" : "Required" }));
+                    setForm({ ...form, courseId: value });
+                    setErrors((prev) => ({ ...prev, courseId: value ? "" : "Required" }));
                   }}
                   className={`
                     w-full rounded-[10px] px-4 py-[11px] pr-10 text-sm bg-white outline-none
                     appearance-none cursor-pointer border
-                    ${errors.subject
+                    ${errors.courseId
                       ? "border-red-500 focus:ring-2 focus:ring-red-400"
-                      : form.subject
+                      : form.courseId
                       ? "border-green-500 focus:ring-2 focus:ring-green-400"
                       : "border-[#CFCFCF] focus:ring-2 focus:ring-[#00B8C6]"
                     }
-                    ${!form.subject ? "text-[#9CA3AF]" : "text-[#111]"}
+                    ${!form.courseId ? "text-[#9CA3AF]" : "text-[#111]"}
                   `}
                 >
-                  <option value="" disabled>Subject*</option>
-                  <option value="General Inquiry">General Inquiry</option>
-                  <option value="Course">Course</option>
+                  <option value="" disabled>Course*</option>
+                  {courses.length > 0
+                    ? courses.map((c) => (
+                        <option key={c.id} value={String(c.id)}>{c.title}</option>
+                      ))
+                    : <option disabled>Loading courses...</option>
+                  }
                 </select>
                 <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF]">
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -215,8 +259,8 @@ export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
                   </svg>
                 </span>
               </div>
-              {errors.subject && (
-                <p className="text-red-500 text-[11px] mt-1 ml-2">{errors.subject}</p>
+              {errors.courseId && (
+                <p className="text-red-500 text-[11px] mt-1 ml-2">{errors.courseId}</p>
               )}
             </div>
 
@@ -251,9 +295,10 @@ export default function EnquiryModal({ isOpen, onClose }: EnquiryModalProps) {
             {/* SUBMIT */}
             <button
               onClick={handleSubmit}
-              className="w-full bg-[#00B8C6] text-white py-[12px] rounded-full text-sm font-medium hover:opacity-90 active:scale-[0.98] transition mt-1"
+              disabled={submitting}
+              className="w-full bg-[#00B8C6] text-white py-[12px] rounded-full text-sm font-medium hover:opacity-90 active:scale-[0.98] transition mt-1 disabled:opacity-60"
             >
-              Submit
+              {submitting ? "Sending..." : "Submit"}
             </button>
 
           </div>

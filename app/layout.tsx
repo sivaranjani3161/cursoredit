@@ -2,6 +2,7 @@ import "./globals.css";
 import { Urbanist } from "next/font/google";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import AutoPopup from "./components/AutoPopup";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -20,6 +21,7 @@ export default function RootLayout({
         <Navbar />
         {children}
         <Footer />
+        <AutoPopup />
       </body>
     </html>
   );
