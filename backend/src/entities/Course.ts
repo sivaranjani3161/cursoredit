@@ -4,6 +4,7 @@ import { CourseStructure } from "./CourseStructure";
 import { CourseFeature } from "./CourseFeature";
 import { Enquiry } from "./Enquiry";
 import { User } from "./User";
+import { CourseCategory } from "./CourseCategory";
 
 @Entity("courses")
 export class Course {
@@ -24,6 +25,13 @@ export class Course {
 
   @Column({ type: "boolean", default: true })
   isActive!: boolean;
+
+  @Column({ type: "int", nullable: true })
+  categoryId!: number | null;
+
+  @ManyToOne(() => CourseCategory, (cat) => cat.courses, { nullable: true, onDelete: "SET NULL" })
+  @JoinColumn({ name: "category_id" })
+  category!: CourseCategory | null;
 
   @Column()
   @Index()

@@ -9,6 +9,7 @@ import roleRoutes from "./routes/roles";
 import userRoutes from "./routes/users";
 import permissionRoutes from "./routes/permissions";
 import courseRoutes from "./routes/courses";
+import courseCategoryRoutes from "./routes/courseCategories";
 import uploadRoutes from "./routes/upload";
 import blogRoutes from "./routes/blogs";
 import testimonialRoutes from "./routes/testimonials";
@@ -85,6 +86,9 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   await app.register(userRoutes, { prefix: "/api" });
   await app.register(permissionRoutes, { prefix: "/api" });
 await app.register(courseRoutes, {
+  prefix: "/api",
+});
+await app.register(courseCategoryRoutes, {
   prefix: "/api",
 });
 await app.register(blogRoutes, {

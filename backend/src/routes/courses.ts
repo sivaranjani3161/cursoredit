@@ -73,6 +73,7 @@ export default async function courseRoutes(app: FastifyInstance) {
         description: body?.description ? String(body.description) : null,
         heroImage:   body?.heroImage   ? String(body.heroImage)   : null,
         isActive:    body?.isActive    ?? true,
+        categoryId:  body?.categoryId  ? Number(body.categoryId) : null,
         createdBy,
         courseHighlights: mapNestedItems(body?.courseHighlights) as any,
         courseFeatures:   mapNestedItems(body?.courseFeatures)   as any,
@@ -179,6 +180,7 @@ export default async function courseRoutes(app: FastifyInstance) {
       if (body.description !== undefined) updatePayload.description = body.description;
       if (body.heroImage   !== undefined) updatePayload.heroImage   = body.heroImage;
       if (body.isActive    !== undefined) updatePayload.isActive    = body.isActive;
+      if (body.categoryId  !== undefined) updatePayload.categoryId  = body.categoryId ? Number(body.categoryId) : null;
 
       if (body.slug !== undefined) {
         const newSlug = String(body.slug).trim();

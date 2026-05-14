@@ -12,7 +12,16 @@ interface CourseFormProps {
   onSave: (data: any) => void;
   onCancel: () => void;
   loading?: boolean;
+  categoryRefreshKey?: number;  // bump to trigger category re-fetch
 }
+
+interface Category {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+const API_BASE = '/api/proxy';
 
 const SIDEBAR_WIDTH = 262;
 const TOP_OFFSET    = 12;
@@ -28,31 +37,45 @@ const SECTION_ORDER: Array<'highlights' | 'features' | 'structure'> = [
 const inp = 'w-full h-8 px-2.5 rounded-md border border-slate-200 bg-slate-50 text-[12px] text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#00B8C6] focus:bg-white transition-colors';
 const lbl = 'block text-[9.5px] font-bold uppercase tracking-wide text-slate-500 mb-0.5';
 
-export default function CourseForm({ initialData, onSave, onCancel, loading }: CourseFormProps) {
+export default function CourseForm({ initialData, onSave, onCancel, loading, categoryRefreshKey = 0 }: CourseFormProps) {
   const [mounted, setMounted]         = useState(false);
   const [openSection, setOpenSection] = useState<'highlights' | 'features' | 'structure' | null>('highlights');
-  const [formData, setFormData]       = useState({
-    title: '',
-    slug: '',
-    description: '',
-    heroImage: '',
-    isActive: true,
-    courseHighlights: [] as any[],
-    courseStructure:  [] as any[],
-    courseFeatures:   [] as any[],
-  });
+  const [categories, setCategories]   = useState<Category[]>([]);
+  const [formData, setFormData] = useState(() => ({
+    title:            initialData?.title            || '',
+    slug:             initialData?.slug             || '',
+    description:      initialData?.description      || '',
+    heroImage:        initialData?.heroImage        || '',
+    isActive:         initialData?.isActive         ?? true,
+    categoryId:       initialData?.categoryId       ?? initialData?.category?.id ?? null as number | null,
+    courseHighlights: Array.isArray(initialData?.courseHighlights) ? initialData.courseHighlights : [] as any[],
+    courseStructure:  Array.isArray(initialData?.courseStructure)  ? initialData.courseStructure  : [] as any[],
+    courseFeatures:   Array.isArray(initialData?.courseFeatures)   ? initialData.courseFeatures   : [] as any[],
+  }));
 
   useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
 
   useEffect(() => {
-    if (initialData) {
-      setFormData({
-        ...initialData,
-        courseHighlights: initialData.courseHighlights || [],
-        courseStructure:  initialData.courseStructure  || [],
-        courseFeatures:   initialData.courseFeatures   || [],
-      });
-    }
+    fetch(`${API_BASE}/course-categories`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((d: Category[]) => setCategories(Array.isArray(d) ? d : []))
+      .catch(() => setCategories([]));
+  }, [categoryRefreshKey]);
+
+  // Sync when initialData changes (e.g. switching between edited courses)
+  useEffect(() => {
+    if (!initialData) return;
+    setFormData({
+      title:            initialData.title            || '',
+      slug:             initialData.slug             || '',
+      description:      initialData.description      || '',
+      heroImage:        initialData.heroImage        || '',
+      isActive:         initialData.isActive         ?? true,
+      categoryId:       initialData.categoryId       ?? initialData.category?.id ?? null,
+      courseHighlights: Array.isArray(initialData.courseHighlights) ? initialData.courseHighlights : [],
+      courseStructure:  Array.isArray(initialData.courseStructure)  ? initialData.courseStructure  : [],
+      courseFeatures:   Array.isArray(initialData.courseFeatures)   ? initialData.courseFeatures   : [],
+    });
   }, [initialData]);
 
   useEffect(() => {
@@ -245,7 +268,34 @@ export default function CourseForm({ initialData, onSave, onCancel, loading }: C
               </div>
             </div>
 
-            {/* Description + Hero Image */}
+            {/* Category + Status Row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className={lbl}>Category</label>
+                <select
+                  value={formData.categoryId ?? ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, categoryId: e.target.value ? Number(e.target.value) : null }))}
+                  className={`${inp} cursor-pointer`}
+                >
+                  <option value="">— No Category —</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center gap-3 pt-4">
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isActive}
+                    onChange={(e) => setFormData((p) => ({ ...p, isActive: e.target.checked }))}
+                    className="sr-only peer"
+                  />
+                  <div className="w-8 h-4 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-[#00B8C6]" />
+                  <span className="ml-2 text-[12px] font-medium text-slate-600">Active</span>
+                </label>
+              </div>
+            </div>
             <div className="flex gap-3 items-start">
               <div className="flex-1 min-w-0">
                 <label className={lbl}>Description</label>

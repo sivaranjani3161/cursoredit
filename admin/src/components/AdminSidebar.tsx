@@ -10,12 +10,12 @@ import {
 } from 'lucide-react';
 
 const navItems = [
-  { label: 'Dashboard',    href: '/admin',             icon: LayoutDashboard, module: 'dashboard' },
-  { label: 'Courses',      href: '/admin/courses',      icon: BookOpen,        module: 'courses' },
-  { label: 'Blogs',        href: '/admin/blogs',        icon: FileText,        module: 'blogs' },
-  { label: 'Gallery',      href: '/admin/gallery',      icon: ImageIcon,       module: 'gallery' },
-  { label: 'Enquiries',    href: '/admin/enquiries',    icon: MessageSquare,   module: 'enquiries' },
-  { label: 'Testimonials', href: '/admin/testimonials', icon: Star,            module: 'testimonials' },
+  { label: 'Dashboard',    href: '/admin',                      icon: LayoutDashboard, module: 'dashboard' },
+  { label: 'Courses',      href: '/admin/courses',              icon: BookOpen,        module: 'courses' },
+  { label: 'Blogs',        href: '/admin/blogs',                icon: FileText,        module: 'blogs' },
+  { label: 'Gallery',      href: '/admin/gallery',              icon: ImageIcon,       module: 'gallery' },
+  { label: 'Enquiries',    href: '/admin/enquiries',            icon: MessageSquare,   module: 'enquiries' },
+  { label: 'Testimonials', href: '/admin/testimonials',         icon: Star,            module: 'testimonials' },
 ];
 
 const adminItems = [
