@@ -40,7 +40,8 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   
   await app.register(helmet, {
     global: true,
-    contentSecurityPolicy: false, 
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false, // Allow finestapp (port 3002) to load images from backend (port 3001)
   });
 
   await app.register(multipart);

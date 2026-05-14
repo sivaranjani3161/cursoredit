@@ -88,6 +88,53 @@ async function courseRoutes(app) {
         }
     });
     /*
+      GET /api/courses/active
+      Get all active courses (basic info for dropdowns / listings)
+      NOTE: must be registered BEFORE /courses/:id to avoid "active" being treated as an id
+    */
+    app.get("/courses/active", async (req, reply) => {
+        try {
+            const courses = await courseRepo.find({
+                where: { isActive: true },
+                select: ["id", "title", "slug", "description", "heroImage"],
+                order: { createdAt: "ASC" },
+            });
+            return reply.send(courses);
+        }
+        catch (err) {
+            console.error(err);
+            return reply.status(500).send({ error: "Failed to fetch active courses" });
+        }
+    });
+    /*
+      GET /api/courses/slug/:slug
+      Get single course by slug with full relations (used by portfolio)
+    */
+    app.get("/courses/slug/:slug", async (req, reply) => {
+        try {
+            const { slug } = req.params;
+            const course = await courseRepo.findOne({
+                where: { slug, isActive: true },
+                relations: ["courseHighlights", "courseStructure", "courseFeatures"],
+            });
+            if (!course) {
+                return reply.status(404).send({ error: "Course not found" });
+            }
+            // Sort nested arrays by sortOrder
+            if (course.courseHighlights)
+                course.courseHighlights.sort((a, b) => a.sortOrder - b.sortOrder);
+            if (course.courseStructure)
+                course.courseStructure.sort((a, b) => a.sortOrder - b.sortOrder);
+            if (course.courseFeatures)
+                course.courseFeatures.sort((a, b) => a.sortOrder - b.sortOrder);
+            return reply.send(course);
+        }
+        catch (err) {
+            console.error(err);
+            return reply.status(500).send({ error: "Failed to fetch course" });
+        }
+    });
+    /*
       GET /api/courses/:id
       Get single course with relations
     */

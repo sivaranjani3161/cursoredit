@@ -53,7 +53,6 @@ const blogs_1 = __importDefault(require("./routes/blogs"));
 const testimonials_1 = __importDefault(require("./routes/testimonials"));
 const gallery_1 = __importDefault(require("./routes/gallery"));
 const enquiries_1 = __importDefault(require("./routes/enquiries"));
-const awesome_clicks_1 = __importDefault(require("./routes/awesome-clicks"));
 const multipart_1 = __importDefault(require("@fastify/multipart"));
 const static_1 = __importDefault(require("@fastify/static"));
 const path = __importStar(require("path"));
@@ -77,14 +76,13 @@ const buildApp = async () => {
     });
     await app.register(helmet_1.default, {
         global: true,
-        contentSecurityPolicy: false, // Disabled for local development to allow loading images from self
+        contentSecurityPolicy: false,
     });
     await app.register(multipart_1.default);
     await app.register(static_1.default, {
         root: path.join(__dirname, "../public/uploads"),
         prefix: "/uploads/",
     });
-    // Swagger Documentation Setup
     await app.register(swagger_1.default, {
         openapi: {
             info: {
@@ -125,9 +123,6 @@ const buildApp = async () => {
         prefix: "/api",
     });
     await app.register(gallery_1.default, {
-        prefix: "/api",
-    });
-    await app.register(awesome_clicks_1.default, {
         prefix: "/api",
     });
     await app.register(enquiries_1.default, {

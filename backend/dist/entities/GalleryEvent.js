@@ -15,6 +15,7 @@ const GalleryImage_1 = require("./GalleryImage");
 const User_1 = require("./User");
 let GalleryEvent = class GalleryEvent {
     id;
+    type;
     title;
     location;
     slug;
@@ -33,16 +34,20 @@ __decorate([
     __metadata("design:type", Number)
 ], GalleryEvent.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255 }),
+    (0, typeorm_1.Column)({ type: "enum", enum: ["internal", "external"], default: "external" }),
     __metadata("design:type", String)
+], GalleryEvent.prototype, "type", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    __metadata("design:type", Object)
 ], GalleryEvent.prototype, "title", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
     __metadata("design:type", Object)
 ], GalleryEvent.prototype, "location", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ type: "varchar", length: 255, unique: true }),
-    __metadata("design:type", String)
+    (0, typeorm_1.Column)({ type: "varchar", length: 255, unique: true, nullable: true }),
+    __metadata("design:type", Object)
 ], GalleryEvent.prototype, "slug", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: "varchar", length: 500, nullable: true }),
@@ -57,14 +62,12 @@ __decorate([
     __metadata("design:type", Object)
 ], GalleryEvent.prototype, "eventDate", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     (0, typeorm_1.Index)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Object)
 ], GalleryEvent.prototype, "createdBy", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.galleryEvents, {
-        onDelete: "CASCADE",
-    }),
+    (0, typeorm_1.ManyToOne)(() => User_1.User, (user) => user.galleryEvents, { onDelete: "CASCADE" }),
     (0, typeorm_1.JoinColumn)({ name: "created_by" }),
     __metadata("design:type", User_1.User)
 ], GalleryEvent.prototype, "createdByUser", void 0);

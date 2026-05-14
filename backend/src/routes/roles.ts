@@ -13,6 +13,7 @@ export default async function roleRoutes(app: FastifyInstance) {
   app.get("/roles", async (req, reply) => {
     const roles = await roleRepo.find({ order: { id: "ASC" } });
     return reply.send(roles);
+    
   });
 
   // POST /api/roles
@@ -23,7 +24,7 @@ export default async function roleRoutes(app: FastifyInstance) {
       const role = roleRepo.create({ name, code, description: description ?? null });
       const saved = await roleRepo.save(role);
       return reply.status(201).send(saved);
-    }
+}
   );
 
   // PUT /api/roles/:id

@@ -1,17 +1,24 @@
 import { FastifyInstance } from "fastify";
 import { AppDataSource } from "../config/data-source";
 import { Course } from "../entities/Course";
+import { CourseHighlight } from "../entities/CourseHighlight";
+import { CourseStructure } from "../entities/CourseStructure";
+import { CourseFeature } from "../entities/CourseFeature";
 
 export default async function courseRoutes(app: FastifyInstance) {
-  const courseRepo = AppDataSource.getRepository(Course);
+  const courseRepo    = AppDataSource.getRepository(Course);
+  const highlightRepo = AppDataSource.getRepository(CourseHighlight);
+  const structureRepo = AppDataSource.getRepository(CourseStructure);
+  const featureRepo   = AppDataSource.getRepository(CourseFeature);
+
+  /** Normalize incoming nested-entity arrays from the admin form */
   const mapNestedItems = (arr: any[]) =>
     Array.isArray(arr)
       ? arr
           .map((item: any) => ({
-            id: item?.id ? Number(item.id) : undefined,
             title: String(item?.title ?? "").trim(),
             description: Array.isArray(item?.description)
-              ? item.description.map((part: any) => String(part ?? "").trim()).filter(Boolean)
+              ? item.description.map((p: any) => String(p ?? "").trim()).filter(Boolean)
               : [],
             icon: item?.icon ? String(item.icon) : null,
             phaseNumber:
@@ -28,23 +35,15 @@ export default async function courseRoutes(app: FastifyInstance) {
 
   /*
     GET /api/courses
-    Get all courses
+    Get all courses (admin listing)
   */
-  app.get("/courses", async (req, reply) => {
+  app.get("/courses", async (_req, reply) => {
     try {
-      const courses = await courseRepo.find({
-        order: {
-          createdAt: "DESC",
-        },
-      });
-
+      const courses = await courseRepo.find({ order: { createdAt: "DESC" } });
       return reply.send(courses);
     } catch (err) {
       console.error(err);
-
-      return reply.status(500).send({
-        error: "Failed to fetch courses",
-      });
+      return reply.status(500).send({ error: "Failed to fetch courses" });
     }
   });
 
@@ -55,159 +54,203 @@ export default async function courseRoutes(app: FastifyInstance) {
   app.post("/courses", async (req, reply) => {
     try {
       const body = req.body as any;
-      const title = String(body?.title ?? "").trim();
-      const slug = String(body?.slug ?? "").trim();
+      const title     = String(body?.title ?? "").trim();
+      const slug      = String(body?.slug  ?? "").trim();
       const createdBy = Number(body?.createdBy);
 
       if (!title || !slug || Number.isNaN(createdBy)) {
         return reply.status(400).send({ error: "title, slug and createdBy are required" });
       }
 
-      const existing = await courseRepo.findOne({
-        where: {
-          slug,
-        },
-      });
-
+      const existing = await courseRepo.findOne({ where: { slug } });
       if (existing) {
-        return reply.status(400).send({
-          error: "Slug already exists",
-        });
+        return reply.status(400).send({ error: "Slug already exists" });
       }
 
       const course = courseRepo.create({
         title,
         slug,
         description: body?.description ? String(body.description) : null,
-        heroImage: body?.heroImage ? String(body.heroImage) : null,
-        isActive: body?.isActive ?? true,
+        heroImage:   body?.heroImage   ? String(body.heroImage)   : null,
+        isActive:    body?.isActive    ?? true,
         createdBy,
-        courseHighlights: mapNestedItems(body?.courseHighlights),
-        courseFeatures: mapNestedItems(body?.courseFeatures),
-        courseStructure: mapNestedItems(body?.courseStructure),
+        courseHighlights: mapNestedItems(body?.courseHighlights) as any,
+        courseFeatures:   mapNestedItems(body?.courseFeatures)   as any,
+        courseStructure:  mapNestedItems(body?.courseStructure)  as any,
       });
       await courseRepo.save(course);
 
       return reply.status(201).send(course);
-
     } catch (err) {
       console.error(err);
+      return reply.status(500).send({ error: "Failed to create course" });
+    }
+  });
 
-      return reply.status(500).send({
-        error: "Failed to create course",
+  /*
+    GET /api/courses/active
+    Lightweight list of active courses — used by portfolio & enquiry modal dropdown.
+    MUST be registered before /courses/:id so "active" isn't parsed as an id.
+  */
+  app.get("/courses/active", async (_req, reply) => {
+    try {
+      const courses = await courseRepo.find({
+        where:  { isActive: true },
+        select: ["id", "title", "slug", "description", "heroImage"],
+        order:  { createdAt: "ASC" },
       });
+      return reply.send(courses);
+    } catch (err) {
+      console.error(err);
+      return reply.status(500).send({ error: "Failed to fetch active courses" });
+    }
+  });
+
+  /*
+    GET /api/courses/slug/:slug
+    Full course data by slug — used by portfolio detail page.
+    MUST be registered before /courses/:id.
+  */
+  app.get<{ Params: { slug: string } }>("/courses/slug/:slug", async (req, reply) => {
+    try {
+      const { slug } = req.params;
+      const course = await courseRepo.findOne({
+        where:     { slug, isActive: true },
+        relations: ["courseHighlights", "courseStructure", "courseFeatures"],
+      });
+      if (!course) return reply.status(404).send({ error: "Course not found" });
+
+      course.courseHighlights.sort((a, b) => a.sortOrder - b.sortOrder);
+      course.courseStructure.sort((a, b)  => a.sortOrder - b.sortOrder);
+      course.courseFeatures.sort((a, b)   => a.sortOrder - b.sortOrder);
+      return reply.send(course);
+    } catch (err) {
+      console.error(err);
+      return reply.status(500).send({ error: "Failed to fetch course" });
     }
   });
 
   /*
     GET /api/courses/:id
-    Get single course with relations
+    Single course with all relations — used by admin edit form.
   */
-  app.get<{
-    Params: {
-      id: string;
-    };
-  }>("/courses/:id", async (req, reply) => {
+  app.get<{ Params: { id: string } }>("/courses/:id", async (req, reply) => {
     try {
       const id = Number(req.params.id);
-
       const course = await courseRepo.findOne({
-        where: { id },
+        where:     { id },
         relations: ["courseHighlights", "courseStructure", "courseFeatures"],
       });
-
-      if (!course) {
-        return reply.status(404).send({
-          error: "Course not found",
-        });
-      }
-
+      if (!course) return reply.status(404).send({ error: "Course not found" });
       return reply.send(course);
     } catch (err) {
       console.error(err);
-
-      return reply.status(500).send({
-        error: "Failed to fetch course",
-      });
+      return reply.status(500).send({ error: "Failed to fetch course" });
     }
   });
 
   /*
     PUT /api/courses/:id
-    Update course and explicitly replace nested entities via cascade.
-    TypeORM cascade-saves child arrays when we assign them on the parent entity.
-    We clear the old children first (by loading with relations), then assign
-    fresh items from the request body — old rows without an id will be
-    inserted; rows with an existing id will be updated.
+    ─────────────────────────────────────────────────────────────────────
+    Strategy: use courseRepo.update() for scalar fields, then explicitly
+    delete old children and insert fresh ones with courseId.
+
+    WHY NOT courseRepo.save(course)?
+    Even with course.courseHighlights = [], TypeORM's cascade orphan handler
+    still issues:  UPDATE course_highlights SET course_id = NULL WHERE id = ?
+    before deleting — which violates the NOT NULL constraint.
+
+    courseRepo.update() does a plain: UPDATE courses SET ... WHERE id = ?
+    with zero knowledge of child tables, completely safe.
+    ─────────────────────────────────────────────────────────────────────
   */
-  app.put<{
-    Params: { id: string };
-  }>("/courses/:id", async (req, reply) => {
+  app.put<{ Params: { id: string } }>("/courses/:id", async (req, reply) => {
     try {
-      const id = Number(req.params.id);
+      const id   = Number(req.params.id);
       const body = req.body as any;
-      const normalizedSlug =
-        body.slug !== undefined ? String(body.slug ?? "").trim() : undefined;
 
-      const course = await courseRepo.findOne({
-        where: { id },
-        relations: ["courseHighlights", "courseStructure", "courseFeatures"],
-      });
+      // Verify course exists
+      const existing = await courseRepo.findOne({ where: { id } });
+      if (!existing) return reply.status(404).send({ error: "Course not found" });
 
-      if (!course) {
-        return reply.status(404).send({
-          error: "Course not found",
-        });
-      }
+      // ── 1. Build scalar update payload ─────────────────────────────
+      const updatePayload: Partial<typeof existing> = {};
+      if (body.title       !== undefined) updatePayload.title       = String(body.title).trim();
+      if (body.description !== undefined) updatePayload.description = body.description;
+      if (body.heroImage   !== undefined) updatePayload.heroImage   = body.heroImage;
+      if (body.isActive    !== undefined) updatePayload.isActive    = body.isActive;
 
-      // Update flat scalar fields
-      course.title = body.title ?? course.title;
-      if (normalizedSlug !== undefined && normalizedSlug !== course.slug) {
-        const slugExists = await courseRepo.findOne({ where: { slug: normalizedSlug } });
-        if (slugExists && slugExists.id !== id) {
-          return reply.status(400).send({ error: "Slug already exists" });
+      if (body.slug !== undefined) {
+        const newSlug = String(body.slug).trim();
+        if (newSlug !== existing.slug) {
+          const conflict = await courseRepo.findOne({ where: { slug: newSlug } });
+          if (conflict && conflict.id !== id) {
+            return reply.status(400).send({ error: "Slug already exists" });
+          }
+          updatePayload.slug = newSlug;
         }
-        course.slug = normalizedSlug;
       }
-      course.description = body.description ?? course.description;
-      course.heroImage = body.heroImage ?? course.heroImage;
-      course.isActive = body.isActive ?? course.isActive;
 
-      course.courseHighlights = mapNestedItems(body.courseHighlights ?? []) as any;
-      course.courseFeatures = mapNestedItems(body.courseFeatures ?? []) as any;
-      course.courseStructure = mapNestedItems(body.courseStructure ?? []) as any;
+      // Direct SQL UPDATE — no cascade, no child-table involvement at all
+      if (Object.keys(updatePayload).length > 0) {
+        await courseRepo.update(id, updatePayload);
+      }
 
-      await courseRepo.save(course);
+      // ── 2. Delete ALL old child rows for this course ────────────────
+      await highlightRepo.delete({ courseId: id });
+      await structureRepo.delete({ courseId: id });
+      await featureRepo.delete({ courseId: id });
 
-      // Re-fetch with fresh relations for response
+      // ── 3. Insert fresh children with explicit courseId ─────────────
+      const highlights = mapNestedItems(body.courseHighlights ?? []);
+      if (highlights.length > 0) {
+        await highlightRepo.save(
+          highlights.map((item) => highlightRepo.create({ ...item, courseId: id }))
+        );
+      }
+
+      const structures = mapNestedItems(body.courseStructure ?? []);
+      if (structures.length > 0) {
+        await structureRepo.save(
+          structures.map((item) => structureRepo.create({ ...item, courseId: id }))
+        );
+      }
+
+      const features = mapNestedItems(body.courseFeatures ?? []);
+      if (features.length > 0) {
+        await featureRepo.save(
+          features.map((item) => featureRepo.create({ ...item, courseId: id }))
+        );
+      }
+
+      // ── 4. Return updated course with fresh relations ───────────────
       const updated = await courseRepo.findOne({
-        where: { id },
+        where:     { id },
         relations: ["courseHighlights", "courseStructure", "courseFeatures"],
       });
-
       return reply.send(updated);
     } catch (err) {
       console.error("UPDATE ERROR:", err);
-      return reply.status(500).send({
-        error: "Failed to update course",
-      });
+      return reply.status(500).send({ error: "Failed to update course" });
     }
   });
 
   /*
     DELETE /api/courses/:id
-    Delete course
+    Explicitly deletes children first to avoid FK constraint issues,
+    then removes the parent course.
   */
-  app.delete<{
-    Params: { id: string };
-  }>("/courses/:id", async (req, reply) => {
+  app.delete<{ Params: { id: string } }>("/courses/:id", async (req, reply) => {
     try {
       const id = Number(req.params.id);
-      
+
       const course = await courseRepo.findOne({ where: { id } });
-      if (!course) {
-        return reply.status(404).send({ error: "Course not found" });
-      }
+      if (!course) return reply.status(404).send({ error: "Course not found" });
+
+      // Delete children explicitly (DB cascade will also handle this, but being explicit is safer)
+      await highlightRepo.delete({ courseId: id });
+      await structureRepo.delete({ courseId: id });
+      await featureRepo.delete({ courseId: id });
 
       await courseRepo.remove(course);
       return reply.send({ success: true });

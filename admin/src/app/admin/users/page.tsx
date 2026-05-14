@@ -86,7 +86,9 @@ export default function UsersPage() {
       if (res.ok) { setUsers(users.filter(u => u.id !== deleteTarget.id)); toast.success('User deleted'); }
       else { const err = await res.json(); toast.error(err.error || 'Failed to delete user'); }
     } catch { toast.error('An error occurred'); }
-    finally { setDeleting(false); setDeleteTarget(null); }
+    finally { setDeleting(false); setDeleteTarget(null); 
+      
+    }
   };
 
   return (
