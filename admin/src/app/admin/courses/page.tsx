@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import DataTable, { Column } from '@/components/common/DataTable';
 import CourseForm from '@/components/courses/CourseForm';
 import { toast } from 'react-hot-toast';
+import type { ApiCourse, CourseFormData } from '@/types';
 
 const API_BASE = '/api/proxy';
 
@@ -232,16 +233,15 @@ function CategoryManagerModal({ onClose, onChanged }: { onClose: () => void; onC
   );
 }
 
-/* ═══════════════════════════════════════════════════════════════ */
 export default function CoursesPage() {
   const { data: session }                       = useSession();
-  const [courses, setCourses]                   = useState<any[]>([]);
-  const [loading, setLoading]                   = useState(true);
-  const [isFormOpen, setIsFormOpen]             = useState(false);
-  const [selectedCourse, setSelectedCourse]     = useState<any>(null);
-  const [formLoading, setFormLoading]           = useState(false);
-  const [deleteTarget, setDeleteTarget]         = useState<any>(null);
-  const [deleting, setDeleting]                 = useState(false);
+  const [courses, setCourses]               = useState<ApiCourse[]>([]);
+  const [loading, setLoading]               = useState(true);
+  const [isFormOpen, setIsFormOpen]         = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState<ApiCourse | null>(null);
+  const [formLoading, setFormLoading]       = useState(false);
+  const [deleteTarget, setDeleteTarget]     = useState<ApiCourse | null>(null);
+  const [deleting, setDeleting]             = useState(false);
   const [catModalOpen, setCatModalOpen]         = useState(false);
   const [catRefreshKey, setCatRefreshKey]       = useState(0);
 
@@ -252,23 +252,21 @@ export default function CoursesPage() {
     catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: CourseFormData) => {
     try {
       setFormLoading(true);
       const url    = selectedCourse ? `${API_BASE}/courses/${selectedCourse.id}` : `${API_BASE}/courses`;
       const method = selectedCourse ? 'PUT' : 'POST';
-      if (!selectedCourse) {
-        const dbUserId = Number((session?.user as any)?.dbUserId);
-        if (Number.isNaN(dbUserId)) { toast.error('Session missing user id — sign in again'); return; }
-        formData.createdBy = dbUserId;
-      }
-      const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
+      const payload = selectedCourse
+        ? formData
+        : { ...formData, createdBy: Number(session?.user?.dbUserId) };
+      const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (r.ok) { toast.success(selectedCourse ? 'Course updated' : 'Course created'); setIsFormOpen(false); setSelectedCourse(null); fetchCourses(); }
       else { const e = await r.json().catch(() => ({})); toast.error(e.error || 'Failed to save'); }
     } catch { toast.error('An error occurred'); } finally { setFormLoading(false); }
   };
 
-  const handleEdit = async (course: any) => {
+  const handleEdit = async (course: ApiCourse) => {
     try {
       setLoading(true);
       const r = await fetch(`${API_BASE}/courses/${course.id}`);
@@ -286,7 +284,7 @@ export default function CoursesPage() {
     } catch { toast.error('An error occurred'); } finally { setDeleting(false); setDeleteTarget(null); }
   };
 
-  const handleTogglePublish = async (course: any) => {
+  const handleTogglePublish = async (course: ApiCourse) => {
     const next = !course.isActive;
     try {
       const r = await fetch(`${API_BASE}/courses/${course.id}`, {
@@ -298,7 +296,7 @@ export default function CoursesPage() {
     } catch { toast.error('An error occurred'); }
   };
 
-  const columns: Column<any>[] = [
+  const columns: Column<ApiCourse>[] = [
     {
       mobileTitle: true, header: 'Title',
       accessor: (item) => (
@@ -407,7 +405,7 @@ export default function CoursesPage() {
       {/* ── Course Form ── */}
       {isFormOpen && (
         <CourseForm
-          initialData={selectedCourse}
+          initialData={selectedCourse ?? undefined}
           onSave={handleSave}
           onCancel={() => { setIsFormOpen(false); setSelectedCourse(null); }}
           loading={formLoading}

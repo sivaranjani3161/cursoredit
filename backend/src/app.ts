@@ -3,21 +3,25 @@ import cors from "@fastify/cors";
 import helmet from "@fastify/helmet";
 import swagger from "@fastify/swagger";
 import swaggerUi from "@fastify/swagger-ui";
+import multipart from "@fastify/multipart";
+import staticPlugin from "@fastify/static";
+import * as path from "path";
+
 import dbPlugin from "./plugins/db";
+
+// ─── Route imports ────────────────────────────────────────────────────────────
 import healthRoutes from "./routes/health";
 import roleRoutes from "./routes/roles";
 import userRoutes from "./routes/users";
 import permissionRoutes from "./routes/permissions";
 import courseRoutes from "./routes/courses";
 import courseCategoryRoutes from "./routes/courseCategories";
-import uploadRoutes from "./routes/upload";
 import blogRoutes from "./routes/blogs";
 import testimonialRoutes from "./routes/testimonials";
 import galleryRoutes from "./routes/gallery";
 import enquiryRoutes from "./routes/enquiries";
-import multipart from "@fastify/multipart";
-import staticPlugin from "@fastify/static";
-import * as path from "path";
+import uploadRoutes from "./routes/upload";
+
 export const buildApp = async (): Promise<FastifyInstance> => {
   const app = fastify({
     logger: {
@@ -34,36 +38,34 @@ export const buildApp = async (): Promise<FastifyInstance> => {
     },
   });
 
-  // Core Plugins
+  // ─── Core plugins ──────────────────────────────────────────────────────────
   await app.register(cors, {
-    origin: "*", 
+    origin: process.env.CORS_ORIGIN ?? "*",
   });
-  
+
   await app.register(helmet, {
     global: true,
     contentSecurityPolicy: false,
-    crossOriginResourcePolicy: false, // Allow finestapp (port 3002) to load images from backend (port 3001)
+    // Allow the Next.js frontend to load images served from the backend
+    crossOriginResourcePolicy: false,
   });
 
   await app.register(multipart);
-  
+
   await app.register(staticPlugin, {
     root: path.join(__dirname, "../public/uploads"),
     prefix: "/uploads/",
   });
 
+  // ─── Swagger (API docs) ────────────────────────────────────────────────────
   await app.register(swagger, {
     openapi: {
       info: {
         title: "Finestapp API",
-        description: "API documentation for Finestapp",
+        description: "REST API documentation for Finestapp",
         version: "1.0.0",
       },
-      servers: [
-        {
-          url: "http://localhost:3001",
-        },
-      ],
+      servers: [{ url: process.env.BACKEND_URL ?? "http://localhost:3001" }],
     },
   });
 
@@ -77,35 +79,27 @@ export const buildApp = async (): Promise<FastifyInstance> => {
     transformStaticCSP: (header) => header,
   });
 
-  // Database Plugin (TypeORM)
+  // ─── Database ──────────────────────────────────────────────────────────────
   await app.register(dbPlugin);
 
-  // API Routes
-  await app.register(healthRoutes, { prefix: "/api" });
-  await app.register(roleRoutes, { prefix: "/api" });
-  await app.register(userRoutes, { prefix: "/api" });
-  await app.register(permissionRoutes, { prefix: "/api" });
-await app.register(courseRoutes, {
-  prefix: "/api",
-});
-await app.register(courseCategoryRoutes, {
-  prefix: "/api",
-});
-await app.register(blogRoutes, {
-  prefix: "/api",
-});
-await app.register(testimonialRoutes, {
-  prefix: "/api",
-});
-await app.register(galleryRoutes, {
-  prefix: "/api",
-});
+  // ─── API Routes ───────────────────────────────────────────────────────────
+  // All routes are prefixed with /api.
+  // Order matters: static sub-paths (e.g. /courses/active) must be registered
+  // before wildcard params (e.g. /courses/:id) — this is handled inside each
+  // route file, not here.
+  const API_PREFIX = { prefix: "/api" };
 
-await app.register(enquiryRoutes, {
-  prefix: "/api",
-});
-await app.register(uploadRoutes, {
-  prefix: "/api",
-});
+  await app.register(healthRoutes,        API_PREFIX);
+  await app.register(roleRoutes,          API_PREFIX);
+  await app.register(userRoutes,          API_PREFIX);
+  await app.register(permissionRoutes,    API_PREFIX);
+  await app.register(courseRoutes,        API_PREFIX);
+  await app.register(courseCategoryRoutes,API_PREFIX);
+  await app.register(blogRoutes,          API_PREFIX);
+  await app.register(testimonialRoutes,   API_PREFIX);
+  await app.register(galleryRoutes,       API_PREFIX);
+  await app.register(enquiryRoutes,       API_PREFIX);
+  await app.register(uploadRoutes,        API_PREFIX);
+
   return app;
 };

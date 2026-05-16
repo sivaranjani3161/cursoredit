@@ -1,24 +1,21 @@
 'use client';
 
 import { ReactNode, useMemo, useState } from 'react';
-import { Search, Edit, Trash2, Eye, Plus } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Plus, type LucideIcon } from 'lucide-react';
 import PermissionButton from '../rbac/PermissionButton';
 
 export interface Column<T> {
   header: string;
   accessor: keyof T | ((item: T) => ReactNode);
   className?: string;
-  /** If true, this column is hidden on mobile card view */
   mobileHidden?: boolean;
-  /** If true, this column is used as the card title on mobile */
   mobileTitle?: boolean;
-  /** If true, this column is used as the card subtitle on mobile */
   mobileSubtitle?: boolean;
 }
 
 interface DataTableProps<T> {
   title: string;
-  icon: any;
+  icon: LucideIcon;
   module: string;
   data: T[];
   columns: Column<T>[];
@@ -35,10 +32,10 @@ interface DataTableProps<T> {
 }
 
 function getCellValue<T>(item: T, accessor: keyof T | ((item: T) => ReactNode)): ReactNode {
-  return typeof accessor === 'function' ? accessor(item) : (item[accessor] as any);
+  return typeof accessor === 'function' ? accessor(item) : (item[accessor] as ReactNode);
 }
 
-export default function DataTable<T extends { id: any }>({
+export default function DataTable<T extends { id: number | string }>({
   title,
   icon: Icon,
   module,

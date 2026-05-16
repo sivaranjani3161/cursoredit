@@ -2,15 +2,9 @@
 
 import { useState } from 'react';
 import { Plus, Trash2, GripVertical } from 'lucide-react';
+import type { NestedItem } from '@/types';
 
-type NestedItem = {
-  title: string;
-  description?: string[];
-  icon?: string;
-  sortOrder?: number;
-  phaseNumber?: number;
-  [key: string]: any;
-};
+
 
 interface Props {
   title: string;
@@ -24,9 +18,11 @@ const inp = 'w-full h-7 px-2.5 rounded-md border border-slate-200 bg-white text-
 const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 mb-0.5';
 
 export default function NestedEntityManager({ title, items, onChange, showIcon, numberField }: Props) {
+
+
   const addItem = () => {
     const base: NestedItem = { title: '', description: [], sortOrder: items.length };
-    if (numberField) base[numberField.key] = items.length + 1;
+    if (numberField) (base as unknown as Record<string, unknown>)[numberField.key] = items.length + 1;
     onChange([...items, base]);
   };
 
@@ -39,18 +35,18 @@ export default function NestedEntityManager({ title, items, onChange, showIcon, 
   };
 
   const addPoint = (idx: number) => {
-    const desc = [...(items[idx].description ?? []), ''];
+    const desc = [...((items[idx].description as string[]) ?? []), ''];
     updateItem(idx, { description: desc });
   };
 
   const updatePoint = (itemIdx: number, pointIdx: number, val: string) => {
-    const desc = [...(items[itemIdx].description ?? [])];
+    const desc = [...((items[itemIdx].description as string[]) ?? [])];
     desc[pointIdx] = val;
     updateItem(itemIdx, { description: desc });
   };
 
   const removePoint = (itemIdx: number, pointIdx: number) => {
-    const desc = (items[itemIdx].description ?? []).filter((_, i) => i !== pointIdx);
+    const desc = ((items[itemIdx].description as string[]) ?? []).filter((_, i) => i !== pointIdx);
     updateItem(itemIdx, { description: desc });
   };
 
@@ -100,7 +96,7 @@ export default function NestedEntityManager({ title, items, onChange, showIcon, 
                   <input
                     type="number"
                     min={1}
-                    value={item[numberField.key] ?? ''}
+                    value={(item as unknown as Record<string, number | undefined>)[numberField.key] ?? ''}
                     onChange={(e) => updateItem(idx, { [numberField.key]: Number(e.target.value) })}
                     className={inp}
                   />
@@ -136,7 +132,7 @@ export default function NestedEntityManager({ title, items, onChange, showIcon, 
             <div className="mt-2 ml-5 space-y-1.5">
               <div className={lbl}>Bullet Points</div>
 
-              {(item.description ?? []).map((pt, pi) => (
+              {((item.description as string[]) ?? []).map((pt, pi) => (
                 <div key={pi} className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0" />
                   <input

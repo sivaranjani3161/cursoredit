@@ -10,7 +10,7 @@ export default async function AdminDashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect('/login');
 
-  const user = session.user as any;
+  const user = session.user;
   const userRole = user?.role || 'viewer';
 
   const quickCards = [

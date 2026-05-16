@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Save, X, MessageSquare } from 'lucide-react';
 import ImageUpload from '../common/ImageUpload';
+import type { ApiTestimonial, TestimonialFormData } from '@/types';
 
 interface Props {
-  initialData?: any;
-  onSave: (data: any) => void;
+  initialData?: ApiTestimonial;
+  onSave: (data: TestimonialFormData) => void;
   onCancel: () => void;
   loading?: boolean;
 }

@@ -8,7 +8,7 @@ export default async function EditorPage() {
   const session = await getServerSession(authOptions);
   if (!session) redirect('/login');
 
-  const user = session.user as any;
+  const user = session.user;
 
   return (
     <div className="min-h-screen bg-[#0f172a] text-white flex items-center justify-center">

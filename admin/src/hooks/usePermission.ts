@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 export default function usePermission() {
   const { data: session } = useSession();
 
-  const user = session?.user as any;
+  const user = session?.user;
 
   const hasPermission = (
     module: string,

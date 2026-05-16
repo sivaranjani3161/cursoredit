@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Save, X, Info, FileText, Bold, Italic, Underline as UnderlineIcon, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Undo, Redo, Code, Minus } from 'lucide-react';
 import ImageUpload from '../common/ImageUpload';
-
-// Tiptap
+import type { ApiBlog, BlogFormData } from '@/types';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import UnderlineExt from '@tiptap/extension-underline';
@@ -13,9 +12,9 @@ import LinkExt from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 
 interface BlogFormProps {
-  initialData?: any;
-  existingBlogs: any[];
-  onSave: (value: any) => void;
+  initialData?: ApiBlog;
+  existingBlogs: ApiBlog[];
+  onSave: (value: BlogFormData) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -51,8 +50,9 @@ function ToolBtn({
 /* ── Toolbar divider ── */
 const Div = () => <span className="w-px h-4 bg-slate-200 mx-0.5 self-center flex-shrink-0" />;
 
-/* ── Tiptap toolbar ── */
-function EditorToolbar({ editor }: { editor: any }) {
+import type { Editor } from '@tiptap/react';
+
+function EditorToolbar({ editor }: { editor: Editor | null }) {
   if (!editor) return null;
 
   const setLink = () => {
@@ -155,11 +155,11 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
     onSave({
       title:          formData.title,
       slug:           formData.slug,
-      excerpt:        formData.excerpt      || null,
+      excerpt:        formData.excerpt      || '',
       content:        editor?.getHTML()     ?? '',
-      coverImage:     formData.coverImage   || null,
-      status:         formData.status,
-      publishedAt:    formData.publishedAt  || null,
+      coverImage:     formData.coverImage   || '',
+      status:         (formData.status.toLowerCase() as import('@/types').BlogStatus),
+      publishedAt:    formData.publishedAt  || '',
       tags,
       relatedBlogIds: formData.relatedBlogIds,
     });

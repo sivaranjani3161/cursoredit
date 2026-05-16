@@ -4,10 +4,11 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Plus, Save, Trash2, X } from 'lucide-react';
 import ImageUpload from '../common/ImageUpload';
+import type { ApiGalleryEvent, GalleryFormData, GalleryImage } from '@/types';
 
 interface Props {
-  initialData?: any;
-  onSave: (data: any) => void;
+  initialData?: ApiGalleryEvent;
+  onSave: (data: GalleryFormData) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -51,7 +52,7 @@ export default function GalleryForm({ initialData, onSave, onCancel, loading }: 
       description: initialData.description ?? '',
       eventDate: initialData.eventDate ? String(initialData.eventDate).slice(0, 10) : '',
       galleryImages: Array.isArray(initialData.galleryImages)
-        ? initialData.galleryImages.map((img: any) => ({
+        ? (initialData.galleryImages as GalleryImage[]).map((img) => ({
             imageUrl: img.imageUrl ?? '',
             altText: img.altText ?? '',
           }))

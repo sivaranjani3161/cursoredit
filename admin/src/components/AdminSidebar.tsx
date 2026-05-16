@@ -8,6 +8,7 @@ import {
   LayoutDashboard, BookOpen, Image as ImageIcon, MessageSquare,
   Star, FileText, ShieldCheck, LogOut, ChevronRight, Users, X, Menu,
 } from 'lucide-react';
+import type { AdminUser } from '@/types';
 
 const navItems = [
   { label: 'Dashboard',    href: '/admin',                      icon: LayoutDashboard, module: 'dashboard' },
@@ -25,7 +26,7 @@ const adminItems = [
 
 interface SidebarProps {
   session: ReturnType<typeof useSession>['data'];
-  user: any;
+  user: AdminUser | undefined;
   userRole: string;
   isAdmin: boolean;
   hasModuleAccess: (module: string) => boolean;
@@ -115,11 +116,11 @@ function DesktopSidebar({ session, user, userRole, isAdmin, hasModuleAccess, pat
         {session?.user && (
           <div className="flex items-center gap-2.5 px-2 py-1.5">
             <div className="w-7 h-7 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-700 font-bold text-xs border border-cyan-100 shrink-0">
-              {user.name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+              {user?.name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-bold truncate text-gray-900">{user.name}</p>
-              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{user.roleName || userRole}</p>
+              <p className="text-xs font-bold truncate text-gray-900">{user?.name}</p>
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{user?.roleName || userRole}</p>
             </div>
           </div>
         )}
@@ -224,20 +225,20 @@ return () => {
             expanded ? (
               <div className="flex items-center gap-2 px-1 py-1 min-w-0">
                 <div className="w-7 h-7 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-700 font-bold text-xs border border-cyan-100 flex-shrink-0">
-                  {user.name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                  {user?.name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <div className="min-w-0 overflow-hidden">
-                  <p className="text-xs font-bold truncate text-gray-900 whitespace-nowrap">{user.name}</p>
-                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">{user.roleName || userRole}</p>
+                  <p className="text-xs font-bold truncate text-gray-900 whitespace-nowrap">{user?.name}</p>
+                  <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">{user?.roleName || userRole}</p>
                 </div>
               </div>
             ) : (
               <div className="relative group">
                 <div className="w-7 h-7 rounded-full bg-cyan-50 flex items-center justify-center text-cyan-700 font-bold text-xs border border-cyan-100 cursor-default">
-                  {user.name?.[0] || user.email?.[0]?.toUpperCase() || 'U'}
+                  {user?.name?.[0] || user?.email?.[0]?.toUpperCase() || 'U'}
                 </div>
                 <span className="pointer-events-none absolute left-[calc(100%+10px)] top-1/2 -translate-y-1/2 px-2 py-1 rounded-md bg-gray-900 text-white text-xs font-medium whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-[9999] shadow-lg">
-                  {user.name} · {user.roleName || userRole}
+                  {user?.name} · {user?.roleName || userRole}
                   <span className="absolute right-full top-1/2 -translate-y-1/2 border-[5px] border-transparent border-r-gray-900" />
                 </span>
               </div>
@@ -359,7 +360,7 @@ function MobileSidebar({ session, user, userRole, isAdmin, hasModuleAccess, path
 export default function AdminSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
-  const user = session?.user as any;
+  const user = session?.user;
   const userRole = user?.role || 'viewer';
   const isAdmin = userRole === 'admin';
 
@@ -370,7 +371,7 @@ export default function AdminSidebar() {
     return Object.values(ops).some(Boolean);
   };
 
-  const props: SidebarProps = { session, user, userRole, isAdmin, hasModuleAccess, pathname };
+  const props: SidebarProps = { session, user: user as AdminUser | undefined, userRole, isAdmin, hasModuleAccess, pathname };
 
   return (
     <>

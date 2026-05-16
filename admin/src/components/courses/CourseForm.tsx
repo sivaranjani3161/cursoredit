@@ -6,13 +6,14 @@ import { X, Save, Info, BookOpen } from 'lucide-react';
 import NestedEntityManager from '../common/NestedEntityManager';
 import ImageUpload from '../common/ImageUpload';
 import CourseHighlightsManager from './CourseHighlightsManager';
+import type { ApiCourse, CourseFormData, NestedItem } from '@/types';
 
 interface CourseFormProps {
-  initialData?: any;
-  onSave: (data: any) => void;
+  initialData?: ApiCourse;
+  onSave: (data: CourseFormData) => void;
   onCancel: () => void;
   loading?: boolean;
-  categoryRefreshKey?: number;  // bump to trigger category re-fetch
+  categoryRefreshKey?: number;
 }
 
 interface Category {
@@ -47,10 +48,10 @@ export default function CourseForm({ initialData, onSave, onCancel, loading, cat
     description:      initialData?.description      || '',
     heroImage:        initialData?.heroImage        || '',
     isActive:         initialData?.isActive         ?? true,
-    categoryId:       initialData?.categoryId       ?? initialData?.category?.id ?? null as number | null,
-    courseHighlights: Array.isArray(initialData?.courseHighlights) ? initialData.courseHighlights : [] as any[],
-    courseStructure:  Array.isArray(initialData?.courseStructure)  ? initialData.courseStructure  : [] as any[],
-    courseFeatures:   Array.isArray(initialData?.courseFeatures)   ? initialData.courseFeatures   : [] as any[],
+    categoryId:       initialData?.categoryId       ?? null as number | null,
+    courseHighlights: Array.isArray(initialData?.courseHighlights) ? initialData.courseHighlights as NestedItem[] : [] as NestedItem[],
+    courseStructure:  Array.isArray(initialData?.courseStructure)  ? initialData.courseStructure  as NestedItem[] : [] as NestedItem[],
+    courseFeatures:   Array.isArray(initialData?.courseFeatures)   ? initialData.courseFeatures   as NestedItem[] : [] as NestedItem[],
   }));
 
   useEffect(() => { setMounted(true); return () => setMounted(false); }, []);
@@ -71,7 +72,7 @@ export default function CourseForm({ initialData, onSave, onCancel, loading, cat
       description:      initialData.description      || '',
       heroImage:        initialData.heroImage        || '',
       isActive:         initialData.isActive         ?? true,
-      categoryId:       initialData.categoryId       ?? initialData.category?.id ?? null,
+      categoryId:       initialData.categoryId       ?? null,
       courseHighlights: Array.isArray(initialData.courseHighlights) ? initialData.courseHighlights : [],
       courseStructure:  Array.isArray(initialData.courseStructure)  ? initialData.courseStructure  : [],
       courseFeatures:   Array.isArray(initialData.courseFeatures)   ? initialData.courseFeatures   : [],
@@ -87,14 +88,14 @@ export default function CourseForm({ initialData, onSave, onCancel, loading, cat
   const generateSlug = (title: string) =>
     title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-  const sanitizeNested = (arr: any[]) => {
+  const sanitizeNested = (arr: NestedItem[]): NestedItem[] => {
     if (!Array.isArray(arr)) return [];
     return arr
       .map((item) => ({
         ...item,
         title: String(item?.title ?? '').trim(),
         description: Array.isArray(item?.description)
-          ? item.description.map((p: any) => String(p ?? '').trim()).filter((p: string) => p.length > 0)
+          ? (item.description as string[]).map((p) => String(p ?? '').trim()).filter((p) => p.length > 0)
           : [],
       }))
       .filter((item) => item.title.length > 0);
@@ -325,21 +326,21 @@ export default function CourseForm({ initialData, onSave, onCancel, loading, cat
             {renderAccordion('highlights', 'Highlights', formData.courseHighlights.length,
               <CourseHighlightsManager
                 items={formData.courseHighlights}
-                onChange={(items) => setFormData((p) => ({ ...p, courseHighlights: items as any }))}
+                onChange={(items) => setFormData((p) => ({ ...p, courseHighlights: items as NestedItem[] }))}
               />
             )}
             {renderAccordion('features', 'Key Features', formData.courseFeatures.length,
               <NestedEntityManager
                 title="Key Features"
                 items={formData.courseFeatures}
-                onChange={(items) => setFormData((p) => ({ ...p, courseFeatures: items as any }))}
+                onChange={(items) => setFormData((p) => ({ ...p, courseFeatures: items as NestedItem[] }))}
               />
             )}
             {renderAccordion('structure', 'Course Structure', formData.courseStructure.length,
               <NestedEntityManager
                 title="Course Structure (Phases)"
                 items={formData.courseStructure}
-                onChange={(items) => setFormData((p) => ({ ...p, courseStructure: items as any }))}
+                onChange={(items) => setFormData((p) => ({ ...p, courseStructure: items as NestedItem[] }))}
                 showIcon
                 numberField={{ key: 'phaseNumber', label: 'Phase #' }}
               />

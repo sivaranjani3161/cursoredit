@@ -7,18 +7,19 @@ import { toast } from 'react-hot-toast';
 import DataTable, { Column } from '@/components/common/DataTable';
 import TestimonialForm from '@/components/testimonials/TestimonialForm';
 import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
+import type { ApiTestimonial, TestimonialFormData } from '@/types';
 
 const API_BASE = '/api/proxy';
 
 export default function TestimonialsPage() {
   const { data: session } = useSession();
-  const [items, setItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems]             = useState<ApiTestimonial[]>([]);
+  const [loading, setLoading]         = useState(true);
   const [formLoading, setFormLoading] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState<any>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [isFormOpen, setIsFormOpen]   = useState(false);
+  const [selectedItem, setSelectedItem] = useState<ApiTestimonial | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ApiTestimonial | null>(null);
+  const [deleting, setDeleting]       = useState(false);
 
   const fetchItems = async () => {
     try {
@@ -31,20 +32,18 @@ export default function TestimonialsPage() {
 
   useEffect(() => { fetchItems(); }, []);
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: TestimonialFormData) => {
     try {
       setFormLoading(true);
       const url    = selectedItem ? `${API_BASE}/testimonials/${selectedItem.id}` : `${API_BASE}/testimonials`;
       const method = selectedItem ? 'PUT' : 'POST';
-      if (!selectedItem) {
-        const dbUserId = Number((session?.user as any)?.dbUserId);
-        if (Number.isNaN(dbUserId)) { toast.error('Session is missing user id. Please sign in again.'); return; }
-        formData.createdBy = dbUserId;
-      }
+      const payload = selectedItem
+        ? formData
+        : { ...formData, createdBy: Number(session?.user?.dbUserId) };
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -59,9 +58,9 @@ export default function TestimonialsPage() {
     finally { setFormLoading(false); }
   };
 
-  const handleEdit = (item: any) => { setSelectedItem(item); setIsFormOpen(true); };
+  const handleEdit = (item: ApiTestimonial) => { setSelectedItem(item); setIsFormOpen(true); };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: ApiTestimonial) => {
     setDeleteTarget(item);
   };
 
@@ -80,7 +79,7 @@ export default function TestimonialsPage() {
     }
   };
 
-  const columns: Column<any>[] = [
+  const columns: Column<ApiTestimonial>[] = [
     {
       header: 'Preview',
       accessor: (item) =>
@@ -179,7 +178,7 @@ export default function TestimonialsPage() {
 
       {isFormOpen && (
         <TestimonialForm
-          initialData={selectedItem}
+          initialData={selectedItem ?? undefined}
           onSave={handleSave}
           onCancel={() => { setIsFormOpen(false); setSelectedItem(null); }}
           loading={formLoading}

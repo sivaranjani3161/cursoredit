@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import BlogForm from '@/components/blogs/BlogForm';
 import DataTable, { Column } from '@/components/common/DataTable';
 import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
+import type { ApiBlog, BlogFormData } from '@/types';
 
 const API_BASE = '/api/proxy';
 
@@ -18,13 +19,13 @@ const STATUS_STYLES: Record<string, string> = {
 
 export default function BlogsPage() {
   const { data: session } = useSession();
-  const [blogs, setBlogs]           = useState<any[]>([]);
-  const [loading, setLoading]       = useState(true);
-  const [formLoading, setFormLoading] = useState(false);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [selectedBlog, setSelectedBlog] = useState<any>(null);
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
-  const [deleting, setDeleting]     = useState(false);
+  const [blogs, setBlogs]               = useState<ApiBlog[]>([]);
+  const [loading, setLoading]           = useState(true);
+  const [formLoading, setFormLoading]   = useState(false);
+  const [isFormOpen, setIsFormOpen]     = useState(false);
+  const [selectedBlog, setSelectedBlog] = useState<ApiBlog | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<ApiBlog | null>(null);
+  const [deleting, setDeleting]         = useState(false);
 
   const fetchBlogs = async () => {
     try {
@@ -40,23 +41,18 @@ export default function BlogsPage() {
 
   useEffect(() => { fetchBlogs(); }, []);
 
-  const handleSave = async (formData: any) => {
+  const handleSave = async (formData: BlogFormData) => {
     try {
       setFormLoading(true);
       const url    = selectedBlog ? `${API_BASE}/blogs/${selectedBlog.id}` : `${API_BASE}/blogs`;
       const method = selectedBlog ? 'PUT' : 'POST';
-      if (!selectedBlog) {
-        const dbUserId = Number((session?.user as any)?.dbUserId);
-        if (Number.isNaN(dbUserId)) {
-          toast.error('Session is missing user id. Please sign in again.');
-          return;
-        }
-        formData.createdBy = dbUserId;
-      }
+      const payload = selectedBlog
+        ? formData
+        : { ...formData, createdBy: Number(session?.user?.dbUserId) };
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -74,7 +70,7 @@ export default function BlogsPage() {
     }
   };
 
-  const handleEdit = async (item: any) => {
+  const handleEdit = async (item: ApiBlog) => {
     try {
       const res = await fetch(`${API_BASE}/blogs/${item.id}`);
       if (!res.ok) { toast.error('Failed to fetch blog details'); return; }
@@ -85,7 +81,7 @@ export default function BlogsPage() {
     }
   };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: ApiBlog) => {
     setDeleteTarget(item);
   };
 
@@ -105,8 +101,8 @@ export default function BlogsPage() {
     }
   };
 
-  const handleTogglePublish = async (item: any) => {
-    const newStatus = item.status === 'PUBLISHED' ? 'DRAFT' : 'PUBLISHED';
+  const handleTogglePublish = async (item: ApiBlog) => {
+    const newStatus: ApiBlog['status'] = item.status === 'published' ? 'draft' : 'published';
     try {
       const res = await fetch(`${API_BASE}/blogs/${item.id}`, {
         method: 'PUT',
@@ -114,14 +110,14 @@ export default function BlogsPage() {
         body: JSON.stringify({ ...item, status: newStatus }),
       });
       if (!res.ok) { toast.error('Failed to update status'); return; }
-      toast.success(`Blog ${newStatus === 'PUBLISHED' ? 'published' : 'unpublished'}`);
+      toast.success(`Blog ${newStatus === 'published' ? 'published' : 'unpublished'}`);
       fetchBlogs();
     } catch {
       toast.error('An error occurred');
     }
   };
 
-  const columns: Column<any>[] = [
+  const columns: Column<ApiBlog>[] = [
     {
       mobileTitle: true,
       header: 'Blog',
@@ -258,7 +254,7 @@ export default function BlogsPage() {
 
       {isFormOpen && (
         <BlogForm
-          initialData={selectedBlog}
+          initialData={selectedBlog ?? undefined}
           existingBlogs={blogs}
           onSave={handleSave}
           onCancel={() => { setIsFormOpen(false); setSelectedBlog(null); }}

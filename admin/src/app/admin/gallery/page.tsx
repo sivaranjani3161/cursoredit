@@ -7,19 +7,23 @@ import { toast } from 'react-hot-toast';
 import DataTable, { Column } from '@/components/common/DataTable';
 import UnifiedGalleryForm from '@/components/gallery/UnifiedGalleryForm';
 import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
+import type { ApiGalleryEvent, GalleryFormData, GalleryType } from '@/types';
 
 const API_BASE = '/api/proxy';
-type GalleryType = 'internal' | 'external';
+
+interface GalleryRow extends ApiGalleryEvent {
+  __type: GalleryType;
+}
 
 export default function GalleryPage() {
   const { data: session } = useSession();
-  const [rows, setRows]               = useState<any[]>([]);
+  const [rows, setRows]               = useState<GalleryRow[]>([]);
   const [loading, setLoading]         = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [isFormOpen, setIsFormOpen]   = useState(false);
-  const [selected, setSelected]       = useState<any>(null);
+  const [selected, setSelected]       = useState<ApiGalleryEvent | null>(null);
   const [selectedType, setSelectedType] = useState<GalleryType>('external');
-  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<GalleryRow | null>(null);
   const [deleting, setDeleting]       = useState(false);
 
   const fetchAll = async () => {
@@ -27,7 +31,7 @@ export default function GalleryPage() {
       const res = await fetch(`${API_BASE}/gallery`);
       if (res.ok) {
         const data = await res.json();
-        setRows(data.map((e: any) => ({ ...e, __type: e.type as GalleryType })));
+        setRows(data.map((e: ApiGalleryEvent) => ({ ...e, __type: e.type as GalleryType })));
       } else {
         toast.error('Failed to fetch gallery');
       }
@@ -41,19 +45,16 @@ export default function GalleryPage() {
     })();
   }, []);
 
-  const handleSave = async (formData: any, type: GalleryType) => {
+  const handleSave = async (formData: GalleryFormData | { imageUrl: string; altText: string | null }, type: GalleryType) => {
     try {
       setFormLoading(true);
       const isEdit = Boolean(selected);
-      const url = isEdit ? `${API_BASE}/gallery/${selected.id}` : `${API_BASE}/gallery`;
+      const url = isEdit ? `${API_BASE}/gallery/${selected!.id}` : `${API_BASE}/gallery`;
       const method = isEdit ? 'PUT' : 'POST';
-      const payload = { ...formData, type };
-      if (type === 'external' && !isEdit) {
-        const dbUserId = Number((session?.user as any)?.dbUserId);
-        if (Number.isNaN(dbUserId)) { toast.error('Session missing user id. Please sign in again.'); return; }
-        payload.createdBy = dbUserId;
-      }
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      const finalPayload = (type === 'external' && !isEdit)
+        ? { ...formData, type, createdBy: Number(session?.user?.dbUserId) }
+        : { ...formData, type };
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finalPayload) });
       if (!res.ok) { const err = await res.json().catch(() => ({})); toast.error(err.error || 'Failed to save'); return; }
       toast.success(isEdit ? 'Updated' : 'Created');
       setSelected(null); setIsFormOpen(false);
@@ -62,7 +63,7 @@ export default function GalleryPage() {
     finally { setFormLoading(false); }
   };
 
-  const handleEdit = async (item: any) => {
+  const handleEdit = async (item: GalleryRow) => {
     try {
       setSelectedType(item.__type as GalleryType);
       const res = await fetch(`${API_BASE}/gallery/${item.id}`);
@@ -72,7 +73,7 @@ export default function GalleryPage() {
     } catch { toast.error('Failed to fetch details'); }
   };
 
-  const handleDelete = (item: any) => {
+  const handleDelete = (item: GalleryRow) => {
     setDeleteTarget(item);
   };
 
@@ -88,7 +89,7 @@ export default function GalleryPage() {
     finally { setDeleting(false); setDeleteTarget(null); }
   };
 
-  const columns: Column<any>[] = [
+  const columns: Column<GalleryRow>[] = [
     {
       header: 'Type',
       accessor: (item) => (
@@ -207,7 +208,7 @@ export default function GalleryPage() {
       {isFormOpen && (
         <UnifiedGalleryForm
           type={selectedType}
-          initialData={selected}
+          initialData={selected ?? undefined}
           onSave={handleSave}
           onCancel={() => { setSelected(null); setIsFormOpen(false); }}
           loading={formLoading}

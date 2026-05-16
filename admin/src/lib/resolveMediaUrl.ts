@@ -22,7 +22,7 @@ export function resolveMediaUrl(url?: string | null): string {
   // Strip any known backend origin and proxy via /api/media/
   for (const origin of BACKEND_ORIGINS) {
     if (url.startsWith(origin)) {
-      const path = url.slice(origin.length); // e.g. "/uploads/file.jpg"
+      const path = url.slice(origin.length); 
       const clean = path.startsWith('/') ? path.slice(1) : path;
       return `/api/media/${clean}`;
     }

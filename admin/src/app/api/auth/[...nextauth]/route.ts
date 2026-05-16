@@ -56,11 +56,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).role = token.role;
-        (session.user as any).roleId = token.roleId;
-        (session.user as any).roleName = token.roleName;
-        (session.user as any).dbUserId = token.dbUserId;
-        (session.user as any).permissions = token.permissions;
+        session.user.role = token.role;
+        session.user.roleId = token.roleId;
+        session.user.roleName = token.roleName;
+        session.user.dbUserId = token.dbUserId;
+        session.user.permissions = token.permissions;
       }
       return session;
     },

@@ -4,13 +4,12 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Save, X } from 'lucide-react';
 import ImageUpload from '../common/ImageUpload';
-
-type GalleryType = 'internal' | 'external';
+import type { ApiGalleryEvent, GalleryFormData, GalleryImage, GalleryType } from '@/types';
 
 interface Props {
   type: GalleryType;
-  initialData?: any;
-  onSave: (data: any, type: GalleryType) => void;
+  initialData?: ApiGalleryEvent;
+  onSave: (data: GalleryFormData | { imageUrl: string; altText: string | null }, type: GalleryType) => void;
   onCancel: () => void;
   loading?: boolean;
 }
@@ -54,7 +53,7 @@ export default function UnifiedGalleryForm({ type: initialType, initialData, onS
         description:   initialData.description ?? '',
         eventDate:     initialData.eventDate   ? String(initialData.eventDate).slice(0, 10) : '',
         galleryImages: Array.isArray(initialData.galleryImages)
-          ? initialData.galleryImages.map((img: any) => ({ imageUrl: img.imageUrl ?? '', altText: img.altText ?? '' }))
+          ? (initialData.galleryImages as GalleryImage[]).map((img) => ({ imageUrl: img.imageUrl ?? '', altText: img.altText ?? '' }))
           : [],
       });
     } else {

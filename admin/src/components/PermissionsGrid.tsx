@@ -127,7 +127,7 @@ export default function PermissionsGrid() {
         for (const mod of MODULES) for (const k of ALL_OP_KEYS) norm[mod.key][k] = Boolean(data?.[mod.key]?.[k]);
         setPermissions(norm);
       }
-    } catch (e: any) { toast.error(e?.message || 'Save failed'); }
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Save failed'); }
     finally { setSaving(false); }
   };
 
@@ -149,7 +149,7 @@ export default function PermissionsGrid() {
       setSelectedRoleId(created.id);
       setNewRoleName('');
       toast.success('Role added');
-    } catch (e: any) { toast.error(e?.message || 'Failed to create role'); }
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Failed to create role'); }
     finally { setCreatingRole(false); }
   };
 
@@ -169,7 +169,7 @@ export default function PermissionsGrid() {
       setSelectedRoleId(fallbackRoleId);
       setPermissions(fallbackRoleId ? null : emptyMap());
       toast.success('Role deleted');
-    } catch (e: any) { toast.error(e?.message || 'Failed to delete role'); }
+    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Failed to delete role'); }
     finally {
       setDeletingRole(false);
       setDeleteTarget(null);

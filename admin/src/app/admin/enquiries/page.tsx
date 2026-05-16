@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DataTable, { Column } from '@/components/common/DataTable';
+import type { ApiEnquiry, ApiCourse, EnquiryStatus } from '@/types';
 
 const API_BASE = '/api/proxy';
 
@@ -22,7 +23,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
-function StatusSelect({ item, onUpdate }: { item: any; onUpdate: (id: number, status: string) => void }) {
+function StatusSelect({ item, onUpdate }: { item: ApiEnquiry; onUpdate: (id: number, status: string) => void }) {
   const [saving, setSaving] = useState(false);
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -62,8 +63,8 @@ function StatusSelect({ item, onUpdate }: { item: any; onUpdate: (id: number, st
 }
 
 export default function EnquiriesPage() {
-  const [items, setItems] = useState<any[]>([]);
-  const [courses, setCourses] = useState<any[]>([]);
+  const [items, setItems]     = useState<ApiEnquiry[]>([]);
+  const [courses, setCourses] = useState<ApiCourse[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [courseFilter, setCourseFilter] = useState<string>('all');
@@ -86,9 +87,10 @@ export default function EnquiriesPage() {
 
   useEffect(() => { fetchItems(); }, []);
 
-  // Inline status update without re-fetching
   const handleStatusUpdate = (id: number, newStatus: string) => {
-    setItems((prev) => prev.map((row) => row.id === id ? { ...row, status: newStatus } : row));
+    setItems((prev) => prev.map((row) =>
+      row.id === id ? { ...row, status: newStatus as EnquiryStatus } : row
+    ));
   };
 
   const filteredItems = useMemo(() => {
@@ -100,7 +102,7 @@ export default function EnquiriesPage() {
     });
   }, [items, statusFilter, courseFilter]);
 
-  const columns: Column<any>[] = [
+  const columns: Column<ApiEnquiry>[] = [
     {
       header: 'Name',
       accessor: (item) => (

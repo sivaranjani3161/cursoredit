@@ -4,19 +4,11 @@ import { Plus, Trash2, Upload, X } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
-
-type HighlightItem = {
-  id?: number;
-  title: string;
-  description?: string[];
-  icon?: string;
-  sortOrder?: number;
-  [key: string]: any;
-};
+import type { NestedItem } from '@/types';
 
 interface Props {
-  items: HighlightItem[];
-  onChange: (items: HighlightItem[]) => void;
+  items: NestedItem[];
+  onChange: (items: NestedItem[]) => void;
 }
 
 const API_BASE = '/api/proxy';
@@ -28,7 +20,6 @@ const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 m
 export default function CourseHighlightsManager({ items, onChange }: Props) {
   const [uploadingIdx, setUploadingIdx] = useState<number | null>(null);
 
-  /* ── Hard-capped at MAX_HIGHLIGHTS ── */
   const addHighlight = () => {
     if (items.length >= MAX_HIGHLIGHTS) return;
     onChange([...items, { title: '', description: [], icon: '', sortOrder: items.length }]);
@@ -36,26 +27,25 @@ export default function CourseHighlightsManager({ items, onChange }: Props) {
 
   const removeHighlight = (idx: number) => onChange(items.filter((_, i) => i !== idx));
 
-  const updateHighlight = (idx: number, patch: Partial<HighlightItem>) => {
+  const updateHighlight = (idx: number, patch: Partial<NestedItem>) => {
     const next = [...items];
     next[idx] = { ...next[idx], ...patch };
     onChange(next);
   };
 
-  /* ── Bullet point helpers ── */
   const addPoint = (idx: number) => {
-    const desc = [...(items[idx].description ?? []), ''];
+    const desc = [...((items[idx].description as string[]) ?? []), ''];
     updateHighlight(idx, { description: desc });
   };
 
   const updatePoint = (itemIdx: number, pointIdx: number, val: string) => {
-    const desc = [...(items[itemIdx].description ?? [])];
+    const desc = [...((items[itemIdx].description as string[]) ?? [])];
     desc[pointIdx] = val;
     updateHighlight(itemIdx, { description: desc });
   };
 
   const removePoint = (itemIdx: number, pointIdx: number) => {
-    const desc = (items[itemIdx].description ?? []).filter((_, i) => i !== pointIdx);
+    const desc = ((items[itemIdx].description as string[]) ?? []).filter((_, i) => i !== pointIdx);
     updateHighlight(itemIdx, { description: desc });
   };
 
@@ -154,7 +144,7 @@ export default function CourseHighlightsManager({ items, onChange }: Props) {
                     onClick={() => {
                       const input = document.createElement('input');
                       input.type = 'file'; input.accept = 'image/*';
-                      input.onchange = (e: any) => { const f = e.target.files?.[0]; if (f) handleIconUpload(idx, f); };
+                      input.onchange = (e: Event) => { const f = (e.target as HTMLInputElement).files?.[0]; if (f) handleIconUpload(idx, f); };
                       input.click();
                     }}
                     className="w-11 h-11 rounded-md border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00B8C6] hover:border-[#00B8C6]/60 transition-all"
@@ -197,7 +187,7 @@ export default function CourseHighlightsManager({ items, onChange }: Props) {
             <div className="mt-2 ml-[52px] space-y-1.5">
               <div className={lbl}>Description Points</div>
 
-              {(item.description ?? []).map((pt, pi) => (
+              {((item.description as string[]) ?? []).map((pt, pi) => (
                 <div key={pi} className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-300 flex-shrink-0" />
                   <input
