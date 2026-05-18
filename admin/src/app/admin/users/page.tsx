@@ -7,6 +7,14 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
+import { useError } from '@/shared/context/ErrorContext';
+import { z } from 'zod';
+
+const userSchema = z.object({
+  email: z.string().email('Valid email is required'),
+  name: z.string().min(1, 'Name is required'),
+  roleId: z.number({ invalid_type_error: 'Please select a role' }).int().positive('Please select a role'),
+});
 
 const API_BASE = '/api/proxy';
 
@@ -14,6 +22,7 @@ interface Role { id: number; name: string; code: string; }
 interface User { id: number; email: string; name: string | null; status: string; roleId: number; role: Role; }
 
 export default function UsersPage() {
+  const { setError } = useError();
   const [users, setUsers]             = useState<User[]>([]);
   const [roles, setRoles]             = useState<Role[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -31,8 +40,8 @@ export default function UsersPage() {
     try {
       const res = await fetch(`${API_BASE}/users`);
       if (res.ok) setUsers(await res.json());
-      else toast.error('Failed to load users');
-    } catch { toast.error('Failed to load users'); }
+      else setError('Failed to load users');
+    } catch { setError('Failed to load users'); }
     finally { setLoading(false); }
   };
 
@@ -40,7 +49,7 @@ export default function UsersPage() {
     try {
       const res = await fetch(`${API_BASE}/roles`);
       if (res.ok) setRoles(await res.json());
-    } catch { toast.error('Failed to load roles'); }
+    } catch { setError('Failed to load roles'); }
   };
 
   const resetForm = () => { setFormData({ email: '', name: '', roleId: '' }); setEditingUser(null); setShowModal(false); };
@@ -54,7 +63,8 @@ export default function UsersPage() {
       name:   formData.name.trim(),
       roleId: Number(formData.roleId),
     };
-    if (!payload.email || !payload.name || Number.isNaN(payload.roleId)) { toast.error('Please fill all fields'); return; }
+    const parsed = userSchema.safeParse(payload);
+    if (!parsed.success) { setError(parsed.error.issues[0]?.message || 'Validation failed'); return; }
     try {
       setSubmitting(true);
       const isEdit = Boolean(editingUser);
@@ -68,9 +78,9 @@ export default function UsersPage() {
         resetForm();
       } else {
         const err = await res.json();
-        toast.error(err.error || `Failed to ${isEdit ? 'update' : 'add'} user`);
+        setError(err.error || `Failed to ${isEdit ? 'update' : 'add'} user`);
       }
-    } catch { toast.error('Something went wrong'); }
+    } catch { setError('Something went wrong'); }
     finally { setSubmitting(false); }
   };
 
@@ -84,8 +94,8 @@ export default function UsersPage() {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/users/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) { setUsers(users.filter(u => u.id !== deleteTarget.id)); toast.success('User deleted'); }
-      else { const err = await res.json(); toast.error(err.error || 'Failed to delete user'); }
-    } catch { toast.error('An error occurred'); }
+      else { const err = await res.json(); setError(err.error || 'Failed to delete user'); }
+    } catch { setError('An error occurred'); }
     finally { setDeleting(false); setDeleteTarget(null); 
       
     }

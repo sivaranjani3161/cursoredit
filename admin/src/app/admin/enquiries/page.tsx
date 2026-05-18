@@ -5,6 +5,7 @@ import { MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import DataTable, { Column } from '@/shared/components/DataTable';
 import type { ApiEnquiry, ApiCourse, EnquiryStatus } from '@/shared/types';
+import { useError } from '@/shared/context/ErrorContext';
 
 const API_BASE = '/api/proxy';
 
@@ -13,6 +14,7 @@ const API_BASE = '/api/proxy';
 
 function StatusSelect({ item, onUpdate }: { item: ApiEnquiry; onUpdate: (id: number, status: string) => void }) {
   const [saving, setSaving] = useState(false);
+  const { setError } = useError();
 
   const handleChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newStatus = e.target.value;
@@ -27,10 +29,10 @@ function StatusSelect({ item, onUpdate }: { item: ApiEnquiry; onUpdate: (id: num
         onUpdate(item.id, newStatus);
         toast.success('Status updated');
       } else {
-        toast.error('Failed to update status');
+        setError('Failed to update status');
       }
     } catch {
-      toast.error('An error occurred');
+      setError('An error occurred');
     } finally {
       setSaving(false);
     }
@@ -67,7 +69,7 @@ export default function EnquiriesPage() {
       if (enquiriesRes.ok) setItems(await enquiriesRes.json());
       if (coursesRes.ok) setCourses(await coursesRes.json());
     } catch {
-      toast.error('Failed to fetch enquiries');
+      setError('Failed to fetch enquiries');
     } finally {
       setLoading(false);
     }

@@ -8,10 +8,12 @@ import DataTable, { Column } from '@/shared/components/DataTable';
 import TestimonialForm from '@/features/testimonials/components/TestimonialForm';
 import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
 import type { ApiTestimonial, TestimonialFormData } from '@/shared/types';
+import { useError } from '@/shared/context/ErrorContext';
 
 const API_BASE = '/api/proxy';
 
 export default function TestimonialsPage() {
+  const { setError } = useError();
   const { data: session } = useSession();
   const [items, setItems]             = useState<ApiTestimonial[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -26,7 +28,7 @@ export default function TestimonialsPage() {
       setLoading(true);
       const res = await fetch(`${API_BASE}/testimonials`);
       if (res.ok) setItems(await res.json());
-    } catch { toast.error('Failed to fetch testimonials'); }
+    } catch { setError('Failed to fetch testimonials'); }
     finally { setLoading(false); }
   };
 
@@ -47,14 +49,14 @@ export default function TestimonialsPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Failed to save testimonial');
+        setError(err.error || 'Failed to save testimonial');
         return;
       }
       toast.success(selectedItem ? 'Testimonial updated' : 'Testimonial created');
       setIsFormOpen(false);
       setSelectedItem(null);
       fetchItems();
-    } catch { toast.error('An error occurred'); }
+    } catch { setError('An error occurred'); }
     finally { setFormLoading(false); }
   };
 
@@ -70,9 +72,9 @@ export default function TestimonialsPage() {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/testimonials/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) { toast.success('Testimonial deleted'); fetchItems(); }
-      else toast.error('Failed to delete testimonial');
+      else setError('Failed to delete testimonial');
     } catch {
-      toast.error('An error occurred');
+      setError('An error occurred');
     } finally {
       setDeleting(false);
       setDeleteTarget(null);

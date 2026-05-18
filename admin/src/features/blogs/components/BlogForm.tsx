@@ -10,6 +10,20 @@ import StarterKit from '@tiptap/starter-kit';
 import UnderlineExt from '@tiptap/extension-underline';
 import LinkExt from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import { z } from 'zod';
+import { useError } from '@/shared/context/ErrorContext';
+
+const blogSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  excerpt: z.string().optional(),
+  content: z.string().min(1, 'Content is required').refine((val) => val !== '<p></p>', 'Content cannot be empty'),
+  coverImage: z.string().optional(),
+  status: z.enum(['draft', 'published', 'archived']),
+  publishedAt: z.string().optional(),
+  tags: z.array(z.string()),
+  relatedBlogIds: z.array(z.number()),
+});
 
 interface BlogFormProps {
   initialData?: ApiBlog;
@@ -90,6 +104,7 @@ function EditorToolbar({ editor }: { editor: Editor | null }) {
 }
 
 export default function BlogForm({ initialData, existingBlogs, onSave, onCancel, loading }: BlogFormProps) {
+  const { setError } = useError();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     title:          '',
@@ -152,17 +167,25 @@ export default function BlogForm({ initialData, existingBlogs, onSave, onCancel,
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const tags = formData.tagsInput.split(',').map((t) => t.trim()).filter(Boolean);
-    onSave({
+    const payload = {
       title:          formData.title,
       slug:           formData.slug,
       excerpt:        formData.excerpt      || '',
       content:        editor?.getHTML()     ?? '',
       coverImage:     formData.coverImage   || '',
-      status:         (formData.status.toLowerCase() as import('@/types').BlogStatus),
+      status:         formData.status.toLowerCase() as any,
       publishedAt:    formData.publishedAt  || '',
       tags,
       relatedBlogIds: formData.relatedBlogIds,
-    });
+    };
+
+    const parsed = blogSchema.safeParse(payload);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message || 'Validation failed');
+      return;
+    }
+
+    onSave(parsed.data as any);
   };
 
   if (!mounted) return null;

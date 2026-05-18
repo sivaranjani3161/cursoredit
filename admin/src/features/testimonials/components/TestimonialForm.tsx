@@ -5,6 +5,20 @@ import { createPortal } from 'react-dom';
 import { Save, X, MessageSquare } from 'lucide-react';
 import ImageUpload from '@/shared/components/ImageUpload';
 import type { ApiTestimonial, TestimonialFormData } from '@/shared/types';
+import { z } from 'zod';
+import { useError } from '@/shared/context/ErrorContext';
+
+const testimonialSchema = z.object({
+  type: z.enum(['text', 'video']),
+  name: z.string().min(1, 'Name is required'),
+  role: z.string().nullable(),
+  company: z.string().nullable(),
+  title: z.string().nullable(),
+  description: z.string().nullable(),
+  thumbnailUrl: z.string().nullable(),
+  videoUrl: z.string().nullable(),
+  isActive: z.boolean(),
+});
 
 interface Props {
   initialData?: ApiTestimonial;
@@ -22,6 +36,7 @@ const inp = 'w-full h-7 px-2 rounded border border-slate-200 bg-slate-50 text-[1
 const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 mb-0.5';
 
 export default function TestimonialForm({ initialData, onSave, onCancel, loading }: Props) {
+  const { setError } = useError();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     type: 'text', name: '', role: '', company: '',
@@ -54,30 +69,45 @@ export default function TestimonialForm({ initialData, onSave, onCancel, loading
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const isVideo = formData.type === 'video';
+    
+    let payload: Record<string, any>;
+
     if (isVideo) {
-      const videoUrl = formData.videoUrl.trim();
-      if (!videoUrl) return;
-      onSave({
-        type: 'video', videoUrl,
+      payload = {
+        type: 'video',
+        videoUrl: formData.videoUrl.trim() || null,
         thumbnailUrl: formData.thumbnailUrl.trim() || null,
         name: formData.name.trim() || 'Video',
         role: null, company: null, title: null, description: null,
         isActive: formData.isActive,
-      });
+      };
+    } else {
+      payload = {
+        type: 'text',
+        name: formData.name.trim(),
+        role: formData.role.trim() || null,
+        company: formData.company.trim() || null,
+        title: formData.title.trim() || null,
+        description: formData.description.trim() || null,
+        thumbnailUrl: formData.thumbnailUrl.trim() || null,
+        videoUrl: null,
+        isActive: formData.isActive,
+      };
+    }
+
+    const parsed = testimonialSchema.safeParse(payload);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message || 'Validation failed');
       return;
     }
-    const name = formData.name.trim();
-    if (!name) return;
-    onSave({
-      type: 'text', name,
-      role:         formData.role.trim()        || null,
-      company:      formData.company.trim()      || null,
-      title:        formData.title.trim()        || null,
-      description:  formData.description.trim()  || null,
-      thumbnailUrl: formData.thumbnailUrl.trim()  || null,
-      videoUrl: null,
-      isActive: formData.isActive,
-    });
+
+    if (isVideo && !parsed.data.videoUrl) {
+      setError('Video URL is required for video testimonials');
+      return;
+    }
+
+    onSave(parsed.data as TestimonialFormData);
   };
 
   if (!mounted) return null;

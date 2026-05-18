@@ -7,6 +7,20 @@ import NestedEntityManager from '@/shared/components/NestedEntityManager';
 import ImageUpload from '@/shared/components/ImageUpload';
 import CourseHighlightsManager from './CourseHighlightsManager';
 import type { ApiCourse, CourseFormData, NestedItem } from '@/shared/types';
+import { z } from 'zod';
+import { useError } from '@/shared/context/ErrorContext';
+
+const courseSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, 'URL Slug is required'),
+  description: z.string().optional(),
+  heroImage: z.string().optional(),
+  isActive: z.boolean(),
+  categoryId: z.number().nullable(),
+  courseHighlights: z.array(z.any()),
+  courseFeatures: z.array(z.any()),
+  courseStructure: z.array(z.any()),
+});
 
 interface CourseFormProps {
   initialData?: ApiCourse;
@@ -39,6 +53,7 @@ const inp = 'w-full h-8 px-2.5 rounded-md border border-slate-200 bg-slate-50 te
 const lbl = 'block text-[9.5px] font-bold uppercase tracking-wide text-slate-500 mb-0.5';
 
 export default function CourseForm({ initialData, onSave, onCancel, loading, categoryRefreshKey = 0 }: CourseFormProps) {
+  const { setError } = useError();
   const [mounted, setMounted]         = useState(false);
   const [openSection, setOpenSection] = useState<'highlights' | 'features' | 'structure' | null>('highlights');
   const [categories, setCategories]   = useState<Category[]>([]);
@@ -103,12 +118,20 @@ export default function CourseForm({ initialData, onSave, onCancel, loading, cat
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    const payload = {
       ...formData,
       courseHighlights: sanitizeNested(formData.courseHighlights),
       courseFeatures:   sanitizeNested(formData.courseFeatures),
       courseStructure:  sanitizeNested(formData.courseStructure),
-    });
+    };
+
+    const parsed = courseSchema.safeParse(payload);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message || 'Validation failed');
+      return;
+    }
+
+    onSave(parsed.data as any);
   };
 
   const toggleSection = (section: 'highlights' | 'features' | 'structure') =>

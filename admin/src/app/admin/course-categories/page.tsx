@@ -3,6 +3,15 @@
 import { useState, useEffect } from 'react';
 import { Tag, Plus, Pencil, Trash2, X, Save, ChevronUp, ChevronDown } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { useError } from '@/shared/context/ErrorContext';
+import { z } from 'zod';
+
+const categorySchema = z.object({
+  name: z.string().min(1, 'Category name is required'),
+  slug: z.string().optional(),
+  description: z.string().optional(),
+  sortOrder: z.number().int().min(0).optional(),
+});
 
 const API = '/api/proxy';
 
@@ -33,6 +42,7 @@ interface FormState {
 const empty: FormState = { name: '', slug: '', description: '', sortOrder: 0 };
 
 export default function CourseCategoriesPage() {
+  const { setError } = useError();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading]       = useState(true);
   const [formOpen, setFormOpen]     = useState(false);
@@ -49,7 +59,7 @@ export default function CourseCategoriesPage() {
       setLoading(true);
       const res = await fetch(`${API}/course-categories`);
       if (res.ok) setCategories(await res.json());
-    } catch { toast.error('Failed to load categories'); }
+    } catch { setError('Failed to load categories'); }
     finally { setLoading(false); }
   };
 
@@ -68,10 +78,11 @@ export default function CourseCategoriesPage() {
   const closeForm = () => { setFormOpen(false); setEditing(null); setForm(empty); };
 
   const handleSave = async () => {
-    if (!form.name.trim()) { toast.error('Name is required'); return; }
+    const parsed = categorySchema.safeParse({ ...form, slug: form.slug || makeSlug(form.name) });
+    if (!parsed.success) { setError(parsed.error.issues[0]?.message || 'Validation failed'); return; }
     try {
       setSaving(true);
-      const payload = { ...form, slug: form.slug || makeSlug(form.name) };
+      const payload = parsed.data;
       const url    = editing ? `${API}/course-categories/${editing.id}` : `${API}/course-categories`;
       const method = editing ? 'PUT' : 'POST';
       const res = await fetch(url, {
@@ -85,9 +96,9 @@ export default function CourseCategoriesPage() {
         fetchCategories();
       } else {
         const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Failed to save category');
+        setError(err.error || 'Failed to save category');
       }
-    } catch { toast.error('An error occurred'); }
+    } catch { setError('An error occurred'); }
     finally { setSaving(false); }
   };
 
@@ -97,8 +108,8 @@ export default function CourseCategoriesPage() {
       setDeleting(true);
       const res = await fetch(`${API}/course-categories/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) { toast.success('Category deleted'); fetchCategories(); }
-      else toast.error('Failed to delete category');
-    } catch { toast.error('An error occurred'); }
+      else setError('Failed to delete category');
+    } catch { setError('An error occurred'); }
     finally { setDeleting(false); setDeleteTarget(null); }
   };
 

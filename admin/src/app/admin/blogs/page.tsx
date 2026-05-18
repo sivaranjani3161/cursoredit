@@ -8,6 +8,7 @@ import BlogForm from '@/features/blogs/components/BlogForm';
 import DataTable, { Column } from '@/shared/components/DataTable';
 import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
 import type { ApiBlog, BlogFormData } from '@/shared/types';
+import { useError } from '@/shared/context/ErrorContext';
 
 const API_BASE = '/api/proxy';
 
@@ -18,6 +19,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 export default function BlogsPage() {
+  const { setError } = useError();
   const { data: session } = useSession();
   const [blogs, setBlogs]               = useState<ApiBlog[]>([]);
   const [loading, setLoading]           = useState(true);
@@ -33,7 +35,7 @@ export default function BlogsPage() {
       const res = await fetch(`${API_BASE}/blogs`);
       if (res.ok) setBlogs(await res.json());
     } catch {
-      toast.error('Failed to fetch blogs');
+      setError('Failed to fetch blogs');
     } finally {
       setLoading(false);
     }
@@ -56,7 +58,7 @@ export default function BlogsPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        toast.error(err.error || 'Failed to save blog');
+        setError(err.error || 'Failed to save blog');
         return;
       }
       toast.success(selectedBlog ? 'Blog updated' : 'Blog created');
@@ -64,7 +66,7 @@ export default function BlogsPage() {
       setSelectedBlog(null);
       fetchBlogs();
     } catch {
-      toast.error('An error occurred');
+      setError('An error occurred');
     } finally {
       setFormLoading(false);
     }
@@ -73,11 +75,11 @@ export default function BlogsPage() {
   const handleEdit = async (item: ApiBlog) => {
     try {
       const res = await fetch(`${API_BASE}/blogs/${item.id}`);
-      if (!res.ok) { toast.error('Failed to fetch blog details'); return; }
+      if (!res.ok) { setError('Failed to fetch blog details'); return; }
       setSelectedBlog(await res.json());
       setIsFormOpen(true);
     } catch {
-      toast.error('Failed to fetch blog details');
+      setError('Failed to fetch blog details');
     }
   };
 
@@ -90,11 +92,11 @@ export default function BlogsPage() {
     try {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/blogs/${deleteTarget.id}`, { method: 'DELETE' });
-      if (!res.ok) { toast.error('Failed to delete blog'); return; }
+      if (!res.ok) { setError('Failed to delete blog'); return; }
       toast.success('Blog deleted');
       fetchBlogs();
     } catch {
-      toast.error('An error occurred');
+      setError('An error occurred');
     } finally {
       setDeleting(false);
       setDeleteTarget(null);
@@ -109,11 +111,11 @@ export default function BlogsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...item, status: newStatus }),
       });
-      if (!res.ok) { toast.error('Failed to update status'); return; }
+      if (!res.ok) { setError('Failed to update status'); return; }
       toast.success(`Blog ${newStatus === 'published' ? 'published' : 'unpublished'}`);
       fetchBlogs();
     } catch {
-      toast.error('An error occurred');
+      setError('An error occurred');
     }
   };
 

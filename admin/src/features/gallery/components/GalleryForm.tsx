@@ -5,6 +5,18 @@ import { createPortal } from 'react-dom';
 import { Plus, Save, Trash2, X } from 'lucide-react';
 import ImageUpload from '@/shared/components/ImageUpload';
 import type { ApiGalleryEvent, GalleryFormData, GalleryImage } from '@/shared/types';
+import { z } from 'zod';
+import { useError } from '@/shared/context/ErrorContext';
+
+const gallerySchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  slug: z.string().min(1, 'Slug is required'),
+  location: z.string().nullable().optional(),
+  coverImage: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  eventDate: z.string().nullable().optional(),
+  galleryImages: z.array(z.object({ imageUrl: z.string(), altText: z.string() })),
+});
 
 interface Props {
   initialData?: ApiGalleryEvent;
@@ -24,6 +36,7 @@ const inp =
 const lbl = 'block text-[9px] font-bold uppercase tracking-wide text-slate-400 mb-0.5';
 
 export default function GalleryForm({ initialData, onSave, onCancel, loading }: Props) {
+  const { setError } = useError();
   const [mounted, setMounted] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -65,14 +78,22 @@ export default function GalleryForm({ initialData, onSave, onCancel, loading }: 
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave({
+    const payload = {
       ...formData,
       location: formData.location || null,
       coverImage: formData.coverImage || null,
       description: formData.description || null,
       eventDate: formData.eventDate || null,
       galleryImages: formData.galleryImages.filter((item) => item.imageUrl.trim().length > 0),
-    });
+    };
+
+    const parsed = gallerySchema.safeParse(payload);
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message || 'Validation failed');
+      return;
+    }
+
+    onSave(parsed.data as GalleryFormData);
   };
 
   if (!mounted) return null;

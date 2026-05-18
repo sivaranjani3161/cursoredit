@@ -4,6 +4,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { Save, ShieldCheck, Plus, Trash2, SlidersHorizontal } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { createPortal } from 'react-dom';
+import { useError } from '@/shared/context/ErrorContext';
+import { z } from 'zod';
+
+const roleSchema = z.object({
+  name: z.string().min(1, 'Role name is required'),
+});
 
 const API_BASE = '/api/proxy';
 
@@ -43,6 +49,7 @@ function emptyMap(): PermMap {
 }
 
 export default function PermissionsGrid() {
+  const { setError } = useError();
   const [roles, setRoles]                   = useState<Role[]>([]);
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
   const [permissions, setPermissions]       = useState<PermMap | null>(null);
@@ -78,7 +85,7 @@ export default function PermissionsGrid() {
         setLoadingRoles(true);
         const data = await fetchRoles();
         if (data.length) setSelectedRoleId(data[0].id);
-      } catch { toast.error('Failed to load roles'); }
+      } catch { setError('Failed to load roles'); }
       finally { setLoadingRoles(false); }
     })();
   }, []);
@@ -95,7 +102,7 @@ export default function PermissionsGrid() {
         for (const mod of MODULES) for (const k of ALL_OP_KEYS) norm[mod.key][k] = Boolean(data?.[mod.key]?.[k]);
         setPermissions(norm);
       } catch {
-        toast.error('Failed to load permissions');
+        setError('Failed to load permissions');
         setPermissions(emptyMap());
       } finally { setLoadingPerms(false); }
     })();
@@ -127,15 +134,16 @@ export default function PermissionsGrid() {
         for (const mod of MODULES) for (const k of ALL_OP_KEYS) norm[mod.key][k] = Boolean(data?.[mod.key]?.[k]);
         setPermissions(norm);
       }
-    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Save failed'); }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e) || 'Save failed'); }
     finally { setSaving(false); }
   };
 
   const handleCreateRole = async () => {
-    const name = newRoleName.trim();
+    const parsed = roleSchema.safeParse({ name: newRoleName.trim() });
+    if (!parsed.success) { setError(parsed.error.issues[0]?.message || 'Role name is required'); return; }
+    const name = parsed.data.name;
     const code = slugifyRoleCode(name);
-    if (!name) { toast.error('Role name is required'); return; }
-    if (!code) { toast.error('Enter a valid role name'); return; }
+    if (!code) { setError('Enter a valid role name'); return; }
     try {
       setCreatingRole(true);
       const res = await fetch(`${API_BASE}/roles`, {
@@ -149,7 +157,7 @@ export default function PermissionsGrid() {
       setSelectedRoleId(created.id);
       setNewRoleName('');
       toast.success('Role added');
-    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Failed to create role'); }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e) || 'Failed to create role'); }
     finally { setCreatingRole(false); }
   };
 
@@ -169,7 +177,7 @@ export default function PermissionsGrid() {
       setSelectedRoleId(fallbackRoleId);
       setPermissions(fallbackRoleId ? null : emptyMap());
       toast.success('Role deleted');
-    } catch (e: unknown) { toast.error(e instanceof Error ? e.message : String(e) || 'Failed to delete role'); }
+    } catch (e: unknown) { setError(e instanceof Error ? e.message : String(e) || 'Failed to delete role'); }
     finally {
       setDeletingRole(false);
       setDeleteTarget(null);

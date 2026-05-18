@@ -8,6 +8,7 @@ import DataTable, { Column } from '@/shared/components/DataTable';
 import UnifiedGalleryForm from '@/features/gallery/components/UnifiedGalleryForm';
 import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
 import type { ApiGalleryEvent, GalleryFormData, GalleryType } from '@/shared/types';
+import { useError } from '@/shared/context/ErrorContext';
 
 const API_BASE = '/api/proxy';
 
@@ -16,6 +17,7 @@ interface GalleryRow extends ApiGalleryEvent {
 }
 
 export default function GalleryPage() {
+  const { setError } = useError();
   const { data: session } = useSession();
   const [rows, setRows]               = useState<GalleryRow[]>([]);
   const [loading, setLoading]         = useState(true);
@@ -33,9 +35,9 @@ export default function GalleryPage() {
         const data = await res.json();
         setRows(data.map((e: ApiGalleryEvent) => ({ ...e, __type: e.type as GalleryType })));
       } else {
-        toast.error('Failed to fetch gallery');
+        setError('Failed to fetch gallery');
       }
-    } catch { toast.error('Failed to fetch gallery'); }
+    } catch { setError('Failed to fetch gallery'); }
   };
 
   useEffect(() => {
@@ -55,11 +57,11 @@ export default function GalleryPage() {
         ? { ...formData, type, createdBy: Number(session?.user?.dbUserId) }
         : { ...formData, type };
       const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finalPayload) });
-      if (!res.ok) { const err = await res.json().catch(() => ({})); toast.error(err.error || 'Failed to save'); return; }
+      if (!res.ok) { const err = await res.json().catch(() => ({})); setError(err.error || 'Failed to save'); return; }
       toast.success(isEdit ? 'Updated' : 'Created');
       setSelected(null); setIsFormOpen(false);
       await fetchAll();
-    } catch { toast.error('An error occurred'); }
+    } catch { setError('An error occurred'); }
     finally { setFormLoading(false); }
   };
 
@@ -67,10 +69,10 @@ export default function GalleryPage() {
     try {
       setSelectedType(item.__type as GalleryType);
       const res = await fetch(`${API_BASE}/gallery/${item.id}`);
-      if (!res.ok) { toast.error('Failed to fetch details'); return; }
+      if (!res.ok) { setError('Failed to fetch details'); return; }
       setSelected(await res.json());
       setIsFormOpen(true);
-    } catch { toast.error('Failed to fetch details'); }
+    } catch { setError('Failed to fetch details'); }
   };
 
   const handleDelete = (item: GalleryRow) => {
@@ -82,10 +84,10 @@ export default function GalleryPage() {
     try {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/gallery/${deleteTarget.id}`, { method: 'DELETE' });
-      if (!res.ok) { toast.error('Failed to delete'); return; }
+      if (!res.ok) { setError('Failed to delete'); return; }
       toast.success('Deleted');
       await fetchAll();
-    } catch { toast.error('An error occurred'); }
+    } catch { setError('An error occurred'); }
     finally { setDeleting(false); setDeleteTarget(null); }
   };
 
