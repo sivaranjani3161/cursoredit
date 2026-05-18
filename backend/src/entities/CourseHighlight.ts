@@ -16,7 +16,7 @@ export class CourseHighlight {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ name: "course_id" })
   @Index()
   courseId!: number;
 

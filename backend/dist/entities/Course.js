@@ -16,6 +16,7 @@ const CourseStructure_1 = require("./CourseStructure");
 const CourseFeature_1 = require("./CourseFeature");
 const Enquiry_1 = require("./Enquiry");
 const User_1 = require("./User");
+const CourseCategory_1 = require("./CourseCategory");
 let Course = class Course {
     id;
     title;
@@ -23,6 +24,8 @@ let Course = class Course {
     description;
     heroImage;
     isActive;
+    categoryId;
+    category;
     createdBy;
     createdByUser;
     courseHighlights;
@@ -58,7 +61,16 @@ __decorate([
     __metadata("design:type", Boolean)
 ], Course.prototype, "isActive", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: "category_id", type: "int", nullable: true }),
+    __metadata("design:type", Object)
+], Course.prototype, "categoryId", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => CourseCategory_1.CourseCategory, (cat) => cat.courses, { nullable: true, onDelete: "SET NULL" }),
+    (0, typeorm_1.JoinColumn)({ name: "category_id" }),
+    __metadata("design:type", Object)
+], Course.prototype, "category", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "created_by" }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
 ], Course.prototype, "createdBy", void 0);

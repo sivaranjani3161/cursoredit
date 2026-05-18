@@ -11,10 +11,10 @@ import { Tag } from "./Tag";
 
 @Entity("blog_tags")
 export class BlogTag {
-  @PrimaryColumn()
+  @PrimaryColumn({ name: "blog_id" })
   blogId!: number;
 
-  @PrimaryColumn()
+  @PrimaryColumn({ name: "tag_id" })
   tagId!: number;
 
   @ManyToOne(() => Blog, (blog) => blog.blogTags, {

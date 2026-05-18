@@ -107,7 +107,7 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: "role_id" }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
 ], User.prototype, "roleId", void 0);

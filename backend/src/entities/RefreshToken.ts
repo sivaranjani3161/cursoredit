@@ -14,7 +14,7 @@ export class RefreshToken {
 })
 token!: string;
 
-  @Column()
+  @Column({ name: "user_id" })
   @Index()
   userId!: number;
 

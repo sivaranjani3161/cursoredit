@@ -30,7 +30,7 @@ __decorate([
     __metadata("design:type", Number)
 ], CourseStructure.prototype, "id", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: "course_id" }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
 ], CourseStructure.prototype, "courseId", void 0);

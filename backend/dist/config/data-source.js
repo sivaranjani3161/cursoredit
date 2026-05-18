@@ -39,7 +39,7 @@ const typeorm_1 = require("typeorm");
 const typeorm_naming_strategies_1 = require("typeorm-naming-strategies");
 const path = __importStar(require("path"));
 const dotenv = __importStar(require("dotenv"));
-// Load .env explicitly for CLI usage (like migrations)
+// Load .env explicitly for CLI usage (migrations)
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "mysql",
@@ -51,7 +51,9 @@ exports.AppDataSource = new typeorm_1.DataSource({
     synchronize: false,
     namingStrategy: new typeorm_naming_strategies_1.SnakeNamingStrategy(),
     logging: process.env.NODE_ENV !== "production",
+    // Entities remain in src/entities/ for TypeORM compatibility
     entities: [path.join(__dirname, "../entities/*.{ts,js}")],
-    migrations: [path.join(__dirname, "../migrations/*.{ts,js}")],
+    // Migrations moved to database/migrations/
+    migrations: [path.join(__dirname, "../../database/migrations/*.{ts,js}")],
     subscribers: [],
 });

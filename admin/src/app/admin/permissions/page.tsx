@@ -1,4 +1,4 @@
-import PermissionsGrid from '@/components/PermissionsGrid';
+import PermissionsGrid from '@/shared/components/PermissionsGrid';
 import { ShieldCheck } from 'lucide-react';
 
 export default function PermissionsPage() {

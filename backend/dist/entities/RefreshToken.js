@@ -36,7 +36,7 @@ __decorate([
     __metadata("design:type", String)
 ], RefreshToken.prototype, "token", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: "user_id" }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
 ], RefreshToken.prototype, "userId", void 0);

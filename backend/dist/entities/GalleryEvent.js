@@ -62,7 +62,7 @@ __decorate([
     __metadata("design:type", Object)
 ], GalleryEvent.prototype, "eventDate", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true }),
+    (0, typeorm_1.Column)({ name: "created_by", nullable: true }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Object)
 ], GalleryEvent.prototype, "createdBy", void 0);

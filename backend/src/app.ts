@@ -7,74 +7,58 @@ import multipart from "@fastify/multipart";
 import staticPlugin from "@fastify/static";
 import * as path from "path";
 
-import dbPlugin from "./plugins/db";
+import dbPlugin from "./shared/plugins/db";
 
-// ─── Route imports ────────────────────────────────────────────────────────────
-import healthRoutes from "./routes/health";
-import roleRoutes from "./routes/roles";
-import userRoutes from "./routes/users";
-import permissionRoutes from "./routes/permissions";
-import courseRoutes from "./routes/courses";
-import courseCategoryRoutes from "./routes/courseCategories";
-import blogRoutes from "./routes/blogs";
-import testimonialRoutes from "./routes/testimonials";
-import galleryRoutes from "./routes/gallery";
-import enquiryRoutes from "./routes/enquiries";
-import uploadRoutes from "./routes/upload";
+// ─── Module Routes ────────────────────────────────────────────────────────────
+import healthRoutes          from "./modules/health/health.routes";
+import roleRoutes            from "./modules/roles/role.routes";
+import userRoutes            from "./modules/users/user.routes";
+import permissionRoutes      from "./modules/permissions/permission.routes";
+import courseRoutes          from "./modules/courses/course.routes";
+import courseCategoryRoutes  from "./modules/course-categories/courseCategory.routes";
+import blogRoutes            from "./modules/blogs/blog.routes";
+import testimonialRoutes     from "./modules/testimonials/testimonial.routes";
+import galleryRoutes         from "./modules/gallery/gallery.routes";
+import enquiryRoutes         from "./modules/enquiries/enquiry.routes";
+import uploadRoutes          from "./modules/upload/upload.routes";
 
 export const buildApp = async (): Promise<FastifyInstance> => {
   const app = fastify({
     logger: {
       transport:
         process.env.NODE_ENV !== "production"
-          ? {
-              target: "pino-pretty",
-              options: {
-                translateTime: "HH:MM:ss Z",
-                ignore: "pid,hostname",
-              },
-            }
+          ? { target: "pino-pretty", options: { translateTime: "HH:MM:ss Z", ignore: "pid,hostname" } }
           : undefined,
     },
   });
 
-  // ─── Core plugins ──────────────────────────────────────────────────────────
-  await app.register(cors, {
-    origin: process.env.CORS_ORIGIN ?? "*",
-  });
+  // ─── Core Plugins ──────────────────────────────────────────────────────────
+  await app.register(cors, { origin: process.env.CORS_ORIGIN ?? "*" });
 
   await app.register(helmet, {
     global: true,
     contentSecurityPolicy: false,
-    // Allow the Next.js frontend to load images served from the backend
     crossOriginResourcePolicy: false,
   });
 
   await app.register(multipart);
 
   await app.register(staticPlugin, {
-    root: path.join(__dirname, "../public/uploads"),
+    root:   path.join(__dirname, "../public/uploads"),
     prefix: "/uploads/",
   });
 
-  // ─── Swagger (API docs) ────────────────────────────────────────────────────
+  // ─── API Documentation ─────────────────────────────────────────────────────
   await app.register(swagger, {
     openapi: {
-      info: {
-        title: "Finestapp API",
-        description: "REST API documentation for Finestapp",
-        version: "1.0.0",
-      },
+      info: { title: "Finestapp API", description: "REST API documentation for Finestapp", version: "1.0.0" },
       servers: [{ url: process.env.BACKEND_URL ?? "http://localhost:3001" }],
     },
   });
 
   await app.register(swaggerUi, {
     routePrefix: "/docs",
-    uiConfig: {
-      docExpansion: "full",
-      deepLinking: false,
-    },
+    uiConfig: { docExpansion: "full", deepLinking: false },
     staticCSP: true,
     transformStaticCSP: (header) => header,
   });
@@ -82,24 +66,23 @@ export const buildApp = async (): Promise<FastifyInstance> => {
   // ─── Database ──────────────────────────────────────────────────────────────
   await app.register(dbPlugin);
 
-  // ─── API Routes ───────────────────────────────────────────────────────────
+  // ─── API Routes ────────────────────────────────────────────────────────────
   // All routes are prefixed with /api.
-  // Order matters: static sub-paths (e.g. /courses/active) must be registered
-  // before wildcard params (e.g. /courses/:id) — this is handled inside each
-  // route file, not here.
-  const API_PREFIX = { prefix: "/api" };
+  // Static sub-paths (e.g. /courses/active) are registered BEFORE wildcard
+  // params (e.g. /courses/:id) inside each module's route file.
+  const API = { prefix: "/api" };
 
-  await app.register(healthRoutes,        API_PREFIX);
-  await app.register(roleRoutes,          API_PREFIX);
-  await app.register(userRoutes,          API_PREFIX);
-  await app.register(permissionRoutes,    API_PREFIX);
-  await app.register(courseRoutes,        API_PREFIX);
-  await app.register(courseCategoryRoutes,API_PREFIX);
-  await app.register(blogRoutes,          API_PREFIX);
-  await app.register(testimonialRoutes,   API_PREFIX);
-  await app.register(galleryRoutes,       API_PREFIX);
-  await app.register(enquiryRoutes,       API_PREFIX);
-  await app.register(uploadRoutes,        API_PREFIX);
+  await app.register(healthRoutes,         API);
+  await app.register(roleRoutes,           API);
+  await app.register(userRoutes,           API);
+  await app.register(permissionRoutes,     API);
+  await app.register(courseRoutes,         API);
+  await app.register(courseCategoryRoutes, API);
+  await app.register(blogRoutes,           API);
+  await app.register(testimonialRoutes,    API);
+  await app.register(galleryRoutes,        API);
+  await app.register(enquiryRoutes,        API);
+  await app.register(uploadRoutes,         API);
 
   return app;
 };

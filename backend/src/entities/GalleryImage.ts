@@ -16,7 +16,7 @@ export class GalleryImage {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ name: "event_id" })
   @Index()
   eventId!: number;
 

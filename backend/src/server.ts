@@ -1,8 +1,7 @@
 import * as dotenv from "dotenv";
 import * as path from "path";
 
-// Load environment variables before anything else
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 
 import { buildApp } from "./app";
 
@@ -14,11 +13,9 @@ const start = async () => {
 
     await app.listen({ port, host });
     
-    // Log graceful startup
     app.log.info(`Server listening on http://${host}:${port}`);
     app.log.info(`Swagger documentation available at http://${host}:${port}/docs`);
 
-    // Handle graceful shutdown signals
     const signals = ["SIGINT", "SIGTERM"];
     signals.forEach((signal) => {
       process.on(signal, async () => {

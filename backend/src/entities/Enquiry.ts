@@ -42,9 +42,7 @@ export class Enquiry {
   })
   message!: string | null;
 
-  @Column({
-    nullable: true,
-  })
+  @Column({ name: "course_id", nullable: true })
   @Index()
   courseId!: number | null;
 

@@ -10,10 +10,10 @@ import { Blog } from "./Blog";
 
 @Entity("related_blogs")
 export class RelatedBlog {
-  @PrimaryColumn()
+  @PrimaryColumn({ name: "blog_id" })
   blogId!: number;
 
-  @PrimaryColumn()
+  @PrimaryColumn({ name: "related_blog_id" })
   relatedBlogId!: number;
 
   @ManyToOne(() => Blog, (blog) => blog.relatedBlogs, {

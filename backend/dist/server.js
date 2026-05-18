@@ -35,8 +35,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 const dotenv = __importStar(require("dotenv"));
 const path = __importStar(require("path"));
-// Load environment variables before anything else
-dotenv.config({ path: path.join(__dirname, "../../.env") });
+dotenv.config({ path: path.join(__dirname, "../.env") });
 const app_1 = require("./app");
 const start = async () => {
     try {
@@ -44,10 +43,8 @@ const start = async () => {
         const port = parseInt(process.env.PORT || "3001");
         const host = process.env.HOST || "0.0.0.0";
         await app.listen({ port, host });
-        // Log graceful startup
         app.log.info(`Server listening on http://${host}:${port}`);
         app.log.info(`Swagger documentation available at http://${host}:${port}/docs`);
-        // Handle graceful shutdown signals
         const signals = ["SIGINT", "SIGTERM"];
         signals.forEach((signal) => {
             process.on(signal, async () => {

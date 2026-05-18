@@ -3,25 +3,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { MessageSquare } from 'lucide-react';
 import { toast } from 'react-hot-toast';
-import DataTable, { Column } from '@/components/common/DataTable';
-import type { ApiEnquiry, ApiCourse, EnquiryStatus } from '@/types';
+import DataTable, { Column } from '@/shared/components/DataTable';
+import type { ApiEnquiry, ApiCourse, EnquiryStatus } from '@/shared/types';
 
 const API_BASE = '/api/proxy';
 
-const STATUS_CONFIG: Record<string, { label: string; bg: string; text: string; border: string }> = {
-  NEW:       { label: 'New',       bg: 'bg-blue-50',   text: 'text-blue-700',   border: 'border-blue-200' },
-  CONTACTED: { label: 'Contacted', bg: 'bg-amber-50',  text: 'text-amber-700',  border: 'border-amber-200' },
-  RESOLVED:  { label: 'Resolved',  bg: 'bg-green-50',  text: 'text-green-700',  border: 'border-green-200' },
-};
 
-function StatusBadge({ status }: { status: string }) {
-  const cfg = STATUS_CONFIG[status] ?? STATUS_CONFIG['NEW'];
-  return (
-    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider border ${cfg.bg} ${cfg.text} ${cfg.border}`}>
-      {cfg.label}
-    </span>
-  );
-}
+
 
 function StatusSelect({ item, onUpdate }: { item: ApiEnquiry; onUpdate: (id: number, status: string) => void }) {
   const [saving, setSaving] = useState(false);

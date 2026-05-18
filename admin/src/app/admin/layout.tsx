@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, useEffect, useState } from 'react';
-import AdminSidebar from '@/components/AdminSidebar';
+import AdminSidebar from '@/shared/components/AdminSidebar';
 
 // Match the sidebar's transition duration exactly
 const TRANSITION = 'margin-left 200ms ease-in-out';

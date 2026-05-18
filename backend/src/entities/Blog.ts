@@ -30,7 +30,7 @@ export class Blog {
   @Column({ type: "enum", enum: BlogStatus, default: BlogStatus.DRAFT })
   status!: BlogStatus;
 
-  @Column()
+  @Column({ name: "created_by" })
   @Index()
   createdBy!: number;
 

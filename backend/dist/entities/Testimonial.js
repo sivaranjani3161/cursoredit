@@ -79,7 +79,7 @@ __decorate([
     __metadata("design:type", Number)
 ], Testimonial.prototype, "sortOrder", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ name: "created_by" }),
     (0, typeorm_1.Index)(),
     __metadata("design:type", Number)
 ], Testimonial.prototype, "createdBy", void 0);

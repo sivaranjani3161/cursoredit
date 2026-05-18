@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import DataTable, { Column } from '@/components/common/DataTable';
-import TestimonialForm from '@/components/testimonials/TestimonialForm';
-import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
-import type { ApiTestimonial, TestimonialFormData } from '@/types';
+import DataTable, { Column } from '@/shared/components/DataTable';
+import TestimonialForm from '@/features/testimonials/components/TestimonialForm';
+import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
+import type { ApiTestimonial, TestimonialFormData } from '@/shared/types';
 
 const API_BASE = '/api/proxy';
 

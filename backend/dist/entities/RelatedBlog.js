@@ -21,11 +21,11 @@ let RelatedBlog = class RelatedBlog {
 };
 exports.RelatedBlog = RelatedBlog;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)(),
+    (0, typeorm_1.PrimaryColumn)({ name: "blog_id" }),
     __metadata("design:type", Number)
 ], RelatedBlog.prototype, "blogId", void 0);
 __decorate([
-    (0, typeorm_1.PrimaryColumn)(),
+    (0, typeorm_1.PrimaryColumn)({ name: "related_blog_id" }),
     __metadata("design:type", Number)
 ], RelatedBlog.prototype, "relatedBlogId", void 0);
 __decorate([

@@ -20,7 +20,7 @@ export const authOptions: NextAuthOptions = {
       if (account && user?.email) {
         try {
           const res = await fetch(
-            `${BACKEND_URL}/api/users/by-email/${encodeURIComponent(user.email)}`
+            `${BACKEND_URL}/api/users/email/${encodeURIComponent(user.email)}`
           );
           if (res.ok) {
             const dbUser = await res.json();

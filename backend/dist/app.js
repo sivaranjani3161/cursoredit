@@ -42,95 +42,73 @@ const cors_1 = __importDefault(require("@fastify/cors"));
 const helmet_1 = __importDefault(require("@fastify/helmet"));
 const swagger_1 = __importDefault(require("@fastify/swagger"));
 const swagger_ui_1 = __importDefault(require("@fastify/swagger-ui"));
-const db_1 = __importDefault(require("./plugins/db"));
-const health_1 = __importDefault(require("./routes/health"));
-const roles_1 = __importDefault(require("./routes/roles"));
-const users_1 = __importDefault(require("./routes/users"));
-const permissions_1 = __importDefault(require("./routes/permissions"));
-const courses_1 = __importDefault(require("./routes/courses"));
-const upload_1 = __importDefault(require("./routes/upload"));
-const blogs_1 = __importDefault(require("./routes/blogs"));
-const testimonials_1 = __importDefault(require("./routes/testimonials"));
-const gallery_1 = __importDefault(require("./routes/gallery"));
-const enquiries_1 = __importDefault(require("./routes/enquiries"));
 const multipart_1 = __importDefault(require("@fastify/multipart"));
 const static_1 = __importDefault(require("@fastify/static"));
 const path = __importStar(require("path"));
+const db_1 = __importDefault(require("./shared/plugins/db"));
+// ─── Module Routes ────────────────────────────────────────────────────────────
+const health_routes_1 = __importDefault(require("./modules/health/health.routes"));
+const role_routes_1 = __importDefault(require("./modules/roles/role.routes"));
+const user_routes_1 = __importDefault(require("./modules/users/user.routes"));
+const permission_routes_1 = __importDefault(require("./modules/permissions/permission.routes"));
+const course_routes_1 = __importDefault(require("./modules/courses/course.routes"));
+const courseCategory_routes_1 = __importDefault(require("./modules/course-categories/courseCategory.routes"));
+const blog_routes_1 = __importDefault(require("./modules/blogs/blog.routes"));
+const testimonial_routes_1 = __importDefault(require("./modules/testimonials/testimonial.routes"));
+const gallery_routes_1 = __importDefault(require("./modules/gallery/gallery.routes"));
+const enquiry_routes_1 = __importDefault(require("./modules/enquiries/enquiry.routes"));
+const upload_routes_1 = __importDefault(require("./modules/upload/upload.routes"));
 const buildApp = async () => {
     const app = (0, fastify_1.default)({
         logger: {
             transport: process.env.NODE_ENV !== "production"
-                ? {
-                    target: "pino-pretty",
-                    options: {
-                        translateTime: "HH:MM:ss Z",
-                        ignore: "pid,hostname",
-                    },
-                }
+                ? { target: "pino-pretty", options: { translateTime: "HH:MM:ss Z", ignore: "pid,hostname" } }
                 : undefined,
         },
     });
-    // Core Plugins
-    await app.register(cors_1.default, {
-        origin: "*",
-    });
+    // ─── Core Plugins ──────────────────────────────────────────────────────────
+    await app.register(cors_1.default, { origin: process.env.CORS_ORIGIN ?? "*" });
     await app.register(helmet_1.default, {
         global: true,
         contentSecurityPolicy: false,
+        crossOriginResourcePolicy: false,
     });
     await app.register(multipart_1.default);
     await app.register(static_1.default, {
         root: path.join(__dirname, "../public/uploads"),
         prefix: "/uploads/",
     });
+    // ─── API Documentation ─────────────────────────────────────────────────────
     await app.register(swagger_1.default, {
         openapi: {
-            info: {
-                title: "Finestapp API",
-                description: "API documentation for Finestapp",
-                version: "1.0.0",
-            },
-            servers: [
-                {
-                    url: "http://localhost:3001",
-                },
-            ],
+            info: { title: "Finestapp API", description: "REST API documentation for Finestapp", version: "1.0.0" },
+            servers: [{ url: process.env.BACKEND_URL ?? "http://localhost:3001" }],
         },
     });
     await app.register(swagger_ui_1.default, {
         routePrefix: "/docs",
-        uiConfig: {
-            docExpansion: "full",
-            deepLinking: false,
-        },
+        uiConfig: { docExpansion: "full", deepLinking: false },
         staticCSP: true,
         transformStaticCSP: (header) => header,
     });
-    // Database Plugin (TypeORM)
+    // ─── Database ──────────────────────────────────────────────────────────────
     await app.register(db_1.default);
-    // API Routes
-    await app.register(health_1.default, { prefix: "/api" });
-    await app.register(roles_1.default, { prefix: "/api" });
-    await app.register(users_1.default, { prefix: "/api" });
-    await app.register(permissions_1.default, { prefix: "/api" });
-    await app.register(courses_1.default, {
-        prefix: "/api",
-    });
-    await app.register(blogs_1.default, {
-        prefix: "/api",
-    });
-    await app.register(testimonials_1.default, {
-        prefix: "/api",
-    });
-    await app.register(gallery_1.default, {
-        prefix: "/api",
-    });
-    await app.register(enquiries_1.default, {
-        prefix: "/api",
-    });
-    await app.register(upload_1.default, {
-        prefix: "/api",
-    });
+    // ─── API Routes ────────────────────────────────────────────────────────────
+    // All routes are prefixed with /api.
+    // Static sub-paths (e.g. /courses/active) are registered BEFORE wildcard
+    // params (e.g. /courses/:id) inside each module's route file.
+    const API = { prefix: "/api" };
+    await app.register(health_routes_1.default, API);
+    await app.register(role_routes_1.default, API);
+    await app.register(user_routes_1.default, API);
+    await app.register(permission_routes_1.default, API);
+    await app.register(course_routes_1.default, API);
+    await app.register(courseCategory_routes_1.default, API);
+    await app.register(blog_routes_1.default, API);
+    await app.register(testimonial_routes_1.default, API);
+    await app.register(gallery_routes_1.default, API);
+    await app.register(enquiry_routes_1.default, API);
+    await app.register(upload_routes_1.default, API);
     return app;
 };
 exports.buildApp = buildApp;

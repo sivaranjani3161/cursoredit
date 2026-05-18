@@ -86,7 +86,7 @@ export class User {
 
  
 
-  @Column()
+  @Column({ name: "role_id" })
   @Index()
   roleId!: number;
 

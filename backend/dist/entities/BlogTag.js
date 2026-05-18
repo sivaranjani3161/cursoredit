@@ -22,11 +22,11 @@ let BlogTag = class BlogTag {
 };
 exports.BlogTag = BlogTag;
 __decorate([
-    (0, typeorm_1.PrimaryColumn)(),
+    (0, typeorm_1.PrimaryColumn)({ name: "blog_id" }),
     __metadata("design:type", Number)
 ], BlogTag.prototype, "blogId", void 0);
 __decorate([
-    (0, typeorm_1.PrimaryColumn)(),
+    (0, typeorm_1.PrimaryColumn)({ name: "tag_id" }),
     __metadata("design:type", Number)
 ], BlogTag.prototype, "tagId", void 0);
 __decorate([

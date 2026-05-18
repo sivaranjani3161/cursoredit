@@ -26,14 +26,14 @@ export class Course {
   @Column({ type: "boolean", default: true })
   isActive!: boolean;
 
-  @Column({ type: "int", nullable: true })
+  @Column({ name: "category_id", type: "int", nullable: true })
   categoryId!: number | null;
 
   @ManyToOne(() => CourseCategory, (cat) => cat.courses, { nullable: true, onDelete: "SET NULL" })
   @JoinColumn({ name: "category_id" })
   category!: CourseCategory | null;
 
-  @Column()
+  @Column({ name: "created_by" })
   @Index()
   createdBy!: number;
 

@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Tag, Plus, X, Save, Trash2, Pencil } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import DataTable, { Column } from '@/components/common/DataTable';
-import CourseForm from '@/components/courses/CourseForm';
+import DataTable, { Column } from '@/shared/components/DataTable';
+import CourseForm from '@/features/courses/components/CourseForm';
 import { toast } from 'react-hot-toast';
-import type { ApiCourse, CourseFormData } from '@/types';
+import type { ApiCourse, CourseFormData } from '@/shared/types';
 
 const API_BASE = '/api/proxy';
 

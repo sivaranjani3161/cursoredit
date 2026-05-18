@@ -40,7 +40,7 @@ type!: TestimonialType;
   @Column({ type: "int", default: 0 })
   sortOrder!: number;
 
-  @Column()
+  @Column({ name: "created_by" })
   @Index()
   createdBy!: number;
 

@@ -28,7 +28,7 @@ export class GalleryEvent {
   @Column({ type: "date", nullable: true })
   eventDate!: Date | null;
 
-  @Column({ nullable: true })
+  @Column({ name: "created_by", nullable: true })
   @Index()
   createdBy!: number | null;
 

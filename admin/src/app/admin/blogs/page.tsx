@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { FileText } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import BlogForm from '@/components/blogs/BlogForm';
-import DataTable, { Column } from '@/components/common/DataTable';
-import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
-import type { ApiBlog, BlogFormData } from '@/types';
+import BlogForm from '@/features/blogs/components/BlogForm';
+import DataTable, { Column } from '@/shared/components/DataTable';
+import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
+import type { ApiBlog, BlogFormData } from '@/shared/types';
 
 const API_BASE = '/api/proxy';
 

@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import DataTable, { Column } from '@/components/common/DataTable';
-import UnifiedGalleryForm from '@/components/gallery/UnifiedGalleryForm';
-import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
-import type { ApiGalleryEvent, GalleryFormData, GalleryType } from '@/types';
+import DataTable, { Column } from '@/shared/components/DataTable';
+import UnifiedGalleryForm from '@/features/gallery/components/UnifiedGalleryForm';
+import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
+import type { ApiGalleryEvent, GalleryFormData, GalleryType } from '@/shared/types';
 
 const API_BASE = '/api/proxy';
 

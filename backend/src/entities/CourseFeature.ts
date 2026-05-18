@@ -16,7 +16,7 @@ export class CourseFeature {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column()
+  @Column({ name: "course_id" })
   @Index()
   courseId!: number;
 

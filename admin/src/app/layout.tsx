@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "./globals.css";
-import Providers from "@/components/Providers";
+import Providers from "@/shared/providers/Providers";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
