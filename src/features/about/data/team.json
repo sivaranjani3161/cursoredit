@@ -1,0 +1,28 @@
+{
+  "title": {
+    "normal": "Our Awesome",
+    "highlight": "Team"
+  },
+  "subtitle": "Meet the Experts and Visionaries Committed to Shaping Bright Futures Through Knowledge and Innovation",
+  "members": [
+    {
+      "name": "Senthil Kumar",
+      "role": "Founder",
+      "image": "/team1.png",
+      "linkedin": "https://www.linkedin.com/in/psenthil202"
+    },
+    {
+      "name": "Karthikeyan",
+      "role": "Branch Head",
+      "image": "/team2.png",
+      "linkedin": "https://www.linkedin.com/in/karthikeyan-velumani1/"
+    },
+    {
+      "name": "Thamizharasan",
+      "role": "Head of Operations",
+      "image": "/team3.png",
+      "linkedin": "https://www.linkedin.com/in/thamizharasanr/"
+    }
+  
+  ]
+}

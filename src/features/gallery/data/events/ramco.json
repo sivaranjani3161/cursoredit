@@ -1,0 +1,20 @@
+{
+  "id": "ramco",
+  "title": "Workshop & Campus Drive",
+  "highlight": "@Ramco Institute of Technology",
+
+  "carousel": [
+    "/ramcocover.png",
+    "/ramco2.png",
+    "/ramco4.png"
+  ],
+
+  "collage": [
+    "/ramcocover.png",
+  "/ramco2.png",
+  "/ramco3.png",
+  "/ramco4.png",
+  "/ramco5.png",
+  "/ramco6.png"
+  ]
+}

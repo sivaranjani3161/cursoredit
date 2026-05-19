@@ -1,0 +1,24 @@
+{
+  "links": [
+    { "label": "Home", "href": "/" },
+    { "label": "About Us", "href": "/about" },
+    {
+      "label": "Courses",
+      "href": "/courses",
+      "dropdown": [
+        { "label": "Full Stack Development", "href": "/courses/full-stack-development" },
+        { "label": "Mastering CSS", "href": "/courses/mastering-css" },
+        { "label": "Dev-Ops Mastery", "href": "/courses/dev-ops-mastery" },
+        { "label": "QA Automation", "href": "/courses/qa-automation" }
+      ]
+    },
+    { "label": "Gallery", "href": "/gallery" },
+    { "label": "Blogs", "href": "/blog" },
+    { "label": "Contact Us", "href": "/contact" }
+  ],
+  "cta": {
+    "label": "Join Us Now!",
+    "href": "/join"
+  }
+}
+ 

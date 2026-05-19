@@ -1,0 +1,64 @@
+{
+  "tabs": [
+    {
+      "id": "colleges",
+      "label": "What we offer For Colleges",
+      "tagline": "What we do  >>>>",
+      "heading": "What We Offer for Colleges to Enhance Learning & Career Outcomes",
+      "description": "Finestcoder partners with colleges to bridge the gap between academics and industry through structured, outcome-driven training programs.",
+      "image": "/hero2.png",
+      "services": [
+        {
+          "icon": "graduation",
+          "title": "Comprehensive Technical Training",
+          "description": "Hands-on training in C, C++, Java, Full Stack Development, DSA, Cloud, Data Analytics, and AI."
+        },
+        {
+          "icon": "code",
+          "title": "Curriculum-Integrated Learning",
+          "description": "Industry-focused training aligned with academics for continuous skill development."
+        },
+        {
+          "icon": "briefcase",
+          "title": "Placement-Focused Preparation",
+          "description": "Training for aptitude, coding tests, interviews, and company-specific hiring processes."
+        },
+        {
+          "icon": "certificate",
+          "title": "Training–Hiring–Deployment",
+          "description": "We train, assess, hire, and deploy students into projects and partner organisations."
+        }
+      ]
+    },
+    {
+      "id": "companies",
+      "label": "What we offer For Companies",
+      "tagline": "What we do  >>>>",
+      "heading": "What We Offer for Companies to Enhance Workforce Capability",
+      "description": "Finestcoder helps organizations build skilled teams and improve workforce capability through customized training and hiring solutions.",
+      "image": "/img1.png",
+      "services": [
+        {
+          "icon": "training",
+          "title": "Customized Corporate Training",
+          "description": "Tailored programs in Full Stack, Cloud, Data Analytics, AI, and other in-demand technologies."
+        },
+        {
+          "icon": "hiring",
+          "title": "Fresher Training & Deployment",
+          "description": "Project-oriented training programs that prepare freshers for immediate deployment."
+        },
+        {
+          "icon": "csr",
+          "title": "Technical Hiring Support",
+          "description": "Access to pre-trained, assessment-ready candidates to streamline hiring and improve quality."
+        },
+        {
+          "icon": "internship",
+          "title": "Workforce Upskilling",
+          "description": "Programs focused on improving technical capability, adaptability, and team productivity."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "hero": {
+    "image": "/contacthero.png"
+  },
+  "contactInfo": {
+    "address": "No.987, 1st Floor, Raj Chambers, Thadagam Main Road, R.S Puram, Coimbatore, 641002",
+    "phone": "+91 91500 48550",
+    "email": "support@finestcoder.com",
+    "socials": [
+      { "icon": "/facebook.png", "link": "https://www.facebook.com/finestcoder/" },
+      { "icon": "/tweet.png", "link": "https://x.com/finestcoder" },
+      { "icon": "/insta.png", "link": "https://www.instagram.com/finestcoder/" },
+      { "icon": "/linkedin.png", "link": "https://www.linkedin.com/company/finestcoder/posts/?feedView=all" },
+      { "icon": "/youtube.png", "link": "https://www.youtube.com/@wefinestcoder" }
+    ]
+  }
+}
