@@ -3,11 +3,9 @@
 import { useState, useEffect } from 'react';
 import { BookOpen, Tag, Plus, X, Save, Trash2, Pencil } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import DataTable, { Column } from '@/shared/components/DataTable';
-import CourseForm from '@/features/courses/components/CourseForm';
+import DataTable, { Column } from '@/components/common/DataTable';
+import CourseForm from '@/components/courses/CourseForm';
 import { toast } from 'react-hot-toast';
-import type { ApiCourse, CourseFormData } from '@/shared/types';
-import { useError } from '@/shared/context/ErrorContext';
 
 const API_BASE = '/api/proxy';
 
@@ -30,21 +28,20 @@ function CategoryManagerModal({ onClose, onChanged }: { onClose: () => void; onC
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [deleting, setDeleting]       = useState(false);
   const [view, setView]               = useState<'list' | 'add'>('list');
-  const { setError } = useError();
 
   const fetchCats = async () => {
     try {
       setLoading(true);
       const r = await fetch(`${API_BASE}/course-categories`);
       if (r.ok) setCategories(await r.json());
-    } catch { setError('Failed to load categories'); }
+    } catch { toast.error('Failed to load categories'); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchCats(); }, []);
 
   const handleAdd = async () => {
-    if (!addName.trim()) { setError('Name is required'); return; }
+    if (!addName.trim()) { toast.error('Name is required'); return; }
     try {
       setSaving(true);
       const res = await fetch(`${API_BASE}/course-categories`, {
@@ -60,9 +57,9 @@ function CategoryManagerModal({ onClose, onChanged }: { onClose: () => void; onC
         onChanged();
       } else {
         const e = await res.json().catch(() => ({}));
-        setError(e.error || 'Failed to create');
+        toast.error(e.error || 'Failed to create');
       }
-    } catch { setError('An error occurred'); }
+    } catch { toast.error('An error occurred'); }
     finally { setSaving(false); }
   };
 
@@ -76,8 +73,8 @@ function CategoryManagerModal({ onClose, onChanged }: { onClose: () => void; onC
         setDeleteTarget(null);
         await fetchCats();
         onChanged();
-      } else setError('Failed to delete');
-    } catch { setError('An error occurred'); }
+      } else toast.error('Failed to delete');
+    } catch { toast.error('An error occurred'); }
     finally { setDeleting(false); }
   };
 
@@ -236,15 +233,14 @@ function CategoryManagerModal({ onClose, onChanged }: { onClose: () => void; onC
 }
 
 export default function CoursesPage() {
-  const { setError } = useError();
   const { data: session }                       = useSession();
-  const [courses, setCourses]               = useState<ApiCourse[]>([]);
-  const [loading, setLoading]               = useState(true);
-  const [isFormOpen, setIsFormOpen]         = useState(false);
-  const [selectedCourse, setSelectedCourse] = useState<ApiCourse | null>(null);
-  const [formLoading, setFormLoading]       = useState(false);
-  const [deleteTarget, setDeleteTarget]     = useState<ApiCourse | null>(null);
-  const [deleting, setDeleting]             = useState(false);
+  const [courses, setCourses]                   = useState<any[]>([]);
+  const [loading, setLoading]                   = useState(true);
+  const [isFormOpen, setIsFormOpen]             = useState(false);
+  const [selectedCourse, setSelectedCourse]     = useState<any>(null);
+  const [formLoading, setFormLoading]           = useState(false);
+  const [deleteTarget, setDeleteTarget]         = useState<any>(null);
+  const [deleting, setDeleting]                 = useState(false);
   const [catModalOpen, setCatModalOpen]         = useState(false);
   const [catRefreshKey, setCatRefreshKey]       = useState(0);
 
@@ -252,29 +248,31 @@ export default function CoursesPage() {
 
   const fetchCourses = async () => {
     try { setLoading(true); const r = await fetch(`${API_BASE}/courses`); if (r.ok) setCourses(await r.json()); }
-    catch (e) { console.error(e); setError('Failed to load courses'); } finally { setLoading(false); }
+    catch (e) { console.error(e); } finally { setLoading(false); }
   };
 
-  const handleSave = async (formData: CourseFormData) => {
+  const handleSave = async (formData: any) => {
     try {
       setFormLoading(true);
       const url    = selectedCourse ? `${API_BASE}/courses/${selectedCourse.id}` : `${API_BASE}/courses`;
       const method = selectedCourse ? 'PUT' : 'POST';
-      const payload = selectedCourse
-        ? formData
-        : { ...formData, createdBy: Number(session?.user?.dbUserId) };
-      const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!selectedCourse) {
+        const dbUserId = Number(session?.user?.dbUserId);
+        if (Number.isNaN(dbUserId)) { toast.error('Session missing user id — sign in again'); return; }
+        formData.createdBy = dbUserId;
+      }
+      const r = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(formData) });
       if (r.ok) { toast.success(selectedCourse ? 'Course updated' : 'Course created'); setIsFormOpen(false); setSelectedCourse(null); fetchCourses(); }
-      else { const e = await r.json().catch(() => ({})); setError(e.error || 'Failed to save'); }
-    } catch { setError('An error occurred'); } finally { setFormLoading(false); }
+      else { const e = await r.json().catch(() => ({})); toast.error(e.error || 'Failed to save'); }
+    } catch { toast.error('An error occurred'); } finally { setFormLoading(false); }
   };
 
-  const handleEdit = async (course: ApiCourse) => {
+  const handleEdit = async (course: any) => {
     try {
       setLoading(true);
       const r = await fetch(`${API_BASE}/courses/${course.id}`);
       if (r.ok) { setSelectedCourse(await r.json()); setIsFormOpen(true); }
-    } catch { setError('Failed to fetch course details'); } finally { setLoading(false); }
+    } catch { toast.error('Failed to fetch course details'); } finally { setLoading(false); }
   };
 
   const confirmDelete = async () => {
@@ -283,23 +281,23 @@ export default function CoursesPage() {
       setDeleting(true);
       const r = await fetch(`${API_BASE}/courses/${deleteTarget.id}`, { method: 'DELETE' });
       if (r.ok) { toast.success('Course deleted'); fetchCourses(); }
-      else setError('Failed to delete');
-    } catch { setError('An error occurred'); } finally { setDeleting(false); setDeleteTarget(null); }
+      else toast.error('Failed to delete');
+    } catch { toast.error('An error occurred'); } finally { setDeleting(false); setDeleteTarget(null); }
   };
 
-  const handleTogglePublish = async (course: ApiCourse) => {
+  const handleTogglePublish = async (course: any) => {
     const next = !course.isActive;
     try {
       const r = await fetch(`${API_BASE}/courses/${course.id}`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...course, isActive: next }),
       });
-      if (!r.ok) { const e = await r.json().catch(() => ({})); setError(e.error || 'Failed'); return; }
+      if (!r.ok) { const e = await r.json().catch(() => ({})); toast.error(e.error || 'Failed'); return; }
       toast.success(next ? 'Published' : 'Unpublished'); fetchCourses();
-    } catch { setError('An error occurred'); }
+    } catch { toast.error('An error occurred'); }
   };
 
-  const columns: Column<ApiCourse>[] = [
+  const columns: Column<any>[] = [
     {
       mobileTitle: true, header: 'Title',
       accessor: (item) => (
@@ -408,7 +406,7 @@ export default function CoursesPage() {
       {/* ── Course Form ── */}
       {isFormOpen && (
         <CourseForm
-          initialData={selectedCourse ?? undefined}
+          initialData={selectedCourse}
           onSave={handleSave}
           onCancel={() => { setIsFormOpen(false); setSelectedCourse(null); }}
           loading={formLoading}

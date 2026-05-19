@@ -4,28 +4,22 @@ import { useEffect, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import DataTable, { Column } from '@/shared/components/DataTable';
-import UnifiedGalleryForm from '@/features/gallery/components/UnifiedGalleryForm';
-import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
-import type { ApiGalleryEvent, GalleryFormData, GalleryType } from '@/shared/types';
-import { useError } from '@/shared/context/ErrorContext';
+import DataTable, { Column } from '@/components/common/DataTable';
+import UnifiedGalleryForm from '@/components/gallery/UnifiedGalleryForm';
+import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
 
 const API_BASE = '/api/proxy';
-
-interface GalleryRow extends ApiGalleryEvent {
-  __type: GalleryType;
-}
+type GalleryType = 'internal' | 'external';
 
 export default function GalleryPage() {
-  const { setError } = useError();
   const { data: session } = useSession();
-  const [rows, setRows]               = useState<GalleryRow[]>([]);
+  const [rows, setRows]               = useState<any[]>([]);
   const [loading, setLoading]         = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [isFormOpen, setIsFormOpen]   = useState(false);
-  const [selected, setSelected]       = useState<ApiGalleryEvent | null>(null);
+  const [selected, setSelected]       = useState<any>(null);
   const [selectedType, setSelectedType] = useState<GalleryType>('external');
-  const [deleteTarget, setDeleteTarget] = useState<GalleryRow | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
   const [deleting, setDeleting]       = useState(false);
 
   const fetchAll = async () => {
@@ -33,11 +27,11 @@ export default function GalleryPage() {
       const res = await fetch(`${API_BASE}/gallery`);
       if (res.ok) {
         const data = await res.json();
-        setRows(data.map((e: ApiGalleryEvent) => ({ ...e, __type: e.type as GalleryType })));
+        setRows(data.map((e: any) => ({ ...e, __type: e.type as GalleryType })));
       } else {
-        setError('Failed to fetch gallery');
+        toast.error('Failed to fetch gallery');
       }
-    } catch { setError('Failed to fetch gallery'); }
+    } catch { toast.error('Failed to fetch gallery'); }
   };
 
   useEffect(() => {
@@ -47,35 +41,38 @@ export default function GalleryPage() {
     })();
   }, []);
 
-  const handleSave = async (formData: GalleryFormData | { imageUrl: string; altText: string | null }, type: GalleryType) => {
+  const handleSave = async (formData: any, type: GalleryType) => {
     try {
       setFormLoading(true);
       const isEdit = Boolean(selected);
-      const url = isEdit ? `${API_BASE}/gallery/${selected!.id}` : `${API_BASE}/gallery`;
+      const url = isEdit ? `${API_BASE}/gallery/${selected.id}` : `${API_BASE}/gallery`;
       const method = isEdit ? 'PUT' : 'POST';
-      const finalPayload = (type === 'external' && !isEdit)
-        ? { ...formData, type, createdBy: Number(session?.user?.dbUserId) }
-        : { ...formData, type };
-      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(finalPayload) });
-      if (!res.ok) { const err = await res.json().catch(() => ({})); setError(err.error || 'Failed to save'); return; }
+      const payload = { ...formData, type };
+      if (type === 'external' && !isEdit) {
+        const dbUserId = Number(session?.user?.dbUserId);
+        if (Number.isNaN(dbUserId)) { toast.error('Session missing user id. Please sign in again.'); return; }
+        payload.createdBy = dbUserId;
+      }
+      const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!res.ok) { const err = await res.json().catch(() => ({})); toast.error(err.error || 'Failed to save'); return; }
       toast.success(isEdit ? 'Updated' : 'Created');
       setSelected(null); setIsFormOpen(false);
       await fetchAll();
-    } catch { setError('An error occurred'); }
+    } catch { toast.error('An error occurred'); }
     finally { setFormLoading(false); }
   };
 
-  const handleEdit = async (item: GalleryRow) => {
+  const handleEdit = async (item: any) => {
     try {
       setSelectedType(item.__type as GalleryType);
       const res = await fetch(`${API_BASE}/gallery/${item.id}`);
-      if (!res.ok) { setError('Failed to fetch details'); return; }
+      if (!res.ok) { toast.error('Failed to fetch details'); return; }
       setSelected(await res.json());
       setIsFormOpen(true);
-    } catch { setError('Failed to fetch details'); }
+    } catch { toast.error('Failed to fetch details'); }
   };
 
-  const handleDelete = (item: GalleryRow) => {
+  const handleDelete = (item: any) => {
     setDeleteTarget(item);
   };
 
@@ -84,14 +81,14 @@ export default function GalleryPage() {
     try {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/gallery/${deleteTarget.id}`, { method: 'DELETE' });
-      if (!res.ok) { setError('Failed to delete'); return; }
+      if (!res.ok) { toast.error('Failed to delete'); return; }
       toast.success('Deleted');
       await fetchAll();
-    } catch { setError('An error occurred'); }
+    } catch { toast.error('An error occurred'); }
     finally { setDeleting(false); setDeleteTarget(null); }
   };
 
-  const columns: Column<GalleryRow>[] = [
+  const columns: Column<any>[] = [
     {
       header: 'Type',
       accessor: (item) => (
@@ -210,7 +207,7 @@ export default function GalleryPage() {
       {isFormOpen && (
         <UnifiedGalleryForm
           type={selectedType}
-          initialData={selected ?? undefined}
+          initialData={selected}
           onSave={handleSave}
           onCancel={() => { setSelected(null); setIsFormOpen(false); }}
           loading={formLoading}

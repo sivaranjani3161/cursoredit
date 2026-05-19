@@ -4,65 +4,64 @@ import { useEffect, useState } from 'react';
 import { Star } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import DataTable, { Column } from '@/shared/components/DataTable';
-import TestimonialForm from '@/features/testimonials/components/TestimonialForm';
-import { resolveMediaUrl } from '@/shared/lib/resolveMediaUrl';
-import type { ApiTestimonial, TestimonialFormData } from '@/shared/types';
-import { useError } from '@/shared/context/ErrorContext';
+import DataTable, { Column } from '@/components/common/DataTable';
+import TestimonialForm from '@/components/testimonials/TestimonialForm';
+import { resolveMediaUrl } from '@/lib/resolveMediaUrl';
 
 const API_BASE = '/api/proxy';
 
 export default function TestimonialsPage() {
-  const { setError } = useError();
   const { data: session } = useSession();
-  const [items, setItems]             = useState<ApiTestimonial[]>([]);
-  const [loading, setLoading]         = useState(true);
+  const [items, setItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
-  const [isFormOpen, setIsFormOpen]   = useState(false);
-  const [selectedItem, setSelectedItem] = useState<ApiTestimonial | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<ApiTestimonial | null>(null);
-  const [deleting, setDeleting]       = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchItems = async () => {
     try {
       setLoading(true);
       const res = await fetch(`${API_BASE}/testimonials`);
       if (res.ok) setItems(await res.json());
-    } catch { setError('Failed to fetch testimonials'); }
+    } catch { toast.error('Failed to fetch testimonials'); }
     finally { setLoading(false); }
   };
 
   useEffect(() => { fetchItems(); }, []);
 
-  const handleSave = async (formData: TestimonialFormData) => {
+  const handleSave = async (formData: any) => {
     try {
       setFormLoading(true);
       const url    = selectedItem ? `${API_BASE}/testimonials/${selectedItem.id}` : `${API_BASE}/testimonials`;
       const method = selectedItem ? 'PUT' : 'POST';
-      const payload = selectedItem
-        ? formData
-        : { ...formData, createdBy: Number(session?.user?.dbUserId) };
+      if (!selectedItem) {
+        const dbUserId = Number(session?.user?.dbUserId);
+        if (Number.isNaN(dbUserId)) { toast.error('Session is missing user id. Please sign in again.'); return; }
+        formData.createdBy = dbUserId;
+      }
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(formData),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        setError(err.error || 'Failed to save testimonial');
+        toast.error(err.error || 'Failed to save testimonial');
         return;
       }
       toast.success(selectedItem ? 'Testimonial updated' : 'Testimonial created');
       setIsFormOpen(false);
       setSelectedItem(null);
       fetchItems();
-    } catch { setError('An error occurred'); }
+    } catch { toast.error('An error occurred'); }
     finally { setFormLoading(false); }
   };
 
-  const handleEdit = (item: ApiTestimonial) => { setSelectedItem(item); setIsFormOpen(true); };
+  const handleEdit = (item: any) => { setSelectedItem(item); setIsFormOpen(true); };
 
-  const handleDelete = (item: ApiTestimonial) => {
+  const handleDelete = (item: any) => {
     setDeleteTarget(item);
   };
 
@@ -72,16 +71,16 @@ export default function TestimonialsPage() {
       setDeleting(true);
       const res = await fetch(`${API_BASE}/testimonials/${deleteTarget.id}`, { method: 'DELETE' });
       if (res.ok) { toast.success('Testimonial deleted'); fetchItems(); }
-      else setError('Failed to delete testimonial');
+      else toast.error('Failed to delete testimonial');
     } catch {
-      setError('An error occurred');
+      toast.error('An error occurred');
     } finally {
       setDeleting(false);
       setDeleteTarget(null);
     }
   };
 
-  const columns: Column<ApiTestimonial>[] = [
+  const columns: Column<any>[] = [
     {
       header: 'Preview',
       accessor: (item) =>
@@ -180,7 +179,7 @@ export default function TestimonialsPage() {
 
       {isFormOpen && (
         <TestimonialForm
-          initialData={selectedItem ?? undefined}
+          initialData={selectedItem}
           onSave={handleSave}
           onCancel={() => { setIsFormOpen(false); setSelectedItem(null); }}
           loading={formLoading}

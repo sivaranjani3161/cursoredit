@@ -50,14 +50,14 @@ async function forward(req: NextRequest, path: string[]) {
         'content-type': upstream.headers.get('content-type') || 'application/json',
       },
     });
-  } catch (error: unknown) {
-    const msg = error instanceof Error ? error.message : 'Failed to connect to backend';
-    console.error(`[proxy] fetch failed for ${target}:`, msg);
+  } catch (error: any) {
+    // ── This fires when the backend is completely unreachable ──
+    console.error(`[proxy] fetch failed for ${target}:`, error?.message);
     return NextResponse.json(
       {
         error: 'Backend service unavailable',
-        details: msg,
-        target,
+        details: error?.message || 'Failed to connect to backend',
+        target, // include so you can see exactly which URL was attempted
       },
       { status: 502 },
     );
