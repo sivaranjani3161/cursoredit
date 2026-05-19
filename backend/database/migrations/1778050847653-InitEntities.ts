@@ -1,0 +1,114 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class InitEntities1778050847653 implements MigrationInterface {
+    name = 'InitEntities1778050847653'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE \`permissions\` (\`id\` int NOT NULL AUTO_INCREMENT, \`code\` varchar(100) NOT NULL, \`name\` varchar(100) NOT NULL, \`description\` text NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), UNIQUE INDEX \`IDX_8dad765629e83229da6feda1c1\` (\`code\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`role_permissions\` (\`id\` int NOT NULL AUTO_INCREMENT, \`roleId\` int NOT NULL, \`permissionId\` int NOT NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), INDEX \`IDX_06792d0c62ce6b0203c03643cd\` (\`permissionId\`), UNIQUE INDEX \`IDX_d430a02aad006d8a70f3acd7d0\` (\`roleId\`, \`permissionId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`roles\` (\`id\` int NOT NULL AUTO_INCREMENT, \`name\` varchar(100) NOT NULL, \`code\` varchar(50) NOT NULL, \`description\` text NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), UNIQUE INDEX \`IDX_f6d54f95c31b73fb1bdd8e91d0\` (\`code\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`testimonials\` (\`id\` int NOT NULL AUTO_INCREMENT, \`videoUrl\` varchar(500) NULL, \`thumbnailUrl\` varchar(500) NULL, \`name\` varchar(255) NOT NULL, \`role\` varchar(255) NULL, \`company\` varchar(255) NULL, \`title\` varchar(255) NULL, \`description\` text NULL, \`isActive\` tinyint NOT NULL DEFAULT 1, \`sortOrder\` int NOT NULL DEFAULT '0', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`related_blogs\` (\`blogId\` int NOT NULL, \`relatedBlogId\` int NOT NULL, PRIMARY KEY (\`blogId\`, \`relatedBlogId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`blogs\` (\`id\` int NOT NULL AUTO_INCREMENT, \`title\` varchar(255) NOT NULL, \`slug\` varchar(255) NOT NULL, \`excerpt\` text NULL, \`content\` longtext NOT NULL, \`coverImage\` varchar(500) NULL, \`publishedAt\` datetime NULL, \`status\` enum ('DRAFT', 'PUBLISHED', 'ARCHIVED') NOT NULL DEFAULT 'DRAFT', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), UNIQUE INDEX \`IDX_7b18faaddd461656ff66f32e2d\` (\`slug\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`blog_tags\` (\`blogId\` int NOT NULL, \`tagId\` int NOT NULL, PRIMARY KEY (\`blogId\`, \`tagId\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`tags\` (\`id\` int NOT NULL AUTO_INCREMENT, \`name\` varchar(100) NOT NULL, \`slug\` varchar(100) NOT NULL, UNIQUE INDEX \`IDX_b3aa10c29ea4e61a830362bd25\` (\`slug\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`refresh_tokens\` (\`id\` int NOT NULL AUTO_INCREMENT, \`token\` varchar(512) NOT NULL, \`userId\` int NOT NULL, \`expiresAt\` datetime NOT NULL, \`isRevoked\` tinyint NOT NULL DEFAULT 0, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), INDEX \`IDX_610102b60fea1455310ccd299d\` (\`userId\`), UNIQUE INDEX \`IDX_4542dd2f38a61354a040ba9fd5\` (\`token\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`gallery_events\` (\`id\` int NOT NULL AUTO_INCREMENT, \`title\` varchar(255) NOT NULL, \`location\` varchar(255) NULL, \`slug\` varchar(255) NOT NULL, \`coverImage\` varchar(500) NULL, \`description\` text NULL, \`eventDate\` date NULL, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), UNIQUE INDEX \`IDX_dcbbb2c6dbb33d1f60b290730d\` (\`slug\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`gallery_images\` (\`id\` int NOT NULL AUTO_INCREMENT, \`eventId\` int NOT NULL, \`imageUrl\` varchar(500) NOT NULL, \`altText\` varchar(255) NULL, \`sortOrder\` int NOT NULL DEFAULT '0', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), INDEX \`IDX_1f961932a7ad93669194dac556\` (\`eventId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`course_highlights\` (\`id\` int NOT NULL AUTO_INCREMENT, \`courseId\` int NOT NULL, \`title\` varchar(255) NOT NULL, \`description\` text NULL, \`icon\` varchar(255) NULL, \`sortOrder\` int NOT NULL DEFAULT '0', INDEX \`IDX_321b18a3970f3e90ca719b2d8d\` (\`courseId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`course_phase_points\` (\`id\` int NOT NULL AUTO_INCREMENT, \`phaseId\` int NOT NULL, \`pointText\` text NOT NULL, \`sortOrder\` int NOT NULL DEFAULT '0', INDEX \`IDX_18a431c1b8d825f4202dc85ff7\` (\`phaseId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`course_phases\` (\`id\` int NOT NULL AUTO_INCREMENT, \`courseId\` int NOT NULL, \`phaseNumber\` int NOT NULL, \`title\` varchar(255) NOT NULL, \`description\` text NULL, \`sortOrder\` int NOT NULL DEFAULT '0', INDEX \`IDX_e3690c98ea87acb3aa34270707\` (\`courseId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`course_features\` (\`id\` int NOT NULL AUTO_INCREMENT, \`courseId\` int NOT NULL, \`title\` varchar(255) NOT NULL, \`description\` text NULL, \`sortOrder\` int NOT NULL DEFAULT '0', INDEX \`IDX_e71d02a22c1005c3b30696011a\` (\`courseId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`courses\` (\`id\` int NOT NULL AUTO_INCREMENT, \`title\` varchar(255) NOT NULL, \`slug\` varchar(255) NOT NULL, \`description\` text NULL, \`heroImage\` varchar(500) NULL, \`isActive\` tinyint NOT NULL DEFAULT 1, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), UNIQUE INDEX \`IDX_a3bb2d01cfa0f95bc5e034e1b7\` (\`slug\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`enquiries\` (\`id\` int NOT NULL AUTO_INCREMENT, \`fullName\` varchar(255) NOT NULL, \`email\` varchar(255) NOT NULL, \`phone\` varchar(50) NULL, \`subject\` varchar(255) NULL, \`message\` text NOT NULL, \`source\` varchar(255) NULL, \`courseId\` int NULL, \`ipAddress\` varchar(45) NULL, \`userAgent\` text NULL, \`status\` enum ('NEW', 'CONTACTED', 'RESOLVED') NOT NULL DEFAULT 'NEW', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), INDEX \`IDX_e54fd15134c987dfe5b4926999\` (\`courseId\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`firstName\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`lastName\``);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`name\` varchar(100) NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`password\` varchar(255) NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`authProvider\` varchar(50) NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`oauthId\` varchar(255) NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`inviteToken\` varchar(255) NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD UNIQUE INDEX \`IDX_f276ff5601465e72866a3a6bd4\` (\`inviteToken\`)`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`inviteExpiresAt\` datetime NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`status\` enum ('INVITED', 'ACTIVE', 'INACTIVE', 'BLOCKED') NOT NULL DEFAULT 'INVITED'`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`roleId\` int NOT NULL`);
+        await queryRunner.query(`CREATE INDEX \`IDX_368e146b785b574f42ae9e53d5\` ON \`users\` (\`roleId\`)`);
+        await queryRunner.query(`ALTER TABLE \`role_permissions\` ADD CONSTRAINT \`FK_b4599f8b8f548d35850afa2d12c\` FOREIGN KEY (\`roleId\`) REFERENCES \`roles\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`role_permissions\` ADD CONSTRAINT \`FK_06792d0c62ce6b0203c03643cdd\` FOREIGN KEY (\`permissionId\`) REFERENCES \`permissions\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD CONSTRAINT \`FK_368e146b785b574f42ae9e53d5e\` FOREIGN KEY (\`roleId\`) REFERENCES \`roles\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`related_blogs\` ADD CONSTRAINT \`FK_db0bbf680212a0242eef49efef7\` FOREIGN KEY (\`blogId\`) REFERENCES \`blogs\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`related_blogs\` ADD CONSTRAINT \`FK_7df667dae72039e8df52d129c0e\` FOREIGN KEY (\`relatedBlogId\`) REFERENCES \`blogs\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`blog_tags\` ADD CONSTRAINT \`FK_2d6166f46f1651ffbe308d362b7\` FOREIGN KEY (\`blogId\`) REFERENCES \`blogs\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`blog_tags\` ADD CONSTRAINT \`FK_2b74b3df87cf64e95418c60d4a9\` FOREIGN KEY (\`tagId\`) REFERENCES \`tags\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`refresh_tokens\` ADD CONSTRAINT \`FK_610102b60fea1455310ccd299de\` FOREIGN KEY (\`userId\`) REFERENCES \`users\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`gallery_images\` ADD CONSTRAINT \`FK_1f961932a7ad93669194dac5562\` FOREIGN KEY (\`eventId\`) REFERENCES \`gallery_events\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`course_highlights\` ADD CONSTRAINT \`FK_321b18a3970f3e90ca719b2d8db\` FOREIGN KEY (\`courseId\`) REFERENCES \`courses\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`course_phase_points\` ADD CONSTRAINT \`FK_18a431c1b8d825f4202dc85ff72\` FOREIGN KEY (\`phaseId\`) REFERENCES \`course_phases\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`course_phases\` ADD CONSTRAINT \`FK_e3690c98ea87acb3aa34270707d\` FOREIGN KEY (\`courseId\`) REFERENCES \`courses\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`course_features\` ADD CONSTRAINT \`FK_e71d02a22c1005c3b30696011aa\` FOREIGN KEY (\`courseId\`) REFERENCES \`courses\`(\`id\`) ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE \`enquiries\` ADD CONSTRAINT \`FK_e54fd15134c987dfe5b49269999\` FOREIGN KEY (\`courseId\`) REFERENCES \`courses\`(\`id\`) ON DELETE SET NULL ON UPDATE NO ACTION`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`ALTER TABLE \`enquiries\` DROP FOREIGN KEY \`FK_e54fd15134c987dfe5b49269999\``);
+        await queryRunner.query(`ALTER TABLE \`course_features\` DROP FOREIGN KEY \`FK_e71d02a22c1005c3b30696011aa\``);
+        await queryRunner.query(`ALTER TABLE \`course_phases\` DROP FOREIGN KEY \`FK_e3690c98ea87acb3aa34270707d\``);
+        await queryRunner.query(`ALTER TABLE \`course_phase_points\` DROP FOREIGN KEY \`FK_18a431c1b8d825f4202dc85ff72\``);
+        await queryRunner.query(`ALTER TABLE \`course_highlights\` DROP FOREIGN KEY \`FK_321b18a3970f3e90ca719b2d8db\``);
+        await queryRunner.query(`ALTER TABLE \`gallery_images\` DROP FOREIGN KEY \`FK_1f961932a7ad93669194dac5562\``);
+        await queryRunner.query(`ALTER TABLE \`refresh_tokens\` DROP FOREIGN KEY \`FK_610102b60fea1455310ccd299de\``);
+        await queryRunner.query(`ALTER TABLE \`blog_tags\` DROP FOREIGN KEY \`FK_2b74b3df87cf64e95418c60d4a9\``);
+        await queryRunner.query(`ALTER TABLE \`blog_tags\` DROP FOREIGN KEY \`FK_2d6166f46f1651ffbe308d362b7\``);
+        await queryRunner.query(`ALTER TABLE \`related_blogs\` DROP FOREIGN KEY \`FK_7df667dae72039e8df52d129c0e\``);
+        await queryRunner.query(`ALTER TABLE \`related_blogs\` DROP FOREIGN KEY \`FK_db0bbf680212a0242eef49efef7\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP FOREIGN KEY \`FK_368e146b785b574f42ae9e53d5e\``);
+        await queryRunner.query(`ALTER TABLE \`role_permissions\` DROP FOREIGN KEY \`FK_06792d0c62ce6b0203c03643cdd\``);
+        await queryRunner.query(`ALTER TABLE \`role_permissions\` DROP FOREIGN KEY \`FK_b4599f8b8f548d35850afa2d12c\``);
+        await queryRunner.query(`DROP INDEX \`IDX_368e146b785b574f42ae9e53d5\` ON \`users\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`roleId\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`status\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`inviteExpiresAt\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP INDEX \`IDX_f276ff5601465e72866a3a6bd4\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`inviteToken\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`oauthId\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`authProvider\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`password\``);
+        await queryRunner.query(`ALTER TABLE \`users\` DROP COLUMN \`name\``);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`lastName\` varchar(100) NOT NULL`);
+        await queryRunner.query(`ALTER TABLE \`users\` ADD \`firstName\` varchar(100) NOT NULL`);
+        await queryRunner.query(`DROP INDEX \`IDX_e54fd15134c987dfe5b4926999\` ON \`enquiries\``);
+        await queryRunner.query(`DROP TABLE \`enquiries\``);
+        await queryRunner.query(`DROP INDEX \`IDX_a3bb2d01cfa0f95bc5e034e1b7\` ON \`courses\``);
+        await queryRunner.query(`DROP TABLE \`courses\``);
+        await queryRunner.query(`DROP INDEX \`IDX_e71d02a22c1005c3b30696011a\` ON \`course_features\``);
+        await queryRunner.query(`DROP TABLE \`course_features\``);
+        await queryRunner.query(`DROP INDEX \`IDX_e3690c98ea87acb3aa34270707\` ON \`course_phases\``);
+        await queryRunner.query(`DROP TABLE \`course_phases\``);
+        await queryRunner.query(`DROP INDEX \`IDX_18a431c1b8d825f4202dc85ff7\` ON \`course_phase_points\``);
+        await queryRunner.query(`DROP TABLE \`course_phase_points\``);
+        await queryRunner.query(`DROP INDEX \`IDX_321b18a3970f3e90ca719b2d8d\` ON \`course_highlights\``);
+        await queryRunner.query(`DROP TABLE \`course_highlights\``);
+        await queryRunner.query(`DROP INDEX \`IDX_1f961932a7ad93669194dac556\` ON \`gallery_images\``);
+        await queryRunner.query(`DROP TABLE \`gallery_images\``);
+        await queryRunner.query(`DROP INDEX \`IDX_dcbbb2c6dbb33d1f60b290730d\` ON \`gallery_events\``);
+        await queryRunner.query(`DROP TABLE \`gallery_events\``);
+        await queryRunner.query(`DROP INDEX \`IDX_4542dd2f38a61354a040ba9fd5\` ON \`refresh_tokens\``);
+        await queryRunner.query(`DROP INDEX \`IDX_610102b60fea1455310ccd299d\` ON \`refresh_tokens\``);
+        await queryRunner.query(`DROP TABLE \`refresh_tokens\``);
+        await queryRunner.query(`DROP INDEX \`IDX_b3aa10c29ea4e61a830362bd25\` ON \`tags\``);
+        await queryRunner.query(`DROP TABLE \`tags\``);
+        await queryRunner.query(`DROP TABLE \`blog_tags\``);
+        await queryRunner.query(`DROP INDEX \`IDX_7b18faaddd461656ff66f32e2d\` ON \`blogs\``);
+        await queryRunner.query(`DROP TABLE \`blogs\``);
+        await queryRunner.query(`DROP TABLE \`related_blogs\``);
+        await queryRunner.query(`DROP TABLE \`testimonials\``);
+        await queryRunner.query(`DROP INDEX \`IDX_f6d54f95c31b73fb1bdd8e91d0\` ON \`roles\``);
+        await queryRunner.query(`DROP TABLE \`roles\``);
+        await queryRunner.query(`DROP INDEX \`IDX_d430a02aad006d8a70f3acd7d0\` ON \`role_permissions\``);
+        await queryRunner.query(`DROP INDEX \`IDX_06792d0c62ce6b0203c03643cd\` ON \`role_permissions\``);
+        await queryRunner.query(`DROP TABLE \`role_permissions\``);
+        await queryRunner.query(`DROP INDEX \`IDX_8dad765629e83229da6feda1c1\` ON \`permissions\``);
+        await queryRunner.query(`DROP TABLE \`permissions\``);
+    }
+
+}

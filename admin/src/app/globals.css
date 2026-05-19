@@ -1,0 +1,69 @@
+@import "tailwindcss";
+@import "@uiw/react-md-editor/markdown-editor.css";
+@import "@uiw/react-markdown-preview/markdown.css";
+
+/* Make md-editor fill its container height */
+.w-md-editor {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+.w-md-editor-content {
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: #00B8C6;
+  --font-sans: var(--font-urbanist), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+}
+
+:root {
+  --background: #f6fbfc;
+  --foreground: #0f172a;
+  --primary: #00B8C6;
+}
+
+body {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(0, 184, 198, 0.06), transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(0, 184, 198, 0.05), transparent 35%),
+    var(--background);
+  color: var(--foreground);
+  font-family: var(--font-urbanist), sans-serif;
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .card-minimal {
+    background: #ffffff;
+    border: 1px solid #e1e8f0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    border-radius: 12px;
+  }
+  
+  .sidebar-minimal {
+    background: #ffffff;
+    border-right: 1px solid #e1e8f0;
+  }
+
+  .btn-primary {
+    background: #00B8C6;
+    color: #ffffff;
+    transition: all 0.2s;
+  }
+  
+  .btn-primary:hover {
+    background: #00B8C6;
+    filter: brightness(0.96);
+  }
+
+  .surface-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+  }
+}
